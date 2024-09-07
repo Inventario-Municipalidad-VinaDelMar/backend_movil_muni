@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class EnviosPage extends StatefulWidget {
@@ -14,7 +13,7 @@ class _EnviosPageState extends State<EnviosPage> {
       21,
       (index) => {
             'nombre': index < 4
-                ? ['legumbres', 'Bebida', 'Cubiertos', 'Panaderia'][index]
+                ? ['Legumbres', 'Bebida', 'Cubiertos', 'Panaderia'][index]
                 : 'Panaderia',
             'accion': 'cargar>>',
             'checked': false, // Agregar estado del checkbox
@@ -28,7 +27,7 @@ class _EnviosPageState extends State<EnviosPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Planificacion', style: textStyles.h2),
+        title: Text('Planificacion', style: textStyles.h4),
       ),
       body: Column(
         children: [
@@ -39,7 +38,7 @@ class _EnviosPageState extends State<EnviosPage> {
               child: ShadTable.list(
                 columnSpanExtent: (index) {
                   if (index == 0) {
-                    return FixedTableSpanExtent(size.width * 0.35);
+                    return FixedTableSpanExtent(size.width * 0.3);
                   }
                   if (index == 1) return FixedTableSpanExtent(size.width * 0.3);
                   if (index == 2) {
@@ -68,6 +67,7 @@ class _EnviosPageState extends State<EnviosPage> {
                     ),
                   ),
                   ShadTableCell.header(
+                    alignment: Alignment.center,
                     child: Text(
                       'Accion',
                       style: TextStyle(
@@ -97,13 +97,18 @@ class _EnviosPageState extends State<EnviosPage> {
                         ),
                         ShadTableCell(
                           child: SizedBox(
+                            height: size.height * 0.045,
                             child: ShadButton(
                               size: ShadButtonSize.sm,
                               onPressed: () {},
+                              icon: const Icon(
+                                Icons.search,
+                                size: 13,
+                              ),
                               child: Text(
                                 'Buscar',
-                                style:
-                                    textStyles.h4.copyWith(color: Colors.white),
+                                style: textStyles.small
+                                    .copyWith(color: Colors.white),
                               ),
                             ),
                           ),
@@ -114,21 +119,16 @@ class _EnviosPageState extends State<EnviosPage> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: size.height * 0.06,
-                width: size.width,
-                child: ShadButton(
-                  size: ShadButtonSize.lg,
-                  onPressed: () {},
-                  child: Text(
-                    'Iniciar nuevo envio',
-                    style: textStyles.h3.copyWith(color: Colors.white),
-                  ),
-                ),
+          SizedBox(
+            height: size.height * 0.06,
+            width: size.width,
+            child: ShadButton(
+              size: ShadButtonSize.lg,
+              onPressed: () {},
+              icon: const Icon(Icons.swipe_up_outlined),
+              child: Text(
+                'Iniciar nuevo envio',
+                style: textStyles.h4.copyWith(color: Colors.white),
               ),
             ),
           ),
