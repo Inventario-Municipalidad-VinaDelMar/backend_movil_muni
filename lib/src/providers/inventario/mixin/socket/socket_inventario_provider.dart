@@ -7,7 +7,7 @@ import 'package:frontend_movil_muni/infraestructure/models/tanda_model.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-enum TandasEvent {
+enum InventarioEvent {
   //tandas
   getTandas,
   getTandasByCategoria,
@@ -41,27 +41,14 @@ class SocketEvents {
   static const String loadAllBodegas = 'loadAllBodegas';
 }
 
-mixin SocketTandaProvider on ChangeNotifier {
+mixin SocketInventarioProvider on ChangeNotifier {
   List<TandaModel> tandaByCategoria = [];
   List<ProductosModel> productos = [];
   List<BodegaModel> bodegas = [];
-
-  // ReservaModel? reservaOnDetail;
-  // List<ReservaModel> reservasHorario = [];
-  // List<ReservaModel> reservasProximas = [];
-  // List<ReservaModel> reservasTotales = [];
   bool loadingProductos = false;
-  // bool loadingReservasProximas = false;
-  // bool loadingReservasTotales = false;
+
   io.Socket? _socket;
   io.Socket? get socket => _socket;
-
-  // final Map<ReservasEvent, Timer?> _timers = {};
-  // final Map<ReservasEvent, bool> connectionTimeouts = {
-  //   ReservasEvent.reservasHorario: false,
-  //   ReservasEvent.reservasProximas: false,
-  //   ReservasEvent.reservasTotales: false,
-  // };
 
   void initSocket() {
     _updateSocket();
@@ -93,12 +80,14 @@ mixin SocketTandaProvider on ChangeNotifier {
     _socket?.connect();
   }
 
-  void connect(List<TandasEvent> events) {
+  void connect(List<InventarioEvent> events) {
+    //Esta funcion debería ejecutarse cada vez que se entra a una pantalla
     _clearListeners(events);
     _registerListeners(events);
   }
 
-  void disconnect(List<TandasEvent> events) {
+  void disconnect(List<InventarioEvent> events) {
+    //Esta funcion debería ejecutarse cada vez que se cierra una pantalla
     _clearListeners(events);
   }
 
@@ -110,11 +99,11 @@ mixin SocketTandaProvider on ChangeNotifier {
     productos.clear();
   }
 
-  void _registerListeners(List<TandasEvent> events) {
+  void _registerListeners(List<InventarioEvent> events) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
-        case TandasEvent.getProductos:
+        case InventarioEvent.getProductos:
           _handleDataListEvent<ProductosModel>(
             emitEvent: SocketEvents.getProductos,
             loadEvent: SocketEvents.loadProductos,
@@ -125,7 +114,7 @@ mixin SocketTandaProvider on ChangeNotifier {
           );
           break;
 
-        case TandasEvent.newProducto:
+        case InventarioEvent.newProducto:
           _handleNewEntityEvent<ProductosModel>(
             newEvent: SocketEvents.newProducto,
             dataList: productos,
@@ -150,11 +139,11 @@ mixin SocketTandaProvider on ChangeNotifier {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
-        case TandasEvent.getProductos:
+        case InventarioEvent.getProductos:
           _socket?.off(SocketEvents.loadProductos);
           break;
 
-        case TandasEvent.newProducto:
+        case InventarioEvent.newProducto:
           _socket?.off(SocketEvents.newProducto);
 
           break;
@@ -198,18 +187,4 @@ mixin SocketTandaProvider on ChangeNotifier {
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }
-
-  // void _updateIfReservaExists(ReservaModel updatedReserva) {
-  //   void updateReservaInList(List<ReservaModel> reservas) {
-  //     int index =
-  //         reservas.indexWhere((reserva) => reserva.id == updatedReserva.id);
-  //     if (index != -1) {
-  //       reservas[index] = ReservaModel.updateFromModel(updatedReserva);
-  //     }
-  //   }
-
-  //   updateReservaInList(reservasHorario);
-  //   updateReservaInList(reservasProximas);
-  //   updateReservaInList(reservasTotales);
-  // }
 }

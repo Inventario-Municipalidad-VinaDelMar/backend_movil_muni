@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-mixin RestTandasProvider on ChangeNotifier {
+mixin RestInventarioProvider on ChangeNotifier {
   bool creatingTanda = false;
   bool loadingTanda = false;
   void initRest() {}
 
-  Future<void> addTandas(Map<String, dynamic> tandaData) async {
+  Future<void> addTanda(Map<String, dynamic> tandaData) async {
     creatingTanda = true;
     notifyListeners();
     try {

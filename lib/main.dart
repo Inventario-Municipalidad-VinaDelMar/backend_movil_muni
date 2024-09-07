@@ -4,7 +4,7 @@ import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/config/theme/app_theme.dart';
 import 'package:frontend_movil_muni/src/providers/envios/envios_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
-import 'package:frontend_movil_muni/src/providers/tandas/tandas_provider.dart';
+import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => EnviosProvider()),
         ChangeNotifierProvider(create: (_) => PlanificacionProvider()),
-        ChangeNotifierProvider(create: (_) => TandasProvider()),
+        ChangeNotifierProvider(create: (_) => InventarioProvider()),
       ],
       child: ShadApp.router(
         theme: AppTheme.getShadTheme(size),
