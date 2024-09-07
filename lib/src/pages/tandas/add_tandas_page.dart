@@ -84,12 +84,13 @@ class HeadRowTextForm extends StatelessWidget {
         children: [
           Text(texto),
           const Spacer(),
-          ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  textStyle: const TextStyle(
-                      fontSize: 10, fontWeight: FontWeight.bold)),
-              onPressed: funcionOnPressed,
-              child: const Icon(Icons.add))
+          ShadButton(
+            size: ShadButtonSize.sm,
+            icon: const Icon(
+              Icons.add,
+            ),
+            onPressed: () {},
+          ),
         ],
       ),
     );
@@ -173,18 +174,12 @@ class BotonAgregar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return const Positioned(
       bottom: 10.0,
       left: 10.0,
       right: 10.0,
-      child: ElevatedButton(
-        onPressed: () {
-          print('Añadir');
-        },
+      child: ShadButton(
         child: Text('Añadir'),
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 16.0),
-        ),
       ),
     );
   }
