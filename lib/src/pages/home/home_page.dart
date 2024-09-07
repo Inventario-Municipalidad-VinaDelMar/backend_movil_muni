@@ -22,7 +22,6 @@ class HomePage extends StatelessWidget {
             padding:
                 const EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
             child: Container(
-              height: size.height * 0.1,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -65,7 +64,6 @@ class HomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20),
             child: Container(
-              height: size.height * 0.1,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -108,7 +106,6 @@ class HomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20),
             child: Container(
-              height: size.height * 0.1,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
