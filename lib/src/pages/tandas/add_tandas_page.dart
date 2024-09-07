@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
 import 'package:frontend_movil_muni/src/utils/dateText.dart';
@@ -16,12 +18,19 @@ class _AddTandasPageState extends State<AddTandasPage> {
   TextEditingController fechaController = TextEditingController();
   bool isInvalidDate = false;
   late InventarioProvider _inventarioProvider;
+  late Map<String, SelectionProductModel> productosSelection;
+
+  Map<String, SelectionProductModel> mapearListaAProductoMap(
+      List<SelectionProductModel> productos) {
+    return {for (var producto in productos) producto.id: producto};
+  }
 
   @override
   void initState() {
     super.initState();
     _inventarioProvider = context.read<InventarioProvider>();
-    _inventarioProvider.connect([InventarioEvent.getProductos]);
+    _inventarioProvider
+        .connect([InventarioEvent.getProductos, InventarioEvent.getAllBodegas]);
   }
 
   @override
@@ -32,6 +41,15 @@ class _AddTandasPageState extends State<AddTandasPage> {
 
   @override
   Widget build(BuildContext context) {
+    final inventarioProvider = context.watch<InventarioProvider>();
+    ShadPopoverController bodegaController = ShadPopoverController();
+    if (inventarioProvider.loadingProductos &
+        inventarioProvider.loadingBodegas) {
+      return Center(child: CircularProgressIndicator());
+    }
+    productosSelection =
+        mapearListaAProductoMap(inventarioProvider.productosSelection);
+    print("Bodegas ${inventarioProvider.bodegas}");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Añadir Tanda'),
@@ -44,7 +62,9 @@ class _AddTandasPageState extends State<AddTandasPage> {
                 texto: 'Producto:',
                 funcionOnPressed: () {},
               ),
-              SelectSearch(),
+              SelectSearch(
+                productosSelection: productosSelection,
+              ),
               HeadTextForm(
                 texto: 'Cantidad: ',
               ),
@@ -70,18 +90,128 @@ class _AddTandasPageState extends State<AddTandasPage> {
               HeadTextForm(
                 texto: 'Bodega: ',
               ),
-              SelectSearch(),
+              SelectListBodega(
+                lista: inventarioProvider.bodegas,
+                nombre: 'Bodega',
+                controller: bodegaController,
+              ),
               HeadRowTextForm(
                 texto: 'Ubicación: ',
                 funcionOnPressed: () {},
               ),
-              SelectSearch(),
+              // SelectSearch(),
             ],
           ),
           BotonAgregar()
         ],
       ),
     );
+  }
+}
+
+class SelectListBodega extends StatelessWidget {
+  const SelectListBodega({
+    super.key,
+    required this.lista,
+    required this.nombre,
+    required this.controller,
+  });
+  final List<BodegaModel> lista;
+  final String nombre;
+  final ShadPopoverController controller;
+  @override
+  Widget build(BuildContext context) {
+    final textStyles = ShadTheme.of(context).textTheme;
+    final colors = ShadTheme.of(context).colorScheme;
+    return ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 180),
+        child: ShadSelect<String>(
+            initialValue: lista[0].id,
+            controller: controller,
+            placeholder: Text('Selecciona un ${nombre}: '),
+            options: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+                child: Text(
+                  nombre,
+                  style: textStyles.muted.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.popoverForeground,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              ...lista
+                  .map((e) => ShadOption(
+                      value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
+                  .toList(),
+            ],
+            selectedOptionBuilder: (context, value) {
+              for (var bodega in lista) {
+                if (bodega.id == value) {
+                  return Row(
+                    children: [
+                      Icon(Icons.pin_drop_outlined),
+                      Text("${bodega.nombre} - ${bodega.direccion}"),
+                    ],
+                  );
+                }
+              }
+              return Text('Selecciona una opción');
+            }));
+  }
+}
+
+class SelectListUbicacion extends StatelessWidget {
+  const SelectListUbicacion({
+    super.key,
+    required this.lista,
+    required this.nombre,
+    required this.controller,
+  });
+  final List<BodegaModel> lista;
+  final String nombre;
+  final ShadPopoverController controller;
+  @override
+  Widget build(BuildContext context) {
+    final textStyles = ShadTheme.of(context).textTheme;
+    final colors = ShadTheme.of(context).colorScheme;
+    return ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 180),
+        child: ShadSelect<String>(
+            initialValue: lista[0].id,
+            controller: controller,
+            placeholder: Text('Selecciona un ${nombre}: '),
+            options: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+                child: Text(
+                  nombre,
+                  style: textStyles.muted.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.popoverForeground,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              ...lista
+                  .map((e) => ShadOption(
+                      value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
+                  .toList(),
+            ],
+            selectedOptionBuilder: (context, value) {
+              for (var bodega in lista) {
+                if (bodega.id == value) {
+                  return Row(
+                    children: [
+                      Icon(Icons.pin_drop_outlined),
+                      Text("${bodega.nombre} - ${bodega.direccion}"),
+                    ],
+                  );
+                }
+              }
+              return Text('Selecciona una opción');
+            }));
   }
 }
 
@@ -138,9 +268,9 @@ class HeadTextForm extends StatelessWidget {
 }
 
 class SelectSearch extends StatefulWidget {
-  const SelectSearch({
-    super.key,
-  });
+  const SelectSearch({super.key, required this.productosSelection});
+
+  final Map<String, SelectionProductModel> productosSelection;
 
   @override
   State<SelectSearch> createState() => _SelectSearchState();
@@ -149,49 +279,48 @@ class SelectSearch extends StatefulWidget {
 class _SelectSearchState extends State<SelectSearch> {
   var searchValue = '';
 
-  final frameworks = {
-    'nextjs': 'Next.js',
-    'svelte': 'SvelteKit',
-    'nuxtjs': 'Nuxt.js',
-    'remix': 'Remix',
-    'astro': 'Astro',
-  };
-
-  Map<String, String> get filteredFrameworks => {
-        for (final framework in frameworks.entries)
-          if (framework.value.toLowerCase().contains(searchValue.toLowerCase()))
-            framework.key: framework.value
+  Map<String, dynamic> get filteredProducto => {
+        for (final producto in widget.productosSelection.entries)
+          if (producto.value.nombre
+              .toLowerCase()
+              .contains(searchValue.toLowerCase()))
+            producto.key: producto.value
       };
 
   @override
   Widget build(BuildContext context) {
     return ShadSelect<String>.withSearch(
-      minWidth: 180,
-      placeholder: const Text('Seleccionar producto...'),
-      onSearchChanged: (value) => setState(() => searchValue = value),
-      searchPlaceholder: const Text('Buscar producto'),
-      options: [
-        if (filteredFrameworks.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Text('No se encuentran productos...'),
-          ),
-        ...frameworks.entries.map(
-          (framework) {
-            // this offstage is used to avoid the focus loss when the search results appear again
-            // because it keeps the widget in the tree.
-            return Offstage(
-              offstage: !filteredFrameworks.containsKey(framework.key),
-              child: ShadOption(
-                value: framework.key,
-                child: Text(framework.value),
-              ),
-            );
-          },
-        )
-      ],
-      selectedOptionBuilder: (context, value) => Text(frameworks[value]!),
-    );
+        minWidth: 180,
+        placeholder: const Text('Seleccionar producto...'),
+        onSearchChanged: (value) => setState(() {
+              searchValue = value;
+            }),
+        searchPlaceholder: const Text('Buscar producto'),
+        options: [
+          if (filteredProducto.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Text('No se encuentran productos...'),
+            ),
+          ...widget.productosSelection.entries.map(
+            (producto) {
+              // this offstage is used to avoid the focus loss when the search results appear again
+              // because it keeps the widget in the tree.
+              return Offstage(
+                offstage: !filteredProducto.containsKey(producto.key),
+                child: ShadOption(
+                  value: producto.key,
+                  child: Text(producto.value.nombre),
+                ),
+              );
+            },
+          )
+        ],
+        selectedOptionBuilder: (context, value) {
+          print(
+              "value is : ${widget.productosSelection[value]!.categoria.nombre}");
+          return Text(widget.productosSelection[value]!.nombre ?? "");
+        });
   }
 }
 
@@ -212,7 +341,7 @@ class BotonAgregar extends StatelessWidget {
         child: Text('Añadir'),
         onPressed: () {
           print('Productos: ');
-          print(inventarioProvider.productos);
+          print(inventarioProvider.productosSelection);
         },
       ),
     );
