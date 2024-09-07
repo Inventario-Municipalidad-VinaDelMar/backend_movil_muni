@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                     'Configura y gestiona los detalles de tu envío de manera rápida y sencilla.',
                   ),
                   onTap: () {
-                    context.push("/envio");
+                    context.push('/envio');
                   },
                 ),
               ),
@@ -97,7 +97,7 @@ class HomePage extends StatelessWidget {
                     'Organiza y planifica la producción de múltiples',
                   ),
                   onTap: () {
-                    Navigator.pushNamed(context, '/');
+                    context.push('/envio');
                   },
                 ),
               ),
