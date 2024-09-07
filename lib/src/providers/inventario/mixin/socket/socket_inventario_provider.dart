@@ -4,6 +4,7 @@ import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/tanda_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -17,7 +18,10 @@ enum InventarioEvent {
   newProducto,
   //ubicaciones
   getUbicaciones,
-  newUbicacion
+  newUbicacion,
+  //bodegas
+  getAllBodegas,
+  getUbicacionesByBodega,
 }
 
 class SocketEvents {
@@ -26,8 +30,8 @@ class SocketEvents {
   static const String getTandasByCategoria = 'getTandasByCategoria';
 
   //Reciben una lista de productos
-  static const String getProductos = 'getProductos';
-  static const String loadProductos = 'loadProductos';
+  static const String getProductos = 'getAllProducts';
+  static const String loadProductos = 'loadProducts';
   static const String newProducto = 'newProducto';
 
   //Reciben una lista de ubicaciones
@@ -38,14 +42,28 @@ class SocketEvents {
 
   //BODEGA
   static const String getAllBodegas = 'getAllBodegas';
+
   static const String loadAllBodegas = 'loadAllBodegas';
 }
 
 mixin SocketInventarioProvider on ChangeNotifier {
   List<TandaModel> tandaByCategoria = [];
-  List<ProductosModel> productos = [];
+  List<SelectionProductModel> productosSelection = [];
   List<BodegaModel> bodegas = [];
+  List<UbicacionesModel> ubicacion = [];
+
   bool loadingProductos = false;
+  bool loadingBodegas = false;
+  bool loadingUbicacion = false;
+
+  Map<String, dynamic> formularioTandaData = {
+    "cantidadIngresada": null,
+    "fechaVencimiento": null,
+    "idProducto": null,
+    "idBodega": null,
+    "idUbicacion": null,
+    "idCategoria": null
+  };
 
   io.Socket? _socket;
   io.Socket? get socket => _socket;
@@ -101,7 +119,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
     _clearAllListeners();
     _socket?.disconnect();
     _socket = null;
-    productos.clear();
+    productosSelection.clear();
   }
 
   void _registerListeners(List<InventarioEvent> events) {
@@ -109,21 +127,41 @@ mixin SocketInventarioProvider on ChangeNotifier {
     for (var event in events) {
       switch (event) {
         case InventarioEvent.getProductos:
-          _handleDataListEvent<ProductosModel>(
+          _handleDataListEvent<SelectionProductModel>(
             emitEvent: SocketEvents.getProductos,
             loadEvent: SocketEvents.loadProductos,
-            dataList: productos,
+            dataList: productosSelection,
             setLoading: (loading) => loadingProductos = loading,
-            fromApi: (data) => ProductosModel.fromApi(data),
+            fromApi: (data) => SelectionProductModel.fromApi(data),
             emitPayload: {},
+          );
+          break;
+        case InventarioEvent.getAllBodegas:
+          _handleDataListEvent<BodegaModel>(
+            emitEvent: SocketEvents.getAllBodegas,
+            loadEvent: SocketEvents.loadAllBodegas,
+            dataList: bodegas,
+            setLoading: (loading) => loadingBodegas = loading,
+            fromApi: (data) => BodegaModel.fromApi(data),
+            emitPayload: {},
+          );
+          break;
+        case InventarioEvent.getUbicaciones:
+          _handleDataListEvent<UbicacionesModel>(
+            emitEvent: SocketEvents.getUbicacionesByBodega,
+            loadEvent: SocketEvents.loadUbicacionesByBodega,
+            dataList: ubicacion,
+            setLoading: (loading) => loadingUbicacion = loading,
+            fromApi: (data) => UbicacionesModel.fromApi(data),
+            emitPayload: {"idBodega": formularioTandaData['idBodega']},
           );
           break;
 
         case InventarioEvent.newProducto:
-          _handleNewEntityEvent<ProductosModel>(
+          _handleNewEntityEvent<SelectionProductModel>(
             newEvent: SocketEvents.newProducto,
-            dataList: productos,
-            fromApi: (data) => ProductosModel.fromApi(data),
+            dataList: productosSelection,
+            fromApi: (data) => SelectionProductModel.fromApi(data),
           );
           break;
 
