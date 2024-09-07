@@ -19,6 +19,7 @@ class _EnviosPageState extends State<EnviosPage> {
             'checked': false, // Agregar estado del checkbox
           });
 
+  bool envioIniciado = false;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -91,7 +92,14 @@ class _EnviosPageState extends State<EnviosPage> {
                           child: Center(
                             child: ShadCheckbox(
                               value: invoice['checked'],
-                              onChanged: null,
+                              onChanged: envioIniciado
+                                  ? (value) {
+                                      setState(() {
+                                        invoice['checked'] = value;
+                                      });
+                                    }
+                                  : null,
+                              color: envioIniciado ? null : Colors.grey,
                             ),
                           ),
                         ),
@@ -100,7 +108,7 @@ class _EnviosPageState extends State<EnviosPage> {
                             height: size.height * 0.045,
                             child: ShadButton(
                               size: ShadButtonSize.sm,
-                              onPressed: () {},
+                              onPressed: envioIniciado ? () {} : null,
                               icon: const Icon(
                                 Icons.search,
                                 size: 13,
@@ -124,10 +132,14 @@ class _EnviosPageState extends State<EnviosPage> {
             width: size.width,
             child: ShadButton(
               size: ShadButtonSize.lg,
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  envioIniciado = !envioIniciado; // Cambiar el estado del envío
+                });
+              },
               icon: const Icon(Icons.swipe_up_outlined),
               child: Text(
-                'Iniciar nuevo envio',
+                envioIniciado ? 'Completar envío' : 'Iniciar nuevo envío',
                 style: textStyles.h4.copyWith(color: Colors.white),
               ),
             ),
