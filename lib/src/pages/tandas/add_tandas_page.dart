@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
+import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
 import 'package:frontend_movil_muni/src/utils/dateText.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AddTandasPage extends StatefulWidget {
@@ -12,6 +15,21 @@ class AddTandasPage extends StatefulWidget {
 class _AddTandasPageState extends State<AddTandasPage> {
   TextEditingController fechaController = TextEditingController();
   bool isInvalidDate = false;
+  late InventarioProvider _inventarioProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _inventarioProvider = context.read<InventarioProvider>();
+    _inventarioProvider.connect([InventarioEvent.getProductos]);
+  }
+
+  @override
+  void dispose() {
+    _inventarioProvider.disconnect([InventarioEvent.getProductos]);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,11 +96,16 @@ class HeadRowTextForm extends StatelessWidget {
   final Function() funcionOnPressed;
   @override
   Widget build(BuildContext context) {
+    final textStyles = ShadTheme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          Text(texto),
+          Text(
+            texto,
+            style: textStyles.small,
+          ),
           const Spacer(),
           ShadButton(
             size: ShadButtonSize.sm,
@@ -102,9 +125,14 @@ class HeadTextForm extends StatelessWidget {
   final String texto;
   @override
   Widget build(BuildContext context) {
+    final colors = ShadTheme.of(context).colorScheme;
+    final textStyles = ShadTheme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(texto),
+      child: Text(
+        texto,
+        style: textStyles.small,
+      ),
     );
   }
 }
@@ -174,12 +202,18 @@ class BotonAgregar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Positioned(
+    final inventarioProvider = context.watch<InventarioProvider>();
+
+    return Positioned(
       bottom: 10.0,
       left: 10.0,
       right: 10.0,
       child: ShadButton(
         child: Text('Añadir'),
+        onPressed: () {
+          print('Productos: ');
+          print(inventarioProvider.productos);
+        },
       ),
     );
   }

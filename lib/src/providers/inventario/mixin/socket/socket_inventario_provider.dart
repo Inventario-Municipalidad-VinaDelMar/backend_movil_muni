@@ -73,8 +73,13 @@ mixin SocketInventarioProvider on ChangeNotifier {
           // .setExtraHeaders({'authentication': token})
           .build(),
     );
-    _socket!.onConnect((_) {});
-    _socket!.onDisconnect((_) {});
+
+    _socket!.onConnect((_) {
+      print("Conectado al server de ivnentario");
+    });
+    _socket!.onDisconnect((_) {
+      print("Disconectado");
+    });
     _socket!.onReconnect((_) {});
 
     _socket?.connect();
@@ -169,6 +174,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
+      print("data es: $data");
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());

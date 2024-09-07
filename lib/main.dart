@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => EnviosProvider()),
         ChangeNotifierProvider(create: (_) => PlanificacionProvider()),
-        ChangeNotifierProvider(create: (_) => InventarioProvider()),
+        ChangeNotifierProvider(
+            create: (_) => InventarioProvider()..initialize()),
       ],
       child: ShadApp.router(
         theme: AppTheme.getShadTheme(size),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,7 +13,8 @@ class HomePage extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
-
+    //NO BORRAR LA SIGUIENTE LINEA HASTA QUE ESTÉ LISTO EL LOGIN
+    final inventarioProvider = context.watch<InventarioProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Text('Inicio', style: textStyles.h1),
