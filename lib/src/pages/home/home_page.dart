@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomePage extends StatelessWidget {
@@ -37,25 +38,25 @@ class HomePage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.paperPlane,
-                    size: 30,
+                    size: size.height * 0.03,
                   ),
                   trailing: const FaIcon(
                     FontAwesomeIcons.chevronRight,
                   ),
-                  title: const Text(
+                  title: Text(
                     'CREAR UN ENVIO',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: size.height * 0.018,
                     ),
                   ),
                   subtitle: const Text(
                     'Configura y gestiona los detalles de tu envío de manera rápida y sencilla.',
                   ),
                   onTap: () {
-                    Navigator.pushNamed(context, '/');
+                    context.push("/envio");
                   },
                 ),
               ),
@@ -80,18 +81,18 @@ class HomePage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.squarePlus,
-                    size: 30,
+                    size: size.height * 0.03,
                   ),
                   trailing: const FaIcon(
                     FontAwesomeIcons.chevronRight,
                   ),
-                  title: const Text(
+                  title: Text(
                     'CREAR TANDA DE PRODUCTOS',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: size.height * 0.018,
                     ),
                   ),
                   subtitle: const Text(
@@ -123,18 +124,18 @@ class HomePage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.bus,
-                    size: 30,
+                    size: size.height * 0.03,
                   ),
                   trailing: const FaIcon(
                     FontAwesomeIcons.chevronRight,
                   ),
-                  title: const Text(
+                  title: Text(
                     'CREAR NUEVA ENTREGA',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: size.height * 0.018,
                     ),
                   ),
                   subtitle: const Text(
