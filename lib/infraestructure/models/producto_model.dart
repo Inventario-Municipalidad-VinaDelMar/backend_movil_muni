@@ -16,8 +16,8 @@ class ProductosModel {
   factory ProductosModel.fromApi(Map<String, dynamic> producto) {
     return ProductosModel(
       nombre: producto['nombre'],
-      descripcion: producto['descripcion'],
-      urlImagen: producto['urlImagen'],
+      descripcion: producto['descripcion'] ?? "",
+      urlImagen: producto['urlImagen'] ?? "",
       categoria: _CategoriaProductoModel.fromApi(producto['categoria']),
       id: producto['id'],
     );
