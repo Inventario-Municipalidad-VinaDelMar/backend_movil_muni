@@ -97,8 +97,6 @@ class _EnviosPageState extends State<EnviosPage> {
                         ),
                         ShadTableCell(
                           child: SizedBox(
-                            height: size.height * 0.036,
-                            width: size.width * 0.3,
                             child: ShadButton(
                               size: ShadButtonSize.sm,
                               onPressed: () {},
