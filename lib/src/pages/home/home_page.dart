@@ -97,7 +97,7 @@ class HomePage extends StatelessWidget {
                     'Organiza y planifica la producción de múltiples',
                   ),
                   onTap: () {
-                    context.push('/envio');
+                    context.push('/tandas/add');
                   },
                 ),
               ),
