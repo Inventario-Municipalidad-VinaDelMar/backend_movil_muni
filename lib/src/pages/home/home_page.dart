@@ -45,14 +45,14 @@ class HomePage extends StatelessWidget {
                     FontAwesomeIcons.chevronRight,
                   ),
                   title: Text(
-                    'CREAR UN ENVIO',
+                    'PLANIFICACIÓN - hoy',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: size.height * 0.018,
                     ),
                   ),
                   subtitle: const Text(
-                    'Configura y gestiona los detalles de tu envío de manera rápida y sencilla.',
+                    'Genera un nuevo envio con productos del inventario.',
                   ),
                   onTap: () {
                     context.push('/envio');
@@ -94,7 +94,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   subtitle: const Text(
-                    'Organiza y planifica la producción de múltiples',
+                    'Añade una nueva tanda de productos al inventario.',
                   ),
                   onTap: () {
                     context.push('/tandas/add');
@@ -136,10 +136,13 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   subtitle: const Text(
-                    'Proporcione la información necesaria para registrar y gestionar una nueva entrega',
+                    'Proximamente...',
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                   onTap: () {
-                    Navigator.pushNamed(context, '/');
+                    // Navigator.pushNamed(context, '/');
                   },
                 ),
               ),
