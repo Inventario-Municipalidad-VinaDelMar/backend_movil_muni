@@ -18,7 +18,6 @@ class _AddTandasPageState extends State<AddTandasPage> {
   TextEditingController fechaController = TextEditingController();
   bool isInvalidDate = false;
   late InventarioProvider _inventarioProvider;
-  late Map<String, SelectionProductModel> productosSelection;
 
   Map<String, SelectionProductModel> mapearListaAProductoMap(
       List<SelectionProductModel> productos) {
@@ -42,82 +41,118 @@ class _AddTandasPageState extends State<AddTandasPage> {
   @override
   Widget build(BuildContext context) {
     final inventarioProvider = context.watch<InventarioProvider>();
-    ShadPopoverController bodegaController = ShadPopoverController();
-    if (inventarioProvider.loadingProductos &
-        inventarioProvider.loadingBodegas) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    productosSelection =
-        mapearListaAProductoMap(inventarioProvider.productosSelection);
+    final isLoading = inventarioProvider.loadingProductos ||
+        inventarioProvider.loadingBodegas;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Añadir Tanda'),
       ),
-      body: Stack(
-        children: [
-          ListView(
-            children: [
-              HeadRowTextForm(
-                texto: 'Producto:',
-                funcionOnPressed: () {},
-              ),
-              SelectSearch(
-                productosSelection: productosSelection,
-              ),
-              const HeadTextForm(
-                texto: 'Cantidad: ',
-              ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
-                child: const ShadInput(
-                  placeholder: Text('200...'),
-                  keyboardType: TextInputType.number,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+              children: [
+                ListView(
+                  children: [
+                    HeadRowTextForm(
+                      texto: 'Producto:',
+                      funcionOnPressed: () {},
+                    ),
+                    SelectSearch(
+                      productosSelection: mapearListaAProductoMap(
+                          inventarioProvider.productosSelection),
+                    ),
+                    const HeadTextForm(
+                      texto: 'Cantidad: ',
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: const ShadInput(
+                        placeholder: Text('200...'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const HeadTextForm(
+                      texto: 'Fecha de vencimiento: ',
+                    ),
+                    CustomDateInput(
+                      label: 'Fecha de vencimiento...',
+                      validator: (String? errorsDate) {
+                        setState(() {
+                          isInvalidDate = errorsDate != null;
+                        });
+                      },
+                      controller: fechaController,
+                    ),
+                    const HeadTextForm(
+                      texto: 'Bodega: ',
+                    ),
+                    SelectListBodega(
+                      lista: inventarioProvider.bodegas,
+                      nombre: 'Bodega',
+                      onBodegaChanged: (String selectedBodegaId) {
+                        // Actualizar formularioTandaData con el ID de la bodega seleccionada
+                        inventarioProvider.setFormularioTandaData(
+                            'idBodega', selectedBodegaId);
+
+                        // Emitir el evento para obtener las ubicaciones
+                        inventarioProvider
+                            .connect([InventarioEvent.getUbicaciones]);
+                      },
+                    ),
+                    HeadRowTextForm(
+                      texto: 'Ubicación: ',
+                      funcionOnPressed: () {},
+                    ),
+
+                    //TODO: Modificar este para que use las ubicaciones
+                    //dentro de este select, cuando se estan cargando las ubicaciones
+                    //mostrar un loader en lugar del input.
+                    //⬇️⬇️⬇️
+
+                    // SelectSearch(),
+                  ],
                 ),
-              ),
-              const HeadTextForm(
-                texto: 'Fecha de vencimiento: ',
-              ),
-              CustomDateInput(
-                label: 'Fecha de vencimiento...',
-                validator: (String? errorsDate) {
-                  setState(() {
-                    isInvalidDate = errorsDate != null;
-                  });
-                },
-                controller: fechaController,
-              ),
-              const HeadTextForm(
-                texto: 'Bodega: ',
-              ),
-              SelectListBodega(
-                lista: inventarioProvider.bodegas,
-                nombre: 'Bodega',
-                controller: bodegaController,
-              ),
-              HeadRowTextForm(
-                texto: 'Ubicación: ',
-                funcionOnPressed: () {},
-              ),
-              // SelectSearch(),
-            ],
-          ),
-          const BotonAgregar()
-        ],
-      ),
+                const BotonAgregar()
+              ],
+            ),
     );
   }
 }
 
-class SelectListBodega extends StatelessWidget {
+class SelectListBodega extends StatefulWidget {
   const SelectListBodega({
     super.key,
     required this.lista,
     required this.nombre,
-    required this.controller,
+    required this.onBodegaChanged,
   });
   final List<BodegaModel> lista;
   final String nombre;
-  final ShadPopoverController controller;
+  final void Function(String idBodega) onBodegaChanged;
+
+  @override
+  State<SelectListBodega> createState() => _SelectListBodegaState();
+}
+
+class _SelectListBodegaState extends State<SelectListBodega> {
+  String? _selectedBodegaId; // Para almacenar el valor actual de la bodega
+  bool _hasInitialEmitted = false; // Para evitar la emisión repetida
+  @override
+  void initState() {
+    super.initState();
+    // Captura el valor inicial al renderizar el widget solo una vez
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.lista.isNotEmpty && !_hasInitialEmitted) {
+        setState(() {
+          _selectedBodegaId = widget.lista[0].id;
+          widget.onBodegaChanged(_selectedBodegaId!); // Emitir solo una vez
+          _hasInitialEmitted = true;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
@@ -125,14 +160,13 @@ class SelectListBodega extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 180),
       child: ShadSelect<String>(
-        initialValue: lista[0].id,
-        controller: controller,
-        placeholder: Text('Selecciona un $nombre: '),
+        initialValue: widget.lista[0].id,
+        placeholder: Text('Selecciona un ${widget.nombre}: '),
         options: [
           Padding(
             padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
             child: Text(
-              nombre,
+              widget.nombre,
               style: textStyles.muted.copyWith(
                 fontWeight: FontWeight.w600,
                 color: colors.popoverForeground,
@@ -140,11 +174,19 @@ class SelectListBodega extends StatelessWidget {
               textAlign: TextAlign.start,
             ),
           ),
-          ...lista.map((e) => ShadOption(
+          ...widget.lista.map((e) => ShadOption(
               value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
         ],
+        onChanged: (newValue) {
+          if (newValue != _selectedBodegaId) {
+            setState(() {
+              _selectedBodegaId = newValue;
+            });
+            widget.onBodegaChanged(newValue!); // Emitir solo si cambia
+          }
+        },
         selectedOptionBuilder: (context, value) {
-          for (var bodega in lista) {
+          for (var bodega in widget.lista) {
             if (bodega.id == value) {
               return Row(
                 children: [
