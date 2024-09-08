@@ -18,7 +18,6 @@ class _AddTandasPageState extends State<AddTandasPage> {
   TextEditingController fechaController = TextEditingController();
   bool isInvalidDate = false;
   late InventarioProvider _inventarioProvider;
-  late Map<String, SelectionProductModel> productosSelection;
 
   Map<String, SelectionProductModel> mapearListaAProductoMap(
       List<SelectionProductModel> productos) {
@@ -42,123 +41,165 @@ class _AddTandasPageState extends State<AddTandasPage> {
   @override
   Widget build(BuildContext context) {
     final inventarioProvider = context.watch<InventarioProvider>();
-    ShadPopoverController bodegaController = ShadPopoverController();
-    if (inventarioProvider.loadingProductos &
-        inventarioProvider.loadingBodegas) {
-      return Center(child: CircularProgressIndicator());
-    }
-    productosSelection =
-        mapearListaAProductoMap(inventarioProvider.productosSelection);
-    print("Bodegas ${inventarioProvider.bodegas}");
+    final isLoading = inventarioProvider.loadingProductos ||
+        inventarioProvider.loadingBodegas;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Añadir Tanda'),
       ),
-      body: Stack(
-        children: [
-          ListView(
-            children: [
-              HeadRowTextForm(
-                texto: 'Producto:',
-                funcionOnPressed: () {},
-              ),
-              SelectSearch(
-                productosSelection: productosSelection,
-              ),
-              HeadTextForm(
-                texto: 'Cantidad: ',
-              ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
-                child: const ShadInput(
-                  placeholder: Text('200...'),
-                  keyboardType: TextInputType.number,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+              children: [
+                ListView(
+                  children: [
+                    HeadRowTextForm(
+                      texto: 'Producto:',
+                      funcionOnPressed: () {},
+                    ),
+                    SelectSearch(
+                      productosSelection: mapearListaAProductoMap(
+                          inventarioProvider.productosSelection),
+                    ),
+                    const HeadTextForm(
+                      texto: 'Cantidad: ',
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: const ShadInput(
+                        placeholder: Text('200...'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const HeadTextForm(
+                      texto: 'Fecha de vencimiento: ',
+                    ),
+                    CustomDateInput(
+                      label: 'Fecha de vencimiento...',
+                      validator: (String? errorsDate) {
+                        setState(() {
+                          isInvalidDate = errorsDate != null;
+                        });
+                      },
+                      controller: fechaController,
+                    ),
+                    const HeadTextForm(
+                      texto: 'Bodega: ',
+                    ),
+                    SelectListBodega(
+                      lista: inventarioProvider.bodegas,
+                      nombre: 'Bodega',
+                      onBodegaChanged: (String selectedBodegaId) {
+                        // Actualizar formularioTandaData con el ID de la bodega seleccionada
+                        inventarioProvider.setFormularioTandaData(
+                            'idBodega', selectedBodegaId);
+
+                        // Emitir el evento para obtener las ubicaciones
+                        inventarioProvider
+                            .connect([InventarioEvent.getUbicaciones]);
+                      },
+                    ),
+                    HeadRowTextForm(
+                      texto: 'Ubicación: ',
+                      funcionOnPressed: () {},
+                    ),
+
+                    //TODO: Modificar este para que use las ubicaciones
+                    //dentro de este select, cuando se estan cargando las ubicaciones
+                    //mostrar un loader en lugar del input.
+                    //⬇️⬇️⬇️
+
+                    // SelectSearch(),
+                  ],
                 ),
-              ),
-              HeadTextForm(
-                texto: 'Fecha de vencimiento: ',
-              ),
-              CustomDateInput(
-                label: 'Fecha de vencimiento...',
-                validator: (String? errorsDate) {
-                  setState(() {
-                    isInvalidDate = errorsDate != null;
-                  });
-                },
-                controller: fechaController,
-              ),
-              HeadTextForm(
-                texto: 'Bodega: ',
-              ),
-              SelectListBodega(
-                lista: inventarioProvider.bodegas,
-                nombre: 'Bodega',
-                controller: bodegaController,
-              ),
-              HeadRowTextForm(
-                texto: 'Ubicación: ',
-                funcionOnPressed: () {},
-              ),
-              // SelectSearch(),
-            ],
-          ),
-          BotonAgregar()
-        ],
-      ),
+                const BotonAgregar()
+              ],
+            ),
     );
   }
 }
 
-class SelectListBodega extends StatelessWidget {
+class SelectListBodega extends StatefulWidget {
   const SelectListBodega({
     super.key,
     required this.lista,
     required this.nombre,
-    required this.controller,
+    required this.onBodegaChanged,
   });
   final List<BodegaModel> lista;
   final String nombre;
-  final ShadPopoverController controller;
+  final void Function(String idBodega) onBodegaChanged;
+
+  @override
+  State<SelectListBodega> createState() => _SelectListBodegaState();
+}
+
+class _SelectListBodegaState extends State<SelectListBodega> {
+  String? _selectedBodegaId; // Para almacenar el valor actual de la bodega
+  bool _hasInitialEmitted = false; // Para evitar la emisión repetida
+  @override
+  void initState() {
+    super.initState();
+    // Captura el valor inicial al renderizar el widget solo una vez
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.lista.isNotEmpty && !_hasInitialEmitted) {
+        setState(() {
+          _selectedBodegaId = widget.lista[0].id;
+          widget.onBodegaChanged(_selectedBodegaId!); // Emitir solo una vez
+          _hasInitialEmitted = true;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
     final colors = ShadTheme.of(context).colorScheme;
     return ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 180),
-        child: ShadSelect<String>(
-            initialValue: lista[0].id,
-            controller: controller,
-            placeholder: Text('Selecciona un ${nombre}: '),
-            options: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
-                child: Text(
-                  nombre,
-                  style: textStyles.muted.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colors.popoverForeground,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
+      constraints: const BoxConstraints(minWidth: 180),
+      child: ShadSelect<String>(
+        initialValue: widget.lista[0].id,
+        placeholder: Text('Selecciona un ${widget.nombre}: '),
+        options: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+            child: Text(
+              widget.nombre,
+              style: textStyles.muted.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.popoverForeground,
               ),
-              ...lista
-                  .map((e) => ShadOption(
-                      value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
-                  .toList(),
-            ],
-            selectedOptionBuilder: (context, value) {
-              for (var bodega in lista) {
-                if (bodega.id == value) {
-                  return Row(
-                    children: [
-                      Icon(Icons.pin_drop_outlined),
-                      Text("${bodega.nombre} - ${bodega.direccion}"),
-                    ],
-                  );
-                }
-              }
-              return Text('Selecciona una opción');
-            }));
+              textAlign: TextAlign.start,
+            ),
+          ),
+          ...widget.lista.map((e) => ShadOption(
+              value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
+        ],
+        onChanged: (newValue) {
+          if (newValue != _selectedBodegaId) {
+            setState(() {
+              _selectedBodegaId = newValue;
+            });
+            widget.onBodegaChanged(newValue!); // Emitir solo si cambia
+          }
+        },
+        selectedOptionBuilder: (context, value) {
+          for (var bodega in widget.lista) {
+            if (bodega.id == value) {
+              return Row(
+                children: [
+                  const Icon(Icons.pin_drop_outlined),
+                  Text('${bodega.nombre} - ${bodega.direccion}'),
+                ],
+              );
+            }
+          }
+          return const Text('Selecciona una opción');
+        },
+      ),
+    );
   }
 }
 
@@ -204,13 +245,13 @@ class SelectListUbicacion extends StatelessWidget {
                 if (bodega.id == value) {
                   return Row(
                     children: [
-                      Icon(Icons.pin_drop_outlined),
+                      const Icon(Icons.pin_drop_outlined),
                       Text("${bodega.nombre} - ${bodega.direccion}"),
                     ],
                   );
                 }
               }
-              return Text('Selecciona una opción');
+              return const Text('Selecciona una opción');
             }));
   }
 }
@@ -289,38 +330,46 @@ class _SelectSearchState extends State<SelectSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final inventarioProvider = context.watch<InventarioProvider>();
     return ShadSelect<String>.withSearch(
-        minWidth: 180,
-        placeholder: const Text('Seleccionar producto...'),
-        onSearchChanged: (value) => setState(() {
-              searchValue = value;
-            }),
-        searchPlaceholder: const Text('Buscar producto'),
-        options: [
-          if (filteredProducto.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Text('No se encuentran productos...'),
-            ),
-          ...widget.productosSelection.entries.map(
-            (producto) {
-              // this offstage is used to avoid the focus loss when the search results appear again
-              // because it keeps the widget in the tree.
-              return Offstage(
-                offstage: !filteredProducto.containsKey(producto.key),
-                child: ShadOption(
-                  value: producto.key,
-                  child: Text(producto.value.nombre),
-                ),
-              );
-            },
-          )
-        ],
-        selectedOptionBuilder: (context, value) {
-          print(
-              "value is : ${widget.productosSelection[value]!.categoria.nombre}");
-          return Text(widget.productosSelection[value]!.nombre ?? "");
-        });
+      minWidth: 180,
+      placeholder: const Text('Seleccionar producto...'),
+      onSearchChanged: (value) => setState(() {
+        searchValue = value;
+      }),
+      searchPlaceholder: const Text('Buscar producto'),
+      options: [
+        if (filteredProducto.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Text('No se encuentran productos...'),
+          ),
+        ...widget.productosSelection.entries.map(
+          (producto) {
+            return Offstage(
+              offstage: !filteredProducto.containsKey(producto.key),
+              child: ShadOption(
+                value: producto.key,
+                child: Text(producto.value.nombre),
+              ),
+            );
+          },
+        )
+      ],
+      onChanged: (String? value) {
+        if (value != null) {
+          final producto = widget.productosSelection[value]!;
+          // Actualiza inventarioProvider al seleccionar una opción, fuera de la fase de construcción
+          inventarioProvider.setFormularioTandaData('idProducto', producto.id);
+          inventarioProvider.setFormularioTandaData(
+              'idCategoria', producto.categoria.id);
+        }
+      },
+      selectedOptionBuilder: (context, value) {
+        final producto = widget.productosSelection[value]!;
+        return Text(producto.nombre);
+      },
+    );
   }
 }
 
@@ -338,10 +387,9 @@ class BotonAgregar extends StatelessWidget {
       left: 10.0,
       right: 10.0,
       child: ShadButton(
-        child: Text('Añadir'),
+        child: const Text('Añadir'),
         onPressed: () {
-          print('Productos: ');
-          print(inventarioProvider.productosSelection);
+          print(inventarioProvider.formularioTandaData);
         },
       ),
     );

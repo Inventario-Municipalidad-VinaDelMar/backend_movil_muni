@@ -57,16 +57,21 @@ mixin SocketInventarioProvider on ChangeNotifier {
   bool loadingUbicacion = false;
 
   Map<String, dynamic> formularioTandaData = {
-    "cantidadIngresada": null,
-    "fechaVencimiento": null,
-    "idProducto": null,
-    "idBodega": null,
-    "idUbicacion": null,
-    "idCategoria": null
+    'cantidadIngresada': null,
+    'fechaVencimiento': null,
+    'idProducto': null,
+    'idBodega': null,
+    'idUbicacion': null,
+    'idCategoria': null
   };
 
   io.Socket? _socket;
   io.Socket? get socket => _socket;
+
+  void setFormularioTandaData(String property, dynamic value) {
+    formularioTandaData[property] = value;
+    notifyListeners();
+  }
 
   void initSocket() {
     _updateSocket();
@@ -212,7 +217,9 @@ mixin SocketInventarioProvider on ChangeNotifier {
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
-      print("data es: $data");
+      if (emitEvent == SocketEvents.getUbicacionesByBodega) {
+        print('Data el evento $emitEvent: $data');
+      }
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
