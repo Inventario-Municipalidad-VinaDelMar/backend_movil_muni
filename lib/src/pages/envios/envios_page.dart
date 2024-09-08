@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class EnviosPage extends StatefulWidget {
@@ -108,7 +109,11 @@ class _EnviosPageState extends State<EnviosPage> {
                             height: size.height * 0.045,
                             child: ShadButton(
                               size: ShadButtonSize.sm,
-                              onPressed: envioIniciado ? () {} : null,
+                              onPressed: envioIniciado
+                                  ? () {
+                                      context.push('/envioBuscar');
+                                    }
+                                  : null,
                               icon: const Icon(
                                 Icons.search,
                                 size: 13,
