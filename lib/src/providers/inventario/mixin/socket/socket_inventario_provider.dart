@@ -73,6 +73,18 @@ mixin SocketInventarioProvider on ChangeNotifier {
     notifyListeners();
   }
 
+  void disposeFormularioTandaData() {
+    formularioTandaData = {
+      'cantidadIngresada': null,
+      'fechaVencimiento': null,
+      'idProducto': null,
+      'idBodega': null,
+      'idUbicacion': null,
+      'idCategoria': null
+    };
+    notifyListeners();
+  }
+
   void initSocket() {
     _updateSocket();
     // _userProvider.userListener.addListener(_updateSocket);
@@ -217,9 +229,6 @@ mixin SocketInventarioProvider on ChangeNotifier {
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
-      if (emitEvent == SocketEvents.getUbicacionesByBodega) {
-        print('Data el evento $emitEvent: $data');
-      }
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());

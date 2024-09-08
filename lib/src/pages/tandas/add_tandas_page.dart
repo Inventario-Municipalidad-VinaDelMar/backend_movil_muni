@@ -1,9 +1,12 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
-import 'package:frontend_movil_muni/src/utils/dateText.dart';
+import 'package:frontend_movil_muni/src/utils/date_text.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -35,6 +38,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
   @override
   void dispose() {
     _inventarioProvider.disconnect([InventarioEvent.getProductos]);
+    _inventarioProvider.disposeFormularioTandaData();
     super.dispose();
   }
 
@@ -50,71 +54,116 @@ class _AddTandasPageState extends State<AddTandasPage> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                ListView(
-                  children: [
-                    HeadRowTextForm(
-                      texto: 'Producto:',
-                      funcionOnPressed: () {},
-                    ),
-                    SelectSearch(
-                      productosSelection: mapearListaAProductoMap(
-                          inventarioProvider.productosSelection),
-                    ),
-                    const HeadTextForm(
-                      texto: 'Cantidad: ',
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 320),
-                      child: const ShadInput(
-                        placeholder: Text('200...'),
-                        keyboardType: TextInputType.number,
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Stack(
+                children: [
+                  ListView(
+                    children: [
+                      HeadRowTextForm(
+                        texto: 'Producto:',
+                        funcionOnPressed: () {},
                       ),
-                    ),
-                    const HeadTextForm(
-                      texto: 'Fecha de vencimiento: ',
-                    ),
-                    CustomDateInput(
-                      label: 'Fecha de vencimiento...',
-                      validator: (String? errorsDate) {
-                        setState(() {
-                          isInvalidDate = errorsDate != null;
-                        });
-                      },
-                      controller: fechaController,
-                    ),
-                    const HeadTextForm(
-                      texto: 'Bodega: ',
-                    ),
-                    SelectListBodega(
-                      lista: inventarioProvider.bodegas,
-                      nombre: 'Bodega',
-                      onBodegaChanged: (String selectedBodegaId) {
-                        // Actualizar formularioTandaData con el ID de la bodega seleccionada
-                        inventarioProvider.setFormularioTandaData(
-                            'idBodega', selectedBodegaId);
+                      //?Producto
+                      SelectSearch(
+                        productosSelection: mapearListaAProductoMap(
+                          inventarioProvider.productosSelection,
+                        ),
+                      ),
+                      const HeadTextForm(
+                        texto: 'Cantidad: ',
+                      ),
+                      //?Cantidad
+                      FadeInLeft(
+                        duration: const Duration(milliseconds: 200),
+                        delay: const Duration(milliseconds: 200),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 320),
+                          child: ShadInput(
+                            placeholder: const Text('200...'),
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              if (value == '') {
+                                if (inventarioProvider.formularioTandaData[
+                                        'cantidadIngresada'] !=
+                                    null) {
+                                  inventarioProvider.setFormularioTandaData(
+                                    'cantidadIngresada',
+                                    null,
+                                  );
+                                }
+                                return;
+                              }
+                              inventarioProvider.setFormularioTandaData(
+                                'cantidadIngresada',
+                                value,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
 
-                        // Emitir el evento para obtener las ubicaciones
-                        inventarioProvider
-                            .connect([InventarioEvent.getUbicaciones]);
-                      },
-                    ),
-                    HeadRowTextForm(
-                      texto: 'Ubicación: ',
-                      funcionOnPressed: () {},
-                    ),
+                      //?Vencimiento
+                      const HeadTextForm(
+                        texto: 'Fecha de vencimiento: ',
+                      ),
+                      CustomDateInput(
+                        label: 'Fecha de vencimiento...',
+                        validator: (String? errorsDate) {
+                          setState(() {
+                            isInvalidDate = errorsDate != null;
+                          });
+                          if (errorsDate != '') {
+                            if (inventarioProvider
+                                    .formularioTandaData['fechaVencimiento'] !=
+                                null) {
+                              inventarioProvider.setFormularioTandaData(
+                                'fechaVencimiento',
+                                null,
+                              );
+                            }
+                            return;
+                          }
+                          inventarioProvider.setFormularioTandaData(
+                            'fechaVencimiento',
+                            fechaController.value.text,
+                          );
+                        },
+                        controller: fechaController,
+                      ),
 
-                    //TODO: Modificar este para que use las ubicaciones
-                    //dentro de este select, cuando se estan cargando las ubicaciones
-                    //mostrar un loader en lugar del input.
-                    //⬇️⬇️⬇️
+                      //?Bodega
+                      const HeadTextForm(
+                        texto: 'Bodega: ',
+                      ),
+                      SelectListBodega(
+                        lista: inventarioProvider.bodegas,
+                        nombre: 'Bodegas ⤵️',
+                        onBodegaChanged: (String selectedBodegaId) {
+                          // Actualizar formularioTandaData con el ID de la bodega seleccionada
+                          inventarioProvider.setFormularioTandaData(
+                              'idBodega', selectedBodegaId);
 
-                    // SelectSearch(),
-                  ],
-                ),
-                const BotonAgregar()
-              ],
+                          // Emitir el evento para obtener las ubicaciones
+                          inventarioProvider
+                              .connect([InventarioEvent.getUbicaciones]);
+                        },
+                      ),
+
+                      //?Ubicacion
+                      HeadRowTextForm(
+                        texto: 'Ubicación: ',
+                        funcionOnPressed: () {},
+                      ),
+                      SelectListUbicacion(
+                        lista: inventarioProvider.ubicacion,
+                        nombre: 'Ubicaciones ⤵️',
+                      ),
+                    ],
+                  ),
+                  const BotonAgregar()
+                ],
+              ),
             ),
     );
   }
@@ -157,47 +206,51 @@ class _SelectListBodegaState extends State<SelectListBodega> {
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
     final colors = ShadTheme.of(context).colorScheme;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 180),
-      child: ShadSelect<String>(
-        initialValue: widget.lista[0].id,
-        placeholder: Text('Selecciona un ${widget.nombre}: '),
-        options: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
-            child: Text(
-              widget.nombre,
-              style: textStyles.muted.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.popoverForeground,
+    return FadeInLeft(
+      delay: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 200),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 180),
+        child: ShadSelect<String>(
+          initialValue: widget.lista[0].id,
+          placeholder: const Text('Seleccionar bodegas'),
+          options: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+              child: Text(
+                widget.nombre,
+                style: textStyles.muted.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colors.popoverForeground,
+                ),
+                textAlign: TextAlign.start,
               ),
-              textAlign: TextAlign.start,
             ),
-          ),
-          ...widget.lista.map((e) => ShadOption(
-              value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
-        ],
-        onChanged: (newValue) {
-          if (newValue != _selectedBodegaId) {
-            setState(() {
-              _selectedBodegaId = newValue;
-            });
-            widget.onBodegaChanged(newValue!); // Emitir solo si cambia
-          }
-        },
-        selectedOptionBuilder: (context, value) {
-          for (var bodega in widget.lista) {
-            if (bodega.id == value) {
-              return Row(
-                children: [
-                  const Icon(Icons.pin_drop_outlined),
-                  Text('${bodega.nombre} - ${bodega.direccion}'),
-                ],
-              );
+            ...widget.lista.map((e) => ShadOption(
+                value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
+          ],
+          onChanged: (newValue) {
+            if (newValue != _selectedBodegaId) {
+              setState(() {
+                _selectedBodegaId = newValue;
+              });
+              widget.onBodegaChanged(newValue); // Emitir solo si cambia
             }
-          }
-          return const Text('Selecciona una opción');
-        },
+          },
+          selectedOptionBuilder: (context, value) {
+            for (var bodega in widget.lista) {
+              if (bodega.id == value) {
+                return Row(
+                  children: [
+                    const Icon(MdiIcons.mapMarkerRadiusOutline),
+                    Text('${bodega.nombre} - ${bodega.direccion}'),
+                  ],
+                );
+              }
+            }
+            return const Text('Selecciona una opción');
+          },
+        ),
       ),
     );
   }
@@ -208,51 +261,84 @@ class SelectListUbicacion extends StatelessWidget {
     super.key,
     required this.lista,
     required this.nombre,
-    required this.controller,
   });
-  final List<BodegaModel> lista;
+  final List<UbicacionesModel> lista;
   final String nombre;
-  final ShadPopoverController controller;
   @override
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
     final colors = ShadTheme.of(context).colorScheme;
-    return ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 180),
-        child: ShadSelect<String>(
-            initialValue: lista[0].id,
-            controller: controller,
-            placeholder: Text('Selecciona un ${nombre}: '),
-            options: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
-                child: Text(
-                  nombre,
-                  style: textStyles.muted.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colors.popoverForeground,
-                  ),
-                  textAlign: TextAlign.start,
+    final inventarioProvider = context.watch<InventarioProvider>();
+    if (inventarioProvider.loadingUbicacion) {
+      return FadeOutDown(
+        duration: const Duration(milliseconds: 200),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Cargando ubicaciones',
+                style: textStyles.small,
+              ),
+              const SizedBox(width: 20),
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
                 ),
               ),
-              ...lista
-                  .map((e) => ShadOption(
-                      value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
-                  .toList(),
             ],
-            selectedOptionBuilder: (context, value) {
-              for (var bodega in lista) {
-                if (bodega.id == value) {
-                  return Row(
-                    children: [
-                      const Icon(Icons.pin_drop_outlined),
-                      Text("${bodega.nombre} - ${bodega.direccion}"),
-                    ],
-                  );
-                }
-              }
-              return const Text('Selecciona una opción');
-            }));
+          ),
+        ),
+      );
+    }
+    return FadeInUp(
+      from: 25,
+      delay: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
+      child: ShadSelect<String>(
+        placeholder: const Text('Seleccionar ubicaciones'),
+        options: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+            child: Text(
+              nombre,
+              style: textStyles.muted.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.popoverForeground,
+              ),
+              textAlign: TextAlign.start,
+            ),
+          ),
+          ...lista.map(
+            (u) => ShadOption(
+              value: u.id,
+              child: Text(u.descripcion),
+            ),
+          )
+        ],
+        onChanged: (String? value) {
+          if (value != null) {
+            inventarioProvider.setFormularioTandaData('idUbicacion', value);
+          }
+        },
+        selectedOptionBuilder: (context, value) {
+          for (var ubicacion in lista) {
+            if (ubicacion.id == value) {
+              return Row(
+                children: [
+                  const Icon(MdiIcons.pinOutline),
+                  Text(ubicacion.descripcion),
+                ],
+              );
+            }
+          }
+          return const Text('Selecciona una opción');
+        },
+      ),
+    );
   }
 }
 
@@ -268,7 +354,7 @@ class HeadRowTextForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
-
+    final colors = ShadTheme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -278,12 +364,18 @@ class HeadRowTextForm extends StatelessWidget {
             style: textStyles.small,
           ),
           const Spacer(),
-          ShadButton(
-            size: ShadButtonSize.sm,
-            icon: const Icon(
-              Icons.add,
+          SizedBox(
+            width: 35,
+            height: 35,
+            child: ShadButton(
+              size: ShadButtonSize.sm,
+              icon: Icon(
+                Icons.add,
+                size: 18,
+                color: colors.primary,
+              ),
+              onPressed: () {},
             ),
-            onPressed: () {},
           ),
         ],
       ),
@@ -331,44 +423,48 @@ class _SelectSearchState extends State<SelectSearch> {
   @override
   Widget build(BuildContext context) {
     final inventarioProvider = context.watch<InventarioProvider>();
-    return ShadSelect<String>.withSearch(
-      minWidth: 180,
-      placeholder: const Text('Seleccionar producto...'),
-      onSearchChanged: (value) => setState(() {
-        searchValue = value;
-      }),
-      searchPlaceholder: const Text('Buscar producto'),
-      options: [
-        if (filteredProducto.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Text('No se encuentran productos...'),
-          ),
-        ...widget.productosSelection.entries.map(
-          (producto) {
-            return Offstage(
-              offstage: !filteredProducto.containsKey(producto.key),
-              child: ShadOption(
-                value: producto.key,
-                child: Text(producto.value.nombre),
-              ),
-            );
-          },
-        )
-      ],
-      onChanged: (String? value) {
-        if (value != null) {
+    return FadeInLeft(
+      duration: const Duration(milliseconds: 200),
+      child: ShadSelect<String>.withSearch(
+        minWidth: 180,
+        placeholder: const Text('Seleccionar producto...'),
+        onSearchChanged: (value) => setState(() {
+          searchValue = value;
+        }),
+        searchPlaceholder: const Text('Buscar producto'),
+        options: [
+          if (filteredProducto.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Text('No se encuentran productos...'),
+            ),
+          ...widget.productosSelection.entries.map(
+            (producto) {
+              return Offstage(
+                offstage: !filteredProducto.containsKey(producto.key),
+                child: ShadOption(
+                  value: producto.key,
+                  child: Text(producto.value.nombre),
+                ),
+              );
+            },
+          )
+        ],
+        onChanged: (String? value) {
+          if (value != null) {
+            final producto = widget.productosSelection[value]!;
+            // Actualiza inventarioProvider al seleccionar una opción, fuera de la fase de construcción
+            inventarioProvider.setFormularioTandaData(
+                'idProducto', producto.id);
+            inventarioProvider.setFormularioTandaData(
+                'idCategoria', producto.categoria.id);
+          }
+        },
+        selectedOptionBuilder: (context, value) {
           final producto = widget.productosSelection[value]!;
-          // Actualiza inventarioProvider al seleccionar una opción, fuera de la fase de construcción
-          inventarioProvider.setFormularioTandaData('idProducto', producto.id);
-          inventarioProvider.setFormularioTandaData(
-              'idCategoria', producto.categoria.id);
-        }
-      },
-      selectedOptionBuilder: (context, value) {
-        final producto = widget.productosSelection[value]!;
-        return Text(producto.nombre);
-      },
+          return Text(producto.nombre);
+        },
+      ),
     );
   }
 }

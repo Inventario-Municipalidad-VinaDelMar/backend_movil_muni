@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -77,9 +80,12 @@ class _CustomDateInputState extends State<CustomDateInput> {
     }
   }
 
-  void _validateDate(String value) {
+  void _validateDate(
+    BuildContext context,
+    String value,
+  ) {
     setState(() {
-      _errorText = "";
+      _errorText = '';
       final parts = value.split('-');
       if (parts.length != 3) {
         _errorText = 'Fecha no válida';
@@ -97,14 +103,19 @@ class _CustomDateInputState extends State<CustomDateInput> {
       if (day < 1 || day > 31) {
         errors.add('Día no válido');
       }
-      if (month < 1 || month > 12) {
+      if ((month < 1 || month > 12) && errors.isEmpty) {
         errors.add('Mes no válido');
       }
-      if (year < DateTime.now().year) {
-        errors.add('Minimo año: ${DateTime.now().year}');
+      if ((year < DateTime.now().year) && errors.isEmpty) {
+        errors.add('El año minimo debe ser ${DateTime.now().year}');
       }
-      if (year > DateTime.now().year + 3) {
-        errors.add('Maximo año: 2027');
+      // if (year > DateTime.now().year + 3) {
+      //   errors.add('Maximo año: 2027');
+      // }
+      final now = DateTime.now();
+      DateTime selectedDate = DateTime(year, month, day);
+      if (selectedDate.isBefore(now) && errors.isEmpty) {
+        errors.add('Esta no es una fecha futura.');
       }
 
       if (errors.isNotEmpty) {
@@ -118,29 +129,33 @@ class _CustomDateInputState extends State<CustomDateInput> {
   @override
   Widget build(BuildContext context) {
     final colors = ShadTheme.of(context).colorScheme;
-    return ShadInputFormField(
-      placeholder: Text(widget.label),
-      keyboardType: TextInputType.emailAddress,
-      controller: widget.controller,
-      inputFormatters: [DateTextInputFormatter()],
-      description: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.0),
-        child: _errorText != ""
-            ? Text(
-                _errorText,
-                style: TextStyle(color: colors.destructive),
-              )
-            : Container(),
+    return FadeInLeft(
+      delay: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 200),
+      child: ShadInputFormField(
+        placeholder: Text(widget.label),
+        keyboardType: TextInputType.emailAddress,
+        controller: widget.controller,
+        inputFormatters: [DateTextInputFormatter()],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: _errorText != ""
+              ? Text(
+                  _errorText,
+                  style: TextStyle(color: colors.destructive),
+                )
+              : Container(),
+        ),
+        onChanged: (p0) => _validateDate(context, p0),
+        onPressed: () {
+          if (!_hasInitialValue && widget.controller.text.isEmpty) {
+            setState(() {
+              widget.controller.text = '0';
+              _hasInitialValue = true;
+            });
+          }
+        },
       ),
-      onChanged: _validateDate,
-      onPressed: () {
-        if (!_hasInitialValue && widget.controller.text.isEmpty) {
-          setState(() {
-            widget.controller.text = '0';
-            _hasInitialValue = true;
-          });
-        }
-      },
     );
   }
 }
