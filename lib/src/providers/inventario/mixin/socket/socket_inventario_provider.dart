@@ -57,16 +57,25 @@ mixin SocketInventarioProvider on ChangeNotifier {
   bool loadingUbicacion = false;
 
   Map<String, dynamic> formularioTandaData = {
-    "cantidadIngresada": null,
-    "fechaVencimiento": null,
-    "idProducto": null,
-    "idBodega": null,
-    "idUbicacion": null,
-    "idCategoria": null
+    'cantidadIngresada': null,
+    'fechaVencimiento': null,
+    'idProducto': null,
+    'idBodega': null,
+    'idUbicacion': null,
+    'idCategoria': null
   };
 
   io.Socket? _socket;
   io.Socket? get socket => _socket;
+
+  void setFormularioTandaData(String property, dynamic value) {
+    // if (formularioTandaData[property] == null) {
+    //   print('Propiedad "$property" nula.');
+    //   return;
+    // }
+    formularioTandaData[property] = value;
+    notifyListeners();
+  }
 
   void initSocket() {
     _updateSocket();

@@ -45,11 +45,10 @@ class _AddTandasPageState extends State<AddTandasPage> {
     ShadPopoverController bodegaController = ShadPopoverController();
     if (inventarioProvider.loadingProductos &
         inventarioProvider.loadingBodegas) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
     productosSelection =
         mapearListaAProductoMap(inventarioProvider.productosSelection);
-    print("Bodegas ${inventarioProvider.bodegas}");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Añadir Tanda'),
@@ -65,7 +64,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
               SelectSearch(
                 productosSelection: productosSelection,
               ),
-              HeadTextForm(
+              const HeadTextForm(
                 texto: 'Cantidad: ',
               ),
               ConstrainedBox(
@@ -75,7 +74,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
                   keyboardType: TextInputType.number,
                 ),
               ),
-              HeadTextForm(
+              const HeadTextForm(
                 texto: 'Fecha de vencimiento: ',
               ),
               CustomDateInput(
@@ -87,7 +86,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
                 },
                 controller: fechaController,
               ),
-              HeadTextForm(
+              const HeadTextForm(
                 texto: 'Bodega: ',
               ),
               SelectListBodega(
@@ -102,7 +101,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
               // SelectSearch(),
             ],
           ),
-          BotonAgregar()
+          const BotonAgregar()
         ],
       ),
     );
@@ -124,41 +123,41 @@ class SelectListBodega extends StatelessWidget {
     final textStyles = ShadTheme.of(context).textTheme;
     final colors = ShadTheme.of(context).colorScheme;
     return ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 180),
-        child: ShadSelect<String>(
-            initialValue: lista[0].id,
-            controller: controller,
-            placeholder: Text('Selecciona un ${nombre}: '),
-            options: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
-                child: Text(
-                  nombre,
-                  style: textStyles.muted.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colors.popoverForeground,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
+      constraints: const BoxConstraints(minWidth: 180),
+      child: ShadSelect<String>(
+        initialValue: lista[0].id,
+        controller: controller,
+        placeholder: Text('Selecciona un $nombre: '),
+        options: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+            child: Text(
+              nombre,
+              style: textStyles.muted.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.popoverForeground,
               ),
-              ...lista
-                  .map((e) => ShadOption(
-                      value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
-                  .toList(),
-            ],
-            selectedOptionBuilder: (context, value) {
-              for (var bodega in lista) {
-                if (bodega.id == value) {
-                  return Row(
-                    children: [
-                      Icon(Icons.pin_drop_outlined),
-                      Text("${bodega.nombre} - ${bodega.direccion}"),
-                    ],
-                  );
-                }
-              }
-              return Text('Selecciona una opción');
-            }));
+              textAlign: TextAlign.start,
+            ),
+          ),
+          ...lista.map((e) => ShadOption(
+              value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
+        ],
+        selectedOptionBuilder: (context, value) {
+          for (var bodega in lista) {
+            if (bodega.id == value) {
+              return Row(
+                children: [
+                  const Icon(Icons.pin_drop_outlined),
+                  Text('${bodega.nombre} - ${bodega.direccion}'),
+                ],
+              );
+            }
+          }
+          return const Text('Selecciona una opción');
+        },
+      ),
+    );
   }
 }
 
@@ -204,13 +203,13 @@ class SelectListUbicacion extends StatelessWidget {
                 if (bodega.id == value) {
                   return Row(
                     children: [
-                      Icon(Icons.pin_drop_outlined),
+                      const Icon(Icons.pin_drop_outlined),
                       Text("${bodega.nombre} - ${bodega.direccion}"),
                     ],
                   );
                 }
               }
-              return Text('Selecciona una opción');
+              return const Text('Selecciona una opción');
             }));
   }
 }
@@ -289,38 +288,46 @@ class _SelectSearchState extends State<SelectSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final inventarioProvider = context.watch<InventarioProvider>();
     return ShadSelect<String>.withSearch(
-        minWidth: 180,
-        placeholder: const Text('Seleccionar producto...'),
-        onSearchChanged: (value) => setState(() {
-              searchValue = value;
-            }),
-        searchPlaceholder: const Text('Buscar producto'),
-        options: [
-          if (filteredProducto.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Text('No se encuentran productos...'),
-            ),
-          ...widget.productosSelection.entries.map(
-            (producto) {
-              // this offstage is used to avoid the focus loss when the search results appear again
-              // because it keeps the widget in the tree.
-              return Offstage(
-                offstage: !filteredProducto.containsKey(producto.key),
-                child: ShadOption(
-                  value: producto.key,
-                  child: Text(producto.value.nombre),
-                ),
-              );
-            },
-          )
-        ],
-        selectedOptionBuilder: (context, value) {
-          print(
-              "value is : ${widget.productosSelection[value]!.categoria.nombre}");
-          return Text(widget.productosSelection[value]!.nombre ?? "");
-        });
+      minWidth: 180,
+      placeholder: const Text('Seleccionar producto...'),
+      onSearchChanged: (value) => setState(() {
+        searchValue = value;
+      }),
+      searchPlaceholder: const Text('Buscar producto'),
+      options: [
+        if (filteredProducto.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Text('No se encuentran productos...'),
+          ),
+        ...widget.productosSelection.entries.map(
+          (producto) {
+            return Offstage(
+              offstage: !filteredProducto.containsKey(producto.key),
+              child: ShadOption(
+                value: producto.key,
+                child: Text(producto.value.nombre),
+              ),
+            );
+          },
+        )
+      ],
+      onChanged: (String? value) {
+        if (value != null) {
+          final producto = widget.productosSelection[value]!;
+          // Actualiza inventarioProvider al seleccionar una opción, fuera de la fase de construcción
+          inventarioProvider.setFormularioTandaData('idProducto', producto.id);
+          inventarioProvider.setFormularioTandaData(
+              'idCategoria', producto.categoria.id);
+        }
+      },
+      selectedOptionBuilder: (context, value) {
+        final producto = widget.productosSelection[value]!;
+        return Text(producto.nombre);
+      },
+    );
   }
 }
 
@@ -338,10 +345,9 @@ class BotonAgregar extends StatelessWidget {
       left: 10.0,
       right: 10.0,
       child: ShadButton(
-        child: Text('Añadir'),
+        child: const Text('Añadir'),
         onPressed: () {
-          print('Productos: ');
-          print(inventarioProvider.productosSelection);
+          print(inventarioProvider.formularioTandaData);
         },
       ),
     );
