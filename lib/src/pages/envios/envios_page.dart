@@ -11,7 +11,7 @@ class EnviosPage extends StatefulWidget {
 
 class _EnviosPageState extends State<EnviosPage> {
   final List<Map<String, dynamic>> invoices = List.generate(
-      21,
+      5,
       (index) => {
             'nombre': index < 4
                 ? ['Legumbres', 'Bebida', 'Cubiertos', 'Panaderia'][index]
@@ -21,6 +21,11 @@ class _EnviosPageState extends State<EnviosPage> {
           });
 
   bool envioIniciado = false;
+
+  bool _todosSeleccionados() {
+    return invoices.every((invoice) => invoice['checked'] == true);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -107,21 +112,24 @@ class _EnviosPageState extends State<EnviosPage> {
                         ShadTableCell(
                           child: SizedBox(
                             height: size.height * 0.045,
-                            child: ShadButton(
-                              size: ShadButtonSize.sm,
-                              onPressed: envioIniciado
-                                  ? () {
-                                      context.push('/envioBuscar');
-                                    }
-                                  : null,
-                              icon: const Icon(
-                                Icons.search,
-                                size: 13,
-                              ),
-                              child: Text(
-                                'Buscar',
-                                style: textStyles.small
-                                    .copyWith(color: Colors.white),
+                            child: Center(
+                              child: ShadButton(
+                                enabled: envioIniciado ? true : false,
+                                size: ShadButtonSize.sm,
+                                onPressed: envioIniciado
+                                    ? () {
+                                        context.push('/envioBuscar');
+                                      }
+                                    : null,
+                                icon: const Icon(
+                                  Icons.search,
+                                  size: 13,
+                                ),
+                                child: Text(
+                                  'Buscar',
+                                  style: textStyles.small
+                                      .copyWith(color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
@@ -136,10 +144,16 @@ class _EnviosPageState extends State<EnviosPage> {
             height: size.height * 0.06,
             width: size.width,
             child: ShadButton(
+              enabled:
+                  envioIniciado ? envioIniciado && _todosSeleccionados() : true,
               size: ShadButtonSize.lg,
               onPressed: () {
                 setState(() {
-                  envioIniciado = !envioIniciado; // Cambiar el estado del envío
+                  if (envioIniciado) {
+                    Navigator.pop(context);
+                  } else {
+                    envioIniciado = !envioIniciado;
+                  }
                 });
               },
               icon: const Icon(Icons.swipe_up_outlined),

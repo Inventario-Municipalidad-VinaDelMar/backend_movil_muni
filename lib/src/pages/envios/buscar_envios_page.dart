@@ -19,105 +19,90 @@ const invoices = [
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Arroz",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Lentejas",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Porotos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
   (
     nombre: "Cubiertos",
     cantidad: "500",
     ubicacion: "Rack Azul-1f",
     vencimiento: "2025-09-01",
-    cargar: "cargar"
   ),
 ];
 
@@ -205,8 +190,6 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                     child: Text('Ubicacion'),
                   ),
                   ShadTableCell.header(child: Text('Vencimiento')),
-                  ShadTableCell.header(
-                      alignment: Alignment.center, child: Text('Cargar')),
                 ],
                 columnSpanExtent: (index) {
                   if (index == 0) {
@@ -221,49 +204,67 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                   if (index == 3) {
                     return FixedTableSpanExtent(size.width * 0.26);
                   }
-                  if (index == 4) {
-                    return FixedTableSpanExtent(size.width * 0.3);
-                  }
 
                   return null;
                 },
                 children: invoices.map(
                   (invoice) => [
                     ShadTableCell(
-                      child: Text(
-                        invoice.nombre,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
+                      child: InkWell(
+                        onTap: () {
+                          showShadSheet(
+                            side: shad.ShadSheetSide.bottom,
+                            context: context,
+                            builder: (context) => const SheetBuscarEnviosPage(
+                                side: shad.ShadSheetSide.bottom),
+                          );
+                        },
+                        child: Text(
+                          invoice.nombre,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
                     ShadTableCell(
                       alignment: Alignment.center,
-                      child: Text(invoice.cantidad),
-                    ),
-                    ShadTableCell(child: Text(invoice.ubicacion)),
-                    ShadTableCell(child: Text(invoice.vencimiento)),
-                    ShadTableCell(
-                      child: SizedBox(
-                        height: size.height * 0.045,
-                        child: shad.ShadButton(
-                          size: ShadButtonSize.sm,
-                          onPressed: () => showShadSheet(
+                      child: InkWell(
+                        onTap: () {
+                          showShadSheet(
                             side: shad.ShadSheetSide.bottom,
                             context: context,
                             builder: (context) => const SheetBuscarEnviosPage(
                                 side: shad.ShadSheetSide.bottom),
-                          ),
-                          icon: FaIcon(
-                            FontAwesomeIcons.arrowUp,
-                            size: size.height * 0.015,
-                          ),
-                          child: Text(
-                            'Cargar',
-                            style:
-                                textStyles.small.copyWith(color: Colors.white),
-                          ),
-                        ),
+                          );
+                        },
+                        child: Text(invoice.cantidad),
+                      ),
+                    ),
+                    ShadTableCell(
+                      child: InkWell(
+                        onTap: () {
+                          showShadSheet(
+                            side: shad.ShadSheetSide.bottom,
+                            context: context,
+                            builder: (context) => const SheetBuscarEnviosPage(
+                                side: shad.ShadSheetSide.bottom),
+                          );
+                        },
+                        child: Text(invoice.ubicacion),
+                      ),
+                    ),
+                    ShadTableCell(
+                      child: InkWell(
+                        onTap: () {
+                          showShadSheet(
+                            side: shad.ShadSheetSide.bottom,
+                            context: context,
+                            builder: (context) => const SheetBuscarEnviosPage(
+                                side: shad.ShadSheetSide.bottom),
+                          );
+                        },
+                        child: Text(invoice.vencimiento),
                       ),
                     ),
                   ],
