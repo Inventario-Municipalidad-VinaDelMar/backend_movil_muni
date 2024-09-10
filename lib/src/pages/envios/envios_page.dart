@@ -87,7 +87,7 @@ class _EnviosPageState extends State<EnviosPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Planificacion', style: textStyles.h4),
+        title: const Text('Planificacion'),
       ),
       body: Column(
         children: [
