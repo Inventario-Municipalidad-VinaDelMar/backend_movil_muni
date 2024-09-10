@@ -45,6 +45,7 @@ class CustomDateInput extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final void Function(String?) validator;
+
   const CustomDateInput(
       {super.key,
       required this.label,
@@ -59,6 +60,7 @@ class _CustomDateInputState extends State<CustomDateInput> {
   // final TextEditingController _controller = TextEditingController();
   String _errorText = "";
   bool _hasInitialValue = false;
+  String errorValidate = "";
 
   @override
   void initState() {
@@ -120,6 +122,7 @@ class _CustomDateInputState extends State<CustomDateInput> {
 
       if (errors.isNotEmpty) {
         _errorText = errors.join(', ');
+        errorValidate = errors.join(', ');
       }
     });
 
@@ -133,19 +136,38 @@ class _CustomDateInputState extends State<CustomDateInput> {
       delay: const Duration(milliseconds: 400),
       duration: const Duration(milliseconds: 200),
       child: ShadInputFormField(
+        validator: (v) {
+          if (_errorText != "") {
+            setState(() {
+              errorValidate = _errorText;
+            });
+            return "";
+          }
+          if (v.isEmpty) {
+            setState(() {
+              errorValidate = 'Selecciona una fecha';
+            });
+
+            return "";
+          }
+
+          return null;
+        },
         placeholder: Text(widget.label),
+        error: (error) {
+          print(error);
+          return errorValidate != ""
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    errorValidate,
+                    style: TextStyle(color: colors.destructive),
+                  ))
+              : Container();
+        },
         keyboardType: TextInputType.emailAddress,
         controller: widget.controller,
         inputFormatters: [DateTextInputFormatter()],
-        description: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: _errorText != ""
-              ? Text(
-                  _errorText,
-                  style: TextStyle(color: colors.destructive),
-                )
-              : Container(),
-        ),
         onChanged: (p0) => _validateDate(context, p0),
         onPressed: () {
           if (!_hasInitialValue && widget.controller.text.isEmpty) {

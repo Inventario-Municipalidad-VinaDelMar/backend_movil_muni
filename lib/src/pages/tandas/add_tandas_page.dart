@@ -27,6 +27,8 @@ class _AddTandasPageState extends State<AddTandasPage> {
     return {for (var producto in productos) producto.id: producto};
   }
 
+  final formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -58,110 +60,133 @@ class _AddTandasPageState extends State<AddTandasPage> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Stack(
                 children: [
-                  ListView(
-                    children: [
-                      HeadRowTextForm(
-                        texto: 'Producto:',
-                        funcionOnPressed: () {},
-                      ),
-                      //?Producto
-                      SelectSearch(
-                        productosSelection: mapearListaAProductoMap(
-                          inventarioProvider.productosSelection,
+                  Form(
+                    key: formKey,
+                    child: ListView(
+                      children: [
+                        HeadRowTextForm(
+                          texto: 'Producto:',
+                          funcionOnPressed: () {},
                         ),
-                      ),
-                      const HeadTextForm(
-                        texto: 'Cantidad: ',
-                      ),
-                      //?Cantidad
-                      FadeInLeft(
-                        duration: const Duration(milliseconds: 200),
-                        delay: const Duration(milliseconds: 200),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 320),
-                          child: ShadInput(
-                            placeholder: const Text('200...'),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              if (value == '') {
-                                if (inventarioProvider.formularioTandaData[
-                                        'cantidadIngresada'] !=
-                                    null) {
-                                  inventarioProvider.setFormularioTandaData(
-                                    'cantidadIngresada',
-                                    null,
-                                  );
-                                }
-                                return;
-                              }
-                              inventarioProvider.setFormularioTandaData(
-                                'cantidadIngresada',
-                                value,
-                              );
-                            },
+                        //?Producto
+                        SelectSearch(
+                          productosSelection: mapearListaAProductoMap(
+                            inventarioProvider.productosSelection,
                           ),
                         ),
-                      ),
+                        const HeadTextForm(
+                          texto: 'Cantidad: ',
+                        ),
+                        //?Cantidad
+                        FadeInLeft(
+                          duration: const Duration(milliseconds: 200),
+                          delay: const Duration(milliseconds: 200),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 320),
+                            child: ShadInputFormField(
+                              validator: (v) {
+                                if (v.isEmpty) {
+                                  return 'Ingrese una cantidad';
+                                }
+                                return null;
+                              },
+                              error: (error) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(error),
+                                );
+                              },
+                              placeholder: const Text('200...'),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                if (value == '') {
+                                  if (inventarioProvider.formularioTandaData[
+                                          'cantidadIngresada'] !=
+                                      null) {
+                                    inventarioProvider.setFormularioTandaData(
+                                      'cantidadIngresada',
+                                      null,
+                                    );
+                                  }
+                                  return;
+                                }
+                                inventarioProvider.setFormularioTandaData(
+                                  'cantidadIngresada',
+                                  value,
+                                );
+                              },
+                            ),
+                          ),
+                        ),
 
-                      //?Vencimiento
-                      const HeadTextForm(
-                        texto: 'Fecha de vencimiento: ',
-                      ),
-                      CustomDateInput(
-                        label: 'Fecha de vencimiento...',
-                        validator: (String? errorsDate) {
-                          setState(() {
-                            isInvalidDate = errorsDate != null;
-                          });
-                          if (errorsDate != '') {
-                            if (inventarioProvider
-                                    .formularioTandaData['fechaVencimiento'] !=
-                                null) {
-                              inventarioProvider.setFormularioTandaData(
-                                'fechaVencimiento',
-                                null,
-                              );
+                        //?Vencimiento
+                        const HeadTextForm(
+                          texto: 'Fecha de vencimiento: ',
+                        ),
+                        CustomDateInput(
+                          label: 'Fecha de vencimiento...',
+                          validator: (String? errorsDate) {
+                            setState(() {
+                              isInvalidDate = errorsDate != null;
+                            });
+                            if (errorsDate != '') {
+                              if (inventarioProvider.formularioTandaData[
+                                      'fechaVencimiento'] !=
+                                  null) {
+                                inventarioProvider.setFormularioTandaData(
+                                  'fechaVencimiento',
+                                  null,
+                                );
+                              }
+                              return;
                             }
-                            return;
-                          }
-                          inventarioProvider.setFormularioTandaData(
-                            'fechaVencimiento',
-                            fechaController.value.text,
-                          );
-                        },
-                        controller: fechaController,
-                      ),
+                            inventarioProvider.setFormularioTandaData(
+                              'fechaVencimiento',
+                              fechaController.value.text,
+                            );
+                          },
+                          controller: fechaController,
+                        ),
 
-                      //?Bodega
-                      const HeadTextForm(
-                        texto: 'Bodega: ',
-                      ),
-                      SelectListBodega(
-                        lista: inventarioProvider.bodegas,
-                        nombre: 'Bodegas ⤵️',
-                        onBodegaChanged: (String selectedBodegaId) {
-                          // Actualizar formularioTandaData con el ID de la bodega seleccionada
-                          inventarioProvider.setFormularioTandaData(
-                              'idBodega', selectedBodegaId);
+                        //?Bodega
+                        const HeadTextForm(
+                          texto: 'Bodega: ',
+                        ),
+                        SelectListBodega(
+                          lista: inventarioProvider.bodegas,
+                          nombre: 'Bodegas ⤵️',
+                          onBodegaChanged: (String selectedBodegaId) {
+                            // Actualizar formularioTandaData con el ID de la bodega seleccionada
+                            inventarioProvider.setFormularioTandaData(
+                                'idBodega', selectedBodegaId);
 
-                          // Emitir el evento para obtener las ubicaciones
-                          inventarioProvider
-                              .connect([InventarioEvent.getUbicaciones]);
-                        },
-                      ),
+                            // Emitir el evento para obtener las ubicaciones
+                            inventarioProvider
+                                .connect([InventarioEvent.getUbicaciones]);
+                          },
+                        ),
 
-                      //?Ubicacion
-                      HeadRowTextForm(
-                        texto: 'Ubicación: ',
-                        funcionOnPressed: () {},
-                      ),
-                      SelectListUbicacion(
-                        lista: inventarioProvider.ubicacion,
-                        nombre: 'Ubicaciones ⤵️',
-                      ),
-                    ],
+                        //?Ubicacion
+                        HeadRowTextForm(
+                          texto: 'Ubicación: ',
+                          funcionOnPressed: () {},
+                        ),
+                        SelectListUbicacion(
+                          lista: inventarioProvider.ubicacion,
+                          nombre: 'Ubicaciones ⤵️',
+                        ),
+                      ],
+                    ),
                   ),
-                  const BotonAgregar()
+                  BotonAgregar(onClick: () async {
+                    if (!formKey.currentState!.validate()) {
+                      return;
+                    }
+                    await inventarioProvider
+                        .addTanda(inventarioProvider.formularioTandaData);
+                    //al repo
+                  })
                 ],
               ),
             ),
@@ -256,6 +281,7 @@ class _SelectListBodegaState extends State<SelectListBodega> {
   }
 }
 
+//PERMITIR QUE ESTO SEA SCROLLEABLE****
 class SelectListUbicacion extends StatelessWidget {
   const SelectListUbicacion({
     super.key,
@@ -298,7 +324,20 @@ class SelectListUbicacion extends StatelessWidget {
       from: 25,
       delay: const Duration(milliseconds: 300),
       duration: const Duration(milliseconds: 400),
-      child: ShadSelect<String>(
+      child: ShadSelectFormField<String>(
+        minWidth: double.infinity,
+        validator: (v) {
+          if (v == null || v.isEmpty) {
+            return 'Seleccionar una ubicación';
+          }
+          return null;
+        },
+        error: (error) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(error),
+          );
+        },
         placeholder: const Text('Seleccionar ubicaciones'),
         options: [
           Padding(
@@ -425,8 +464,8 @@ class _SelectSearchState extends State<SelectSearch> {
     final inventarioProvider = context.watch<InventarioProvider>();
     return FadeInLeft(
       duration: const Duration(milliseconds: 200),
-      child: ShadSelect<String>.withSearch(
-        minWidth: 180,
+      child: ShadSelectFormField<String>.withSearch(
+        minWidth: double.infinity,
         placeholder: const Text('Seleccionar producto...'),
         onSearchChanged: (value) => setState(() {
           searchValue = value;
@@ -450,6 +489,18 @@ class _SelectSearchState extends State<SelectSearch> {
             },
           )
         ],
+        validator: (v) {
+          if (v == null || v.isEmpty) {
+            return 'Seleccionar un producto';
+          }
+          return null;
+        },
+        error: (error) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(error),
+          );
+        },
         onChanged: (String? value) {
           if (value != null) {
             final producto = widget.productosSelection[value]!;
@@ -469,11 +520,15 @@ class _SelectSearchState extends State<SelectSearch> {
   }
 }
 
-class BotonAgregar extends StatelessWidget {
-  const BotonAgregar({
-    super.key,
-  });
+class BotonAgregar extends StatefulWidget {
+  const BotonAgregar({super.key, required this.onClick});
+  final Function() onClick;
 
+  @override
+  State<BotonAgregar> createState() => _BotonAgregarState();
+}
+
+class _BotonAgregarState extends State<BotonAgregar> {
   @override
   Widget build(BuildContext context) {
     final inventarioProvider = context.watch<InventarioProvider>();
@@ -482,12 +537,7 @@ class BotonAgregar extends StatelessWidget {
       bottom: 10.0,
       left: 10.0,
       right: 10.0,
-      child: ShadButton(
-        child: const Text('Añadir'),
-        onPressed: () {
-          print(inventarioProvider.formularioTandaData);
-        },
-      ),
+      child: ShadButton(child: const Text('Añadir'), onPressed: widget.onClick),
     );
   }
 }
