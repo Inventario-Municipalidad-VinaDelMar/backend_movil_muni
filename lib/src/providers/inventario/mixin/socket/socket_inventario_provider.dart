@@ -70,7 +70,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
 
   void setFormularioTandaData(String property, dynamic value) {
     formularioTandaData[property] = value;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
   void disposeFormularioTandaData() {
@@ -82,7 +82,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
       'idUbicacion': null,
       'idCategoria': null
     };
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
   void initSocket() {
