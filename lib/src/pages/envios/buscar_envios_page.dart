@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend_movil_muni/src/pages/envios/sheet_buscar_envios_page.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart' as shad;
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 const frameworks = {
-  'nextjs': 'Next.js',
-  'svelte': 'SvelteKit',
-  'nuxtjs': 'Nuxt.js',
-  'remix': 'Remix',
-  'astro': 'Astro',
+  'bodega A': 'Bodega A - Miraflores Centro',
 };
 
 const invoices = [
@@ -137,10 +131,10 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                  top: 20, bottom: 10, right: 10, left: 15),
+                  top: 20, bottom: 0, right: 10, left: 15),
               child: SizedBox(
                   width: double.infinity,
-                  child: Text("Bodega", style: textStyles.h4)),
+                  child: Text("Bodega", style: textStyles.small)),
             ),
             Padding(
               padding: const EdgeInsets.only(
@@ -149,6 +143,8 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                 width: double.infinity,
                 child: ShadSelect<String>.withSearch(
                   minWidth: 180,
+                  //Valor por defecto
+                  // initialValue: frameworks['bodega A'] ?? '',
                   placeholder:
                       Text('Seleccione una bodega', style: textStyles.small),
                   onSearchChanged: (value) =>
@@ -181,30 +177,58 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
             //tabla
             Center(
               child: SizedBox(
-                width: size.width * 0.95,
+                width: size.width,
                 height: size.height * 0.75,
                 child: ShadTable.list(
-                  header: const [
-                    ShadTableCell.header(child: Text('Nombre')),
-                    ShadTableCell.header(child: Text('Cantidad')),
+                  horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
+                  header: [
+                    ShadTableCell.header(
+                        child: Text(
+                      'Nombre',
+                      style: textStyles.muted.copyWith(
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                    ShadTableCell.header(
+                        child: Text(
+                      'Cantidad',
+                      style: textStyles.muted.copyWith(
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
                     ShadTableCell.header(
                       alignment: Alignment.center,
-                      child: Text('Ubicacion'),
+                      child: Text(
+                        'Ubicacion',
+                        style: textStyles.muted.copyWith(
+                          overflow: TextOverflow.ellipsis,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    ShadTableCell.header(child: Text('Vencimiento')),
+                    ShadTableCell.header(
+                        child: Text(
+                      'Vencimiento',
+                      style: textStyles.muted.copyWith(
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
                   ],
                   columnSpanExtent: (index) {
                     if (index == 0) {
-                      return FixedTableSpanExtent(size.width * 0.22);
+                      return FixedTableSpanExtent(size.width * 0.23);
                     }
                     if (index == 1) {
-                      return FixedTableSpanExtent(size.width * 0.21);
+                      return FixedTableSpanExtent(size.width * 0.24);
                     }
                     if (index == 2) {
-                      return FixedTableSpanExtent(size.width * 0.26);
+                      return FixedTableSpanExtent(size.width * 0.23);
                     }
                     if (index == 3) {
-                      return FixedTableSpanExtent(size.width * 0.26);
+                      return FixedTableSpanExtent(size.width * 0.3);
                     }
 
                     return null;
@@ -221,12 +245,11 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                   side: shad.ShadSheetSide.bottom),
                             );
                           },
-                          child: Text(
-                            invoice.nombre,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          child: Text(invoice.nombre,
+                              style: textStyles.small.copyWith(
+                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
+                              )),
                         ),
                       ),
                       ShadTableCell(
@@ -240,7 +263,9 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                   side: shad.ShadSheetSide.bottom),
                             );
                           },
-                          child: Text(invoice.cantidad),
+                          child: ShadBadge(
+                            child: Text(invoice.cantidad),
+                          ),
                         ),
                       ),
                       ShadTableCell(
@@ -250,10 +275,14 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                               side: shad.ShadSheetSide.bottom,
                               context: context,
                               builder: (context) => const SheetBuscarEnviosPage(
-                                  side: shad.ShadSheetSide.bottom),
+                                side: shad.ShadSheetSide.bottom,
+                              ),
                             );
                           },
-                          child: Text(invoice.ubicacion),
+                          child: Text(
+                            invoice.ubicacion,
+                            style: textStyles.small,
+                          ),
                         ),
                       ),
                       ShadTableCell(
@@ -263,10 +292,14 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                               side: shad.ShadSheetSide.bottom,
                               context: context,
                               builder: (context) => const SheetBuscarEnviosPage(
-                                  side: shad.ShadSheetSide.bottom),
+                                side: shad.ShadSheetSide.bottom,
+                              ),
                             );
                           },
-                          child: Text(invoice.vencimiento),
+                          child: Text(
+                            invoice.vencimiento,
+                            style: textStyles.small,
+                          ),
                         ),
                       ),
                     ],
