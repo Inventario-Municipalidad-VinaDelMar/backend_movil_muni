@@ -21,7 +21,6 @@ class _AddTandasPageState extends State<AddTandasPage> {
   TextEditingController fechaController = TextEditingController();
   bool isInvalidDate = false;
   late InventarioProvider _inventarioProvider;
-
   Map<String, SelectionProductModel> mapearListaAProductoMap(
       List<SelectionProductModel> productos) {
     return {for (var producto in productos) producto.id: producto};
@@ -113,7 +112,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
                                 }
                                 inventarioProvider.setFormularioTandaData(
                                   'cantidadIngresada',
-                                  value,
+                                  int.parse(value),
                                 );
                               },
                             ),
@@ -141,9 +140,14 @@ class _AddTandasPageState extends State<AddTandasPage> {
                               }
                               return;
                             }
+                            dynamic fechaParsed =
+                                fechaController.value.text.split('-');
+                            fechaParsed =
+                                "${fechaParsed[2]}-${fechaParsed[1]}-${fechaParsed[0]}";
+
                             inventarioProvider.setFormularioTandaData(
                               'fechaVencimiento',
-                              fechaController.value.text,
+                              fechaParsed,
                             );
                           },
                           controller: fechaController,
@@ -183,9 +187,33 @@ class _AddTandasPageState extends State<AddTandasPage> {
                     if (!formKey.currentState!.validate()) {
                       return;
                     }
+
                     await inventarioProvider
                         .addTanda(inventarioProvider.formularioTandaData);
-                    //al repo
+                    String productName = "";
+
+                    for (final producto
+                        in inventarioProvider.productosSelection) {
+                      if (inventarioProvider
+                              .formularioTandaData['idProducto'] ==
+                          producto.id) {
+                        productName = producto.nombre;
+                        break;
+                      }
+                    }
+
+                    ShadToaster.of(context).show(
+                      ShadToast(
+                        title: const Text('Tanda creada'),
+                        description:
+                            Text('Se ha creado tanda de ${productName}'),
+                        duration: Duration(seconds: 4),
+                        action: ShadButton.outline(
+                          child: const Text('Undo'),
+                          onPressed: () => ShadToaster.of(context).hide(),
+                        ),
+                      ),
+                    );
                   })
                 ],
               ),
@@ -537,7 +565,21 @@ class _BotonAgregarState extends State<BotonAgregar> {
       bottom: 10.0,
       left: 10.0,
       right: 10.0,
-      child: ShadButton(child: const Text('Añadir'), onPressed: widget.onClick),
+      child: ShadButton(
+          enabled: !inventarioProvider.creatingTanda,
+          icon: !inventarioProvider.creatingTanda
+              ? Container()
+              : Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      )),
+                ),
+          child:
+              Text(!inventarioProvider.creatingTanda ? 'Añadir' : 'Cargando'),
+          onPressed: widget.onClick),
     );
   }
 }
