@@ -264,7 +264,18 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                             );
                           },
                           child: ShadBadge(
-                            child: Text(invoice.cantidad),
+                            child: InkWell(
+                                onTap: () {
+                                  showShadSheet(
+                                    side: shad.ShadSheetSide.bottom,
+                                    context: context,
+                                    builder: (context) =>
+                                        const SheetBuscarEnviosPage(
+                                      side: shad.ShadSheetSide.bottom,
+                                    ),
+                                  );
+                                },
+                                child: Text(invoice.cantidad)),
                           ),
                         ),
                       ),

@@ -150,14 +150,13 @@ class _EnviosPageState extends State<EnviosPage> {
                         ShadTableCell(
                           child: Center(
                             child: ShadCheckbox(
+                              enabled: envioIniciado ? envioIniciado : false,
                               value: invoice['checked'],
-                              onChanged: envioIniciado
-                                  ? (value) {
-                                      setState(() {
-                                        invoice['checked'] = value;
-                                      });
-                                    }
-                                  : null,
+                              onChanged: (value) {
+                                setState(() {
+                                  invoice['checked'] = value;
+                                });
+                              },
                               color: envioIniciado ? null : Colors.grey,
                             ),
                           ),
@@ -193,26 +192,31 @@ class _EnviosPageState extends State<EnviosPage> {
               ),
             ),
           ),
-          SizedBox(
-            height: size.height * 0.06,
-            width: size.width,
-            child: ShadButton(
-              enabled:
-                  envioIniciado ? envioIniciado && _todosSeleccionados() : true,
-              size: ShadButtonSize.lg,
-              onPressed: () {
-                setState(() {
-                  if (envioIniciado) {
-                    Navigator.pop(context);
-                  } else {
-                    envioIniciado = !envioIniciado;
-                  }
-                });
-              },
-              icon: const Icon(Icons.swipe_up_outlined),
-              child: Text(
-                envioIniciado ? 'Completar envío' : 'Iniciar nuevo envío',
-                style: textStyles.h4.copyWith(color: Colors.white),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: SizedBox(
+              height: size.height * 0.06,
+              width: size.width,
+              child: ShadButton(
+                enabled: envioIniciado
+                    ? envioIniciado && _todosSeleccionados()
+                    : true,
+                size: ShadButtonSize.lg,
+                onPressed: () {
+                  setState(() {
+                    if (envioIniciado) {
+                      Navigator.pop(context);
+                    } else {
+                      envioIniciado = !envioIniciado;
+                    }
+                  });
+                },
+                icon: const Icon(Icons.swipe_up_outlined),
+                child: Text(
+                  envioIniciado ? 'Completar envío' : 'Iniciar nuevo envío',
+                  style: textStyles.h4.copyWith(color: Colors.white),
+                ),
               ),
             ),
           ),
