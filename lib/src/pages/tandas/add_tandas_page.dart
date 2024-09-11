@@ -1,12 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
 import 'package:frontend_movil_muni/src/utils/date_text.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -48,6 +50,8 @@ class _AddTandasPageState extends State<AddTandasPage> {
     final inventarioProvider = context.watch<InventarioProvider>();
     final isLoading = inventarioProvider.loadingProductos ||
         inventarioProvider.loadingBodegas;
+    print(
+        "Se construye el widget principal: ${inventarioProvider.formularioTandaData}");
 
     return Scaffold(
       appBar: AppBar(
@@ -209,11 +213,13 @@ class _AddTandasPageState extends State<AddTandasPage> {
                             Text('Se ha creado tanda de ${productName}'),
                         duration: Duration(seconds: 4),
                         action: ShadButton.outline(
-                          child: const Text('Undo'),
-                          onPressed: () => ShadToaster.of(context).hide(),
-                        ),
+                            child: const Text('Undo'),
+                            onPressed: () {
+                              ShadToaster.of(context).hide();
+                            }),
                       ),
                     );
+                    context.pop();
                   })
                 ],
               ),
