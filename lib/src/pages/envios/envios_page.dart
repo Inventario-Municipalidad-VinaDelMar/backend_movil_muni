@@ -15,7 +15,7 @@ class _EnviosPageState extends State<EnviosPage> {
       (index) => {
             'nombre': index < 4
                 ? ['Legumbres', 'Bebida', 'Cubiertos', 'Panaderia'][index]
-                : 'Panaderia',
+                : 'Arroz',
             'accion': 'cargar>>',
             'checked': false, // Agregar estado del checkbox
           });
