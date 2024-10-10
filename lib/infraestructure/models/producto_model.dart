@@ -2,14 +2,14 @@ class ProductosModel {
   String nombre;
   String descripcion;
   String urlImagen;
-  _CategoriaProductoModel categoria; // Clase privada
+  // _CategoriaProductoModel categoria; // Clase privada
   String id;
 
   ProductosModel({
     required this.nombre,
     required this.descripcion,
     required this.urlImagen,
-    required this.categoria,
+    // required this.categoria,
     required this.id,
   });
 
@@ -18,7 +18,7 @@ class ProductosModel {
       nombre: producto['nombre'],
       descripcion: producto['descripcion'] ?? "",
       urlImagen: producto['urlImagen'] ?? "",
-      categoria: _CategoriaProductoModel.fromApi(producto['categoria']),
+      // categoria: _CategoriaProductoModel.fromApi(producto['categoria']),
       id: producto['id'],
     );
   }
@@ -49,12 +49,12 @@ class _CategoriaProductoModel {
 class SelectionProductModel {
   String id;
   String nombre;
-  _CategoriaProductoModel categoria; // Clase privada
+  // _CategoriaProductoModel categoria; // Clase privada
 
   SelectionProductModel({
     required this.id,
     required this.nombre,
-    required this.categoria,
+    // required this.categoria,
   });
 
   factory SelectionProductModel.fromApi(
@@ -62,8 +62,8 @@ class SelectionProductModel {
     return SelectionProductModel(
       id: selectionProducto['id'],
       nombre: selectionProducto['nombre'],
-      categoria:
-          _CategoriaProductoModel.fromApi(selectionProducto['categoria']),
+      // categoria:
+      //     _CategoriaProductoModel.fromApi(selectionProducto['categoria']),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dart';
@@ -50,8 +49,6 @@ class _AddTandasPageState extends State<AddTandasPage> {
     final inventarioProvider = context.watch<InventarioProvider>();
     final isLoading = inventarioProvider.loadingProductos ||
         inventarioProvider.loadingBodegas;
-    print(
-        "Se construye el widget principal: ${inventarioProvider.formularioTandaData}");
 
     return Scaffold(
       appBar: AppBar(
@@ -326,6 +323,7 @@ class SelectListUbicacion extends StatelessWidget {
   final String nombre;
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
     final colors = ShadTheme.of(context).colorScheme;
     final inventarioProvider = context.watch<InventarioProvider>();
@@ -359,7 +357,9 @@ class SelectListUbicacion extends StatelessWidget {
       delay: const Duration(milliseconds: 300),
       duration: const Duration(milliseconds: 400),
       child: ShadSelectFormField<String>(
-        minWidth: double.infinity,
+        // minWidth: ,
+        minWidth: size.width * 0.95,
+        maxHeight: size.height * 0.25,
         validator: (v) {
           if (v == null || v.isEmpty) {
             return 'Seleccionar una ubicación';
@@ -461,7 +461,6 @@ class HeadTextForm extends StatelessWidget {
   final String texto;
   @override
   Widget build(BuildContext context) {
-    final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -495,11 +494,12 @@ class _SelectSearchState extends State<SelectSearch> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final inventarioProvider = context.watch<InventarioProvider>();
     return FadeInLeft(
       duration: const Duration(milliseconds: 200),
       child: ShadSelectFormField<String>.withSearch(
-        minWidth: double.infinity,
+        minWidth: size.width * 0.94,
         placeholder: const Text('Seleccionar producto...'),
         onSearchChanged: (value) => setState(() {
           searchValue = value;
@@ -541,8 +541,8 @@ class _SelectSearchState extends State<SelectSearch> {
             // Actualiza inventarioProvider al seleccionar una opción, fuera de la fase de construcción
             inventarioProvider.setFormularioTandaData(
                 'idProducto', producto.id);
-            inventarioProvider.setFormularioTandaData(
-                'idCategoria', producto.categoria.id);
+            // inventarioProvider.setFormularioTandaData(
+            //     'idCategoria', producto.categoria.id);
           }
         },
         selectedOptionBuilder: (context, value) {

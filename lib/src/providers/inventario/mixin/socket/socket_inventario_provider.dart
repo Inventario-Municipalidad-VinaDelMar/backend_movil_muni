@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
@@ -30,8 +29,8 @@ class SocketEvents {
   static const String getTandasByCategoria = 'getTandasByCategoria';
 
   //Reciben una lista de productos
-  static const String getProductos = 'getAllProducts';
-  static const String loadProductos = 'loadProducts';
+  static const String getProductos = 'getAllProductos';
+  static const String loadProductos = 'loadAllProductos';
   static const String newProducto = 'newProducto';
 
   //Reciben una lista de ubicaciones
@@ -80,7 +79,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
       'idProducto': null,
       'idBodega': null,
       'idUbicacion': null,
-      'idCategoria': null
+      // 'idCategoria': null
     };
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
@@ -92,6 +91,8 @@ mixin SocketInventarioProvider on ChangeNotifier {
 
   void _updateSocket() {
     // final token = _userProvider.user?.jwtToken;
+    const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODU4MzU0OSwiZXhwIjoxNzI4NTkwNzQ5fQ.SbpXZ-hDCJ-L5ywQtPskoykkITT6CXBonG4g-mVw6eM';
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
@@ -105,7 +106,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
           .disableAutoConnect()
           .disableForceNew()
           .disableForceNewConnection()
-          // .setExtraHeaders({'authentication': token})
+          .setExtraHeaders({'authentication': token})
           .build(),
     );
 
