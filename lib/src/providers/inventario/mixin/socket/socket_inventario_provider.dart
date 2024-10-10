@@ -92,7 +92,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   void _updateSocket() {
     // final token = _userProvider.user?.jwtToken;
     const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODU4MzU0OSwiZXhwIjoxNzI4NTkwNzQ5fQ.SbpXZ-hDCJ-L5ywQtPskoykkITT6CXBonG4g-mVw6eM';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODU5MjE2MCwiZXhwIjoxNzI4NTk5MzYwfQ.gArFJMARQVTOjsZGoAyKvjxGafW0HB-jL0E-kIJgtsc';
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
@@ -111,10 +111,10 @@ mixin SocketInventarioProvider on ChangeNotifier {
     );
 
     _socket!.onConnect((_) {
-      print("Conectado al server de ivnentario");
+      print('Conectado a inventario');
     });
     _socket!.onDisconnect((_) {
-      print("Disconectado");
+      print('Desconectado de inventario');
     });
     _socket!.onReconnect((_) {});
 

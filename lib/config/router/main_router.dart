@@ -11,18 +11,11 @@ final mainRouter = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const HomePage()),
     GoRoute(path: '/envio', builder: (context, state) => const EnviosPage()),
     GoRoute(
-        path: '/envioBuscar',
+        path: '/envio/tandas-producto',
         builder: (context, state) => const BuscarEnviosPage()),
     GoRoute(
-        path: '/tandas',
-        builder: (context, state) => const EnviosPage(),
-        routes: [
-          GoRoute(
-            path: 'add',
-            builder: (context, state) {
-              return const AddTandasPage();
-            },
-          ),
-        ]),
+      path: '/tandas/add',
+      builder: (context, state) => const AddTandasPage(),
+    ),
   ],
 );
