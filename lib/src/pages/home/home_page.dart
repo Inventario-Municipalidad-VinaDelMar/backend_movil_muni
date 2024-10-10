@@ -41,9 +41,9 @@ class HomePage extends StatelessWidget {
       {
         'title': 'Entregas',
         'subtitle': 'Registra entregas a Comedores Solidarios',
-        'footer': '',
+        'footer': 'Proximamente...',
         'icon': AnimateIcons.compass,
-        'route': '/envio'
+        'route': null
       },
     ];
 
@@ -91,7 +91,10 @@ class HomePage extends StatelessWidget {
             final item = gridItems[index];
 
             return InkWell(
-              onTap: () => context.push(item['route']),
+              onTap: () {
+                if (item['route'] == null) return;
+                context.push(item['route']);
+              },
               child: SizedBox(
                 width: size.width *
                     0.4, // Las tarjetas ocupan el 40% del ancho de la pantalla
@@ -151,7 +154,6 @@ class HomePage extends StatelessWidget {
                                 item['subtitle'],
                                 style: textStyles.small.copyWith(
                                   color: Colors.blueGrey[100],
-                                  // fontWeight: FontWeight.bold,
                                   height: 1.3,
                                 ),
                               ),
@@ -161,6 +163,9 @@ class HomePage extends StatelessWidget {
                                 style: textStyles.small.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+                                  fontStyle: item['route'] != null
+                                      ? null
+                                      : FontStyle.italic,
                                 ),
                               ),
                             ],
