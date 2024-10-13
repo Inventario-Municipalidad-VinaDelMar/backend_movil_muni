@@ -46,123 +46,12 @@ class _EnviosPageState extends State<EnviosPage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                SizedBox(
+                //Planificacion del dia
+                const _TablePlanificacion(),
+                Container(
+                  color: Colors.blue,
                   width: size.width,
-                  height: size.height * 0.82,
-                  child: ShadTable.list(
-                    columnSpanExtent: (index) {
-                      if (index == 0) {
-                        return FixedTableSpanExtent(size.width * 0.3);
-                      }
-                      if (index == 1) {
-                        return FixedTableSpanExtent(size.width * 0.3);
-                      }
-                      if (index == 2) {
-                        return MaxTableSpanExtent(
-                          FixedTableSpanExtent(size.width * 0.15),
-                          const RemainingTableSpanExtent(),
-                        );
-                      }
-                      return null;
-                    },
-                    header: [
-                      ShadTableCell.header(
-                        child: Text(
-                          'Nombre',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: size.height * 0.017),
-                        ),
-                      ),
-                      ShadTableCell.header(
-                        child: Text(
-                          'Completado',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: size.height * 0.017),
-                        ),
-                      ),
-                      ShadTableCell.header(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Accion',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: size.height * 0.017),
-                        ),
-                      ),
-                    ],
-                    children:
-                        planificacionProvider.planificacionActual[0].detalles
-                            .map(
-                              (detalle) => [
-                                ShadTableCell(
-                                  child: Text(
-                                    detalle.producto,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: size.height * 0.015),
-                                  ),
-                                ),
-                                ShadTableCell(
-                                  child: Center(
-                                    child: ShadCheckbox(
-                                      decoration: detalle.isComplete
-                                          ? const ShadDecoration(
-                                              border: ShadBorder())
-                                          : null,
-                                      enabled: planificacionProvider
-                                              .planificacionActual[0]
-                                              .envioIniciado !=
-                                          null,
-                                      value: detalle.isComplete,
-                                      color: planificacionProvider
-                                                  .planificacionActual[0]
-                                                  .envioIniciado ==
-                                              null
-                                          ? null
-                                          : detalle.isComplete
-                                              ? Colors.green
-                                              : Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                                ShadTableCell(
-                                  child: SizedBox(
-                                    height: size.height * 0.045,
-                                    child: Center(
-                                      child: ShadButton(
-                                        enabled: planificacionProvider
-                                                .planificacionActual[0]
-                                                .envioIniciado !=
-                                            null,
-                                        size: ShadButtonSize.sm,
-                                        onPressed: planificacionProvider
-                                                    .planificacionActual[0]
-                                                    .envioIniciado !=
-                                                null
-                                            ? () {
-                                                context.push(
-                                                    '/envio/${detalle.productoId}/tandas');
-                                              }
-                                            : null,
-                                        icon: const Icon(
-                                          Icons.search,
-                                          size: 13,
-                                        ),
-                                        child: Text(
-                                          'Buscar',
-                                          style: textStyles.small
-                                              .copyWith(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                            .toList(),
-                  ),
+                  height: size.height * 0.42,
                 ),
                 const Spacer(),
                 Stack(
@@ -199,20 +88,154 @@ class _EnviosPageState extends State<EnviosPage> {
                         //   }
                         // });
                       },
-                      icon: const Icon(Icons.swipe_up_outlined),
-                      child: Text(
-                        planificacionProvider
-                                    .planificacionActual[0].envioIniciado ==
-                                null
-                            ? 'Iniciar nuevo envío'
-                            : 'Completar envío',
-                        style: textStyles.h4.copyWith(color: Colors.white),
+                      icon: planificacionProvider
+                                  .planificacionActual[0].envioIniciado ==
+                              null
+                          ? const Icon(Icons.swipe_up_outlined)
+                          : const Icon(Icons.fire_truck_outlined),
+                      child: Row(
+                        children: [
+                          Text(
+                            planificacionProvider
+                                        .planificacionActual[0].envioIniciado ==
+                                    null
+                                ? 'Iniciar nuevo envío'
+                                : 'Completar envío',
+                            style: textStyles.h4.copyWith(color: Colors.white),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                          )
+                        ],
                       ),
                     ),
                   ],
                 ),
               ],
             ),
+    );
+  }
+}
+
+class _TablePlanificacion extends StatelessWidget {
+  const _TablePlanificacion();
+
+  @override
+  Widget build(BuildContext context) {
+    final planificacionProvider = context.watch<PlanificacionProvider>();
+    Size size = MediaQuery.of(context).size;
+    final textStyles = ShadTheme.of(context).textTheme;
+    return SizedBox(
+      width: size.width,
+      height: size.height * 0.4,
+      child: ShadTable.list(
+        columnSpanExtent: (index) {
+          if (index == 0) {
+            return FixedTableSpanExtent(size.width * 0.3);
+          }
+          if (index == 1) {
+            return FixedTableSpanExtent(size.width * 0.3);
+          }
+          if (index == 2) {
+            return MaxTableSpanExtent(
+              FixedTableSpanExtent(size.width * 0.15),
+              const RemainingTableSpanExtent(),
+            );
+          }
+          return null;
+        },
+        header: [
+          ShadTableCell.header(
+            child: Text(
+              'Nombre',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: size.height * 0.017),
+            ),
+          ),
+          ShadTableCell.header(
+            child: Text(
+              'Completado',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: size.height * 0.017),
+            ),
+          ),
+          ShadTableCell.header(
+            alignment: Alignment.center,
+            child: Text(
+              'Accion',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: size.height * 0.017),
+            ),
+          ),
+        ],
+        children: planificacionProvider.planificacionActual[0].detalles
+            .map(
+              (detalle) => [
+                ShadTableCell(
+                  child: Text(
+                    detalle.producto,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: size.height * 0.015),
+                  ),
+                ),
+                ShadTableCell(
+                  child: Center(
+                    child: ShadCheckbox(
+                      decoration: detalle.isComplete
+                          ? const ShadDecoration(border: ShadBorder())
+                          : null,
+                      enabled: planificacionProvider
+                              .planificacionActual[0].envioIniciado !=
+                          null,
+                      value: detalle.isComplete,
+                      color: planificacionProvider
+                                  .planificacionActual[0].envioIniciado ==
+                              null
+                          ? null
+                          : detalle.isComplete
+                              ? Colors.green
+                              : Colors.grey,
+                    ),
+                  ),
+                ),
+                ShadTableCell(
+                  child: SizedBox(
+                    height: size.height * 0.045,
+                    child: Center(
+                      child: ShadButton(
+                        enabled: (planificacionProvider
+                                    .planificacionActual[0].envioIniciado !=
+                                null) &&
+                            !detalle.isComplete,
+                        size: ShadButtonSize.sm,
+                        onPressed: planificacionProvider
+                                    .planificacionActual[0].envioIniciado !=
+                                null
+                            ? () {
+                                context.push(
+                                    '/envio/${detalle.productoId}/tandas');
+                              }
+                            : null,
+                        icon: Icon(
+                          detalle.isComplete
+                              ? Icons.checklist_sharp
+                              : Icons.search,
+                          size: 16,
+                        ),
+                        child: Text(
+                          detalle.isComplete ? 'Listo' : 'Buscar',
+                          style: textStyles.small.copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+            .toList(),
+      ),
     );
   }
 }
