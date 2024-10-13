@@ -92,7 +92,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   void _updateSocket() {
     // final token = _userProvider.user?.jwtToken;
     const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODgzNjg3MSwiZXhwIjoxNzI4ODQ0MDcxfQ.QUv5rXnGT2rF_viaFLjlQs7PTLQd00eW1zhnbhiynfA';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODg0NDI1NywiZXhwIjoxNzI4ODUxNDU3fQ.FDd3xiEwA1MifvK0kjmmQ3OvQ8KyKCk9dlNBe6q6p00';
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
@@ -236,23 +236,19 @@ mixin SocketInventarioProvider on ChangeNotifier {
     required Map<String, dynamic> emitPayload,
     required T Function(Map<String, dynamic>) fromApi,
   }) {
-    print(this.loadingTandas);
     setLoading(true);
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-    print(this.loadingTandas);
 
     //?Solicitar la informacion
     _socket!.emit(emitEvent, emitPayload);
 
     //?Capturar informacion solicitada
     _socket!.on(loadEvent, (data) {
-      print('Data recibida');
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
-      print(this.loadingTandas);
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }
