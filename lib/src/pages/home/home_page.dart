@@ -81,7 +81,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         leadingWidth: size.width * 0.2,
-        leading: const ShadButton.ghost(
+        leading: ShadButton.ghost(
           child: Icon(
             LucideIcons.menu,
             color: Colors.white,
@@ -93,6 +93,9 @@ class HomePage extends StatelessWidget {
           //     side: ShadSheetSide.left,
           //   ),
           // ),
+          onPressed: () {
+            context.push('/auth');
+          },
         ),
         actions: [
           // MenuDesplegable(),
