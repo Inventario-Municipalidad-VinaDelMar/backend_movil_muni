@@ -9,8 +9,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 enum InventarioEvent {
   //tandas
-  getTandas,
-  getTandasByCategoria,
+  getTandasByProducto,
   newTanda,
   //productos
   getProductos,
@@ -25,8 +24,8 @@ enum InventarioEvent {
 
 class SocketEvents {
   //Piden una lista de tandas
-  static const String getTandas = 'getTandas';
-  static const String getTandasByCategoria = 'getTandasByCategoria';
+  static const String getTandasByProducto = 'getTandasByIdProducto';
+  static const String loadTandasByProducto = '-tanda';
 
   //Reciben una lista de productos
   static const String getProductos = 'getAllProductos';
@@ -46,7 +45,7 @@ class SocketEvents {
 }
 
 mixin SocketInventarioProvider on ChangeNotifier {
-  List<TandaModel> tandaByCategoria = [];
+  List<TandaModel> tandaByProducto = [];
   List<SelectionProductModel> productosSelection = [];
   List<BodegaModel> bodegas = [];
   List<UbicacionesModel> ubicacion = [];
@@ -54,6 +53,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   bool loadingProductos = false;
   bool loadingBodegas = false;
   bool loadingUbicacion = false;
+  bool loadingTandas = false;
 
   Map<String, dynamic> formularioTandaData = {
     'cantidadIngresada': null,
@@ -92,7 +92,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   void _updateSocket() {
     // final token = _userProvider.user?.jwtToken;
     const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODU5MjE2MCwiZXhwIjoxNzI4NTk5MzYwfQ.gArFJMARQVTOjsZGoAyKvjxGafW0HB-jL0E-kIJgtsc';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODgzNjg3MSwiZXhwIjoxNzI4ODQ0MDcxfQ.QUv5rXnGT2rF_viaFLjlQs7PTLQd00eW1zhnbhiynfA';
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
@@ -121,15 +121,15 @@ mixin SocketInventarioProvider on ChangeNotifier {
     _socket?.connect();
   }
 
-  void connect(List<InventarioEvent> events) {
+  void connect(List<InventarioEvent> events, {String? productoId}) {
     //Esta funcion debería ejecutarse cada vez que se entra a una pantalla
-    _clearListeners(events);
-    _registerListeners(events);
+    _clearListeners(events, productoId: productoId);
+    _registerListeners(events, productoId: productoId);
   }
 
-  void disconnect(List<InventarioEvent> events) {
+  void disconnect(List<InventarioEvent> events, {String? productoId}) {
     //Esta funcion debería ejecutarse cada vez que se cierra una pantalla
-    _clearListeners(events);
+    _clearListeners(events, productoId: productoId);
   }
 
   void _disposeSocket() {
@@ -140,10 +140,24 @@ mixin SocketInventarioProvider on ChangeNotifier {
     productosSelection.clear();
   }
 
-  void _registerListeners(List<InventarioEvent> events) {
+  void _registerListeners(List<InventarioEvent> events, {String? productoId}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
+        case InventarioEvent.getTandasByProducto:
+          final loadEv = '$productoId${SocketEvents.loadTandasByProducto}';
+
+          _handleDataListEvent<TandaModel>(
+            emitEvent: SocketEvents.getTandasByProducto,
+            loadEvent: loadEv,
+            dataList: tandaByProducto,
+            setLoading: (loading) => loadingTandas = loading,
+            fromApi: (data) => TandaModel.fromApi(data),
+            emitPayload: {
+              'idProducto': productoId,
+            },
+          );
+          break;
         case InventarioEvent.getProductos:
           _handleDataListEvent<SelectionProductModel>(
             emitEvent: SocketEvents.getProductos,
@@ -171,7 +185,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
             dataList: ubicacion,
             setLoading: (loading) => loadingUbicacion = loading,
             fromApi: (data) => UbicacionesModel.fromApi(data),
-            emitPayload: {"idBodega": formularioTandaData['idBodega']},
+            emitPayload: {'idBodega': formularioTandaData['idBodega']},
           );
           break;
 
@@ -196,7 +210,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
     }
   }
 
-  void _clearListeners(events) {
+  void _clearListeners(events, {String? productoId}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
@@ -206,6 +220,8 @@ mixin SocketInventarioProvider on ChangeNotifier {
 
         case InventarioEvent.newProducto:
           _socket?.off(SocketEvents.newProducto);
+        case InventarioEvent.getTandasByProducto:
+          _socket?.off('$productoId${SocketEvents.loadTandasByProducto}');
 
           break;
       }
@@ -220,18 +236,23 @@ mixin SocketInventarioProvider on ChangeNotifier {
     required Map<String, dynamic> emitPayload,
     required T Function(Map<String, dynamic>) fromApi,
   }) {
+    print(this.loadingTandas);
     setLoading(true);
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+    print(this.loadingTandas);
+
     //?Solicitar la informacion
     _socket!.emit(emitEvent, emitPayload);
 
     //?Capturar informacion solicitada
     _socket!.on(loadEvent, (data) {
+      print('Data recibida');
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
+      print(this.loadingTandas);
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/infraestructure/models/envio_model.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -108,22 +107,23 @@ class _EnviosPageState extends State<EnviosPage> {
                                 ShadTableCell(
                                   child: Center(
                                     child: ShadCheckbox(
+                                      decoration: detalle.isComplete
+                                          ? const ShadDecoration(
+                                              border: ShadBorder())
+                                          : null,
                                       enabled: planificacionProvider
                                               .planificacionActual[0]
                                               .envioIniciado !=
                                           null,
                                       value: detalle.isComplete,
-                                      // onChanged: (value) {
-                                      //   setState(() {
-                                      //     invoice['checked'] = value;
-                                      //   });
-                                      // },
                                       color: planificacionProvider
                                                   .planificacionActual[0]
                                                   .envioIniciado ==
                                               null
                                           ? null
-                                          : Colors.grey,
+                                          : detalle.isComplete
+                                              ? Colors.green
+                                              : Colors.grey,
                                     ),
                                   ),
                                 ),
@@ -142,7 +142,8 @@ class _EnviosPageState extends State<EnviosPage> {
                                                     .envioIniciado !=
                                                 null
                                             ? () {
-                                                context.push('/envioBuscar');
+                                                context.push(
+                                                    '/envio/${detalle.productoId}/tandas');
                                               }
                                             : null,
                                         icon: const Icon(

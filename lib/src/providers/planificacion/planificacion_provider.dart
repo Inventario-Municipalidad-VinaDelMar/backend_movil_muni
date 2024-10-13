@@ -8,7 +8,7 @@ class PlanificacionProvider
         RestPlanificacionProvider,
         SocketPlanificacionProvider {
   void initialize() {
-    // initRest();
+    initRest();
     initSocket();
   }
 }

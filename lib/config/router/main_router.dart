@@ -9,10 +9,20 @@ final mainRouter = GoRouter(
   // initialLocation: '/tandas/add',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomePage()),
-    GoRoute(path: '/envio', builder: (context, state) => const EnviosPage()),
     GoRoute(
-        path: '/envio/tandas-producto',
-        builder: (context, state) => const BuscarEnviosPage()),
+      path: '/envio',
+      builder: (context, state) => const EnviosPage(),
+      routes: [
+        GoRoute(
+          path: ':id/tandas',
+          builder: (context, state) {
+            final idProducto = state.pathParameters['id'] ?? '';
+            print('Parametro router: $idProducto');
+            return BuscarEnviosPage(productoId: idProducto);
+          },
+        ),
+      ],
+    ),
     GoRoute(
       path: '/tandas/add',
       builder: (context, state) => const AddTandasPage(),

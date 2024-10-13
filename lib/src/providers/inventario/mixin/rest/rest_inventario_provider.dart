@@ -4,7 +4,6 @@ import 'package:frontend_movil_muni/infraestructure/repositories/inventarios_rep
 mixin RestInventarioProvider on ChangeNotifier {
   late InventariosRepository _inventariosRepository;
   bool creatingTanda = false;
-  bool loadingTanda = false;
   void initRest() {
     _inventariosRepository = InventariosRepository();
   }
@@ -14,8 +13,8 @@ mixin RestInventarioProvider on ChangeNotifier {
 
     notifyListeners();
     try {
-      print("tandaData: ${tandaData}");
-      await Future.delayed(Duration(seconds: 3));
+      //TODO: Eliminar delay en production
+      await Future.delayed(const Duration(seconds: 3));
       await _inventariosRepository.addTanda(tandaData);
     } catch (error) {
       print('Error al añadir tanda: $error');

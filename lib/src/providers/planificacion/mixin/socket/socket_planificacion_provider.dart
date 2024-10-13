@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:frontend_movil_muni/infraestructure/models/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -85,6 +86,22 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     planificacionActual.clear();
   }
 
+  DetallePlanificacion? getOneDetallePlanificacion(String productoId) {
+    final detalles = planificacionActual[0].detalles;
+    DetallePlanificacion? detalle;
+    print(detalles);
+    // Cambiar map por forEach
+    detalles.forEach((d) {
+      print('${d.productoId} - $productoId');
+      if (d.productoId == productoId) {
+        detalle = d;
+      }
+    });
+
+    print(detalle);
+    return detalle;
+  }
+
   void _registerListeners(List<PlanificacionEvent> events) {
     if (_socket == null) return;
     for (var event in events) {
@@ -154,6 +171,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
       switch (event) {
         case PlanificacionEvent.planificacionActual:
           _socket?.off(SocketEvents.loadPlanificacion);
+
           break;
       }
     }
