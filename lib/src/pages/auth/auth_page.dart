@@ -29,7 +29,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final textStyles = ShadTheme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(),
-      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
