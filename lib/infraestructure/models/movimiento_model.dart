@@ -22,12 +22,17 @@ class MovimientoModel {
   factory MovimientoModel.fromApi(Map<String, dynamic> movimiento) {
     return MovimientoModel(
       id: movimiento['id'],
-      cantidadRetirada: int.parse(movimiento['cantidadRetirada']),
+      cantidadRetirada: movimiento['cantidadRetirada'],
       fecha: movimiento['fecha'],
       hora: movimiento['hora'],
       producto: movimiento['producto'],
       productoId: movimiento['productoId'],
-      envioId: movimiento['envio  Id'],
+      envioId: movimiento['envioId'],
     );
+  }
+
+  String getMedioDia() {
+    final numero = int.parse(hora.split(':')[0]);
+    return numero < 12 ? 'AM' : 'PM';
   }
 }

@@ -16,7 +16,9 @@ class PlanificacionModel {
 
   factory PlanificacionModel.fromApi(Map<String, dynamic> planificacion) {
     return PlanificacionModel(
-      envioIniciado: EnvioModel.fromApi(planificacion['envioIniciado']),
+      envioIniciado: planificacion['envioIniciado'] != null
+          ? EnvioModel.fromApi(planificacion['envioIniciado'])
+          : null,
       id: planificacion['id'],
       fecha: planificacion['fecha'],
       detalles: (planificacion['detalles'] as List<dynamic>)

@@ -74,6 +74,7 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                   width: size.width,
                   height: size.height * 0.75,
                   child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
                     padding: const EdgeInsets.only(top: 10),
                     itemCount: inventarioProvider.tandaByProducto.length,
                     itemBuilder: (context, i) {

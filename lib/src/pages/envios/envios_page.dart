@@ -1,4 +1,7 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
+import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -28,6 +31,7 @@ class _EnviosPageState extends State<EnviosPage> {
     _planificacionProvider.disconnect([
       PlanificacionEvent.planificacionActual,
     ]);
+
     super.dispose();
   }
 
@@ -48,11 +52,14 @@ class _EnviosPageState extends State<EnviosPage> {
               children: [
                 //Planificacion del dia
                 const _TablePlanificacion(),
-                Container(
-                  color: Colors.blue,
-                  width: size.width,
-                  height: size.height * 0.42,
-                ),
+                if (planificacionProvider.planificacionActual.isNotEmpty &&
+                    planificacionProvider
+                            .planificacionActual.first.envioIniciado !=
+                        null)
+                  //Lista de movimiento en el envio actual
+                  _MovimientosList(
+                      idEnvio: planificacionProvider
+                          .planificacionActual[0].envioIniciado!.id),
                 const Spacer(),
                 Stack(
                   clipBehavior: Clip.none,
@@ -237,5 +244,148 @@ class _TablePlanificacion extends StatelessWidget {
             .toList(),
       ),
     );
+  }
+}
+
+class _MovimientosList extends StatefulWidget {
+  final String idEnvio;
+  const _MovimientosList({required this.idEnvio});
+
+  @override
+  State<_MovimientosList> createState() => __MovimientosListState();
+}
+
+class __MovimientosListState extends State<_MovimientosList> {
+  late MovimientoProvider _movimientoProvider;
+  @override
+  void initState() {
+    _movimientoProvider = context.read<MovimientoProvider>();
+    _movimientoProvider.connect([
+      MovimientoEvent.movimientosEnvio,
+      MovimientoEvent.movimientoOnEnvio,
+    ], id: widget.idEnvio);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _movimientoProvider.disconnect([
+      MovimientoEvent.movimientosEnvio,
+      MovimientoEvent.movimientoOnEnvio,
+    ], id: widget.idEnvio);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyles = ShadTheme.of(context).textTheme;
+    Size size = MediaQuery.of(context).size;
+    final movimientoProvider = context.watch<MovimientoProvider>();
+    return movimientoProvider.loadingMovimientos
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : Column(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 14),
+                width: size.width,
+                height: size.height * 0.04,
+                child: Text(
+                  'Movimientos Realizados',
+                  style: textStyles.h4,
+                ),
+              ),
+              SizedBox(
+                width: size.width,
+                height: size.height * 0.38,
+                child: ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: movimientoProvider.movimientos.length,
+                  itemBuilder: (context, i) {
+                    final movimiento = movimientoProvider.movimientos[i];
+                    return FadeInRight(
+                      duration: Duration(milliseconds: 200),
+                      delay: Duration(milliseconds: i * 150),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: size.height * 0.01),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue,
+                        ),
+                        width: double.infinity,
+                        height: size.height * 0.09,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                                right: 0,
+                                child: Text(
+                                  '${movimiento.hora.split(':')[0]}:${movimiento.hora.split(':')[1]} ${movimiento.getMedioDia()}',
+                                  style: textStyles.small.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                )),
+                            Row(
+                              children: [
+                                FadeIn(
+                                  child: const ShadAvatar(
+                                    // userProvider.user?.imageUrl ??
+                                    'https://app.requestly.io/delay/2000/avatars.githubusercontent.com/u/124599?v=4',
+                                    // placeholder: const SkeletonAvatar(
+                                    //   style: SkeletonAvatarStyle(
+                                    //       shape: BoxShape.circle, width: 50, height: 50),
+                                    // ),
+                                    backgroundColor: Colors.transparent,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Franco Mangini Tapia',
+                                      style: textStyles.p.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: size.width * 0.22,
+                                          child: Text(
+                                            'Retiró ${movimiento.cantidadRetirada} de',
+                                            style: textStyles.small.copyWith(
+                                              color: Colors.grey[300],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        ShadBadge(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 0, horizontal: 10),
+                                          child: Text(
+                                            movimiento.producto,
+                                            // style: textStyles.small.co,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
   }
 }

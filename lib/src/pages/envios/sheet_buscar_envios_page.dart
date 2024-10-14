@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -29,11 +30,11 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
     Size size = MediaQuery.of(context).size;
     //final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
     final planificacionProvider = context.watch<PlanificacionProvider>();
+    final movimientoProvider = context.watch<MovimientoProvider>();
     final detalle =
         planificacionProvider.getOneDetallePlanificacion(widget.productoId);
 
@@ -46,13 +47,13 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
       actions: [
         ShadButton(
           enabled: _controller.value.text != '' &&
-              !planificacionProvider.creatingMovimiento,
+              !movimientoProvider.creatingMovimiento,
           size: ShadButtonSize.sm,
           onPressed: () async {
             if (!_formKey.currentState!.validate()) {
               return;
             }
-            await planificacionProvider.addNewMovimiento({
+            await movimientoProvider.addNewMovimiento({
               'cantidadRetirada': int.parse(_controller.value.text),
               'idTanda': widget.tandaId,
               'idEnvioProducto': detalle!.id,
@@ -63,7 +64,7 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
               }
             });
           },
-          icon: !planificacionProvider.creatingMovimiento
+          icon: !movimientoProvider.creatingMovimiento
               ? FaIcon(
                   FontAwesomeIcons.check,
                   size: size.height * 0.025,
@@ -104,7 +105,7 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
 
               return null; // Si pasa la validación, no se retorna ningún error
             },
-            enabled: !planificacionProvider.creatingMovimiento,
+            enabled: !movimientoProvider.creatingMovimiento,
             controller: _controller,
             onChanged: (p0) => setState(() {}),
             label: Padding(

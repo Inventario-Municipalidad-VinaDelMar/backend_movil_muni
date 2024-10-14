@@ -1,9 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
+import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +21,7 @@ class HomePage extends StatelessWidget {
     //NO BORRAR LAS SIGUIENTE LINEAS HASTA QUE ESTÉ LISTO EL LOGIN
     final inventarioProvider = context.watch<InventarioProvider>();
     final planificacionProvider = context.watch<PlanificacionProvider>();
+    final movimientoProvider = context.watch<MovimientoProvider>();
 
     // Data para cada tarjeta (con iconos temporales)
     final List<Map<String, dynamic>> gridItems = [
@@ -50,34 +50,6 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      // appBar: AppBar(
-      //   leading: Container(
-      //     alignment: Alignment.centerRight,
-      //     padding: EdgeInsets.all(size.height * 0.008),
-      //     child: Image.asset(
-      //       'assets/logos/stocknow.png',
-      //     ),
-      //   ),
-      //   leadingWidth: size.width * 0.2,
-      //   actions: const [
-      //     Padding(
-      //       padding: EdgeInsets.only(right: 20),
-      //       child: Icon(
-      //         Icons.settings,
-      //         size: 30,
-      //         color: Colors.white,
-      //       ),
-      //     )
-      //   ],
-      //   title: Text(
-      //     'Inicio',
-      //     style: textStyles.h2.copyWith(
-      //       color: Colors.white,
-      //     ),
-      //   ),
-      //   backgroundColor: Colors.blue,
-      // ),
-
       appBar: AppBar(
         backgroundColor: Colors.blue,
         leadingWidth: size.width * 0.2,

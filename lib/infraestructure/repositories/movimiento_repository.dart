@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
-import 'package:frontend_movil_muni/infraestructure/models/tanda_model.dart';
 
-class PlanificacionRepository {
+class MovimientoRepository {
   late Dio dio;
 
-  PlanificacionRepository() {
+  MovimientoRepository() {
     // Escucha cambios en el usuario y actualiza el Dio en consecuencia
     // userProvider.userListener.addListener(() => _updateDio(userProvider));
     _updateDio();
