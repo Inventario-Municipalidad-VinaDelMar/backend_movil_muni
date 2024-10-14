@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/infraestructure/models/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion_model.dart';
+import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../../../../config/environment/environment.dart';
@@ -114,7 +115,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
             setLoading: (loading) => loadingPlanificacionActual = loading,
             fromApi: (data) => PlanificacionModel.fromApi(data),
             emitPayload: {
-              'fecha': '2024-10-10',
+              'fecha': getFormattedDate(),
             },
           );
           break;
@@ -141,6 +142,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     //?Capturar informacion solicitada
     if (emitEvent == 'getPlanificacion') {
       _socket!.on(loadEvent, (data) {
+        print('Nuevo planificacion: $data');
         Map<String, dynamic> dataToFormated = Map<String, dynamic>.from(data);
         dataList.clear();
         dataList.add(fromApi(dataToFormated));

@@ -92,7 +92,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   void _updateSocket() {
     // final token = _userProvider.user?.jwtToken;
     const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODg0NDI1NywiZXhwIjoxNzI4ODUxNDU3fQ.FDd3xiEwA1MifvK0kjmmQ3OvQ8KyKCk9dlNBe6q6p00';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODkzNzQ3MiwiZXhwIjoxNzI4OTQ0NjcyfQ.6kJHrBVmgJwW1ieljfOTvg9PZ1d-XHtKn8D1yXj2n38';
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }

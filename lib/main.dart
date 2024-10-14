@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/config/theme/app_theme.dart';
-import 'package:frontend_movil_muni/src/providers/envios/envios_provider.dart';
+import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => EnviosProvider()),
+        ChangeNotifierProvider(
+            create: (_) => MovimientoProvider()..initialize()),
         ChangeNotifierProvider(
             create: (_) => PlanificacionProvider()..initialize()),
         ChangeNotifierProvider(
