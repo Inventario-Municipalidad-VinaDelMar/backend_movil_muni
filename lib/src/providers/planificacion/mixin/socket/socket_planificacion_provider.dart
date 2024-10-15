@@ -2,17 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
-import 'package:frontend_movil_muni/infraestructure/models/detalle_planificacion.dart';
-import 'package:frontend_movil_muni/infraestructure/models/planificacion_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/detalle_planificacion.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/planificacion_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 UserProvider _userProvider = UserProvider();
 
-enum PlanificacionEvent {
-  planificacionActual,
-}
+enum PlanificacionEvent { planificacionActual, loadSolicitudEnvio }
 
 class SocketEvents {
   //Emiten al servidor para preguntar por datos
@@ -20,12 +19,13 @@ class SocketEvents {
 
   //Reciben informacion desde el server como listener
   static const String loadPlanificacion = 'loadPlanificacion';
+  static const String loadSolicitud = 'loadSolicitud';
 }
 
 mixin SocketPlanificacionProvider on ChangeNotifier {
   //Siempre existirá solo 1 elemento en esta lista.
   List<PlanificacionModel> planificacionActual = [];
-
+  List<SolicitudEnvioModel> solicitudEnCurso = [];
   bool loadingPlanificacionActual = false;
 
   io.Socket? _socket;
@@ -39,6 +39,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
 
   void initSocket() {
     // _updateSocket();
+    print('Refrescando planificacion provider');
     _userProvider.userListener.addListener(_updateSocket);
   }
 
@@ -92,16 +93,13 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
   DetallePlanificacion? getOneDetallePlanificacion(String productoId) {
     final detalles = planificacionActual[0].detalles;
     DetallePlanificacion? detalle;
-    print(detalles);
     // Cambiar map por forEach
     detalles.forEach((d) {
-      print('${d.productoId} - $productoId');
       if (d.productoId == productoId) {
         detalle = d;
       }
     });
 
-    print(detalle);
     return detalle;
   }
 
@@ -109,6 +107,13 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
+        case PlanificacionEvent.loadSolicitudEnvio:
+          _handleNewEntityEvent<SolicitudEnvioModel>(
+            newEvent: SocketEvents.loadSolicitud,
+            dataList: solicitudEnCurso,
+            fromApi: (data) => SolicitudEnvioModel.fromApi(data),
+          );
+          break;
         case PlanificacionEvent.planificacionActual:
           _handleDataListEvent<PlanificacionModel>(
             emitEvent: SocketEvents.getPlanificacion,
@@ -162,19 +167,43 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     });
   }
 
+  void _handleNewEntityEvent<T>({
+    required String newEvent,
+    required List<T> dataList,
+    required T Function(Map<String, dynamic>) fromApi,
+  }) {
+    //Capturar nueva data para actualizar lista
+    _socket!.on(newEvent, (data) async {
+      // await Future.delayed(Duration(seconds: 1));
+      if (newEvent == 'loadSolicitud') {
+        dataList.clear();
+        notifyListeners();
+      }
+      if (data == null) {
+        return;
+      }
+      T newEntity = fromApi(data);
+      dataList.add(newEntity);
+      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+    });
+  }
+
   void _clearAllListeners() {
     if (_socket != null) {
       _socket?.off(SocketEvents.loadPlanificacion);
     }
+    _socket?.off(SocketEvents.loadSolicitud);
   }
 
   void _clearListeners(events) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
+        case PlanificacionEvent.loadSolicitudEnvio:
+          _socket?.off(SocketEvents.loadSolicitud);
+          break;
         case PlanificacionEvent.planificacionActual:
           _socket?.off(SocketEvents.loadPlanificacion);
-
           break;
       }
     }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/infraestructure/models/movimiento_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/movimiento/movimiento_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../../../../config/environment/environment.dart';
@@ -40,6 +40,7 @@ mixin SocketMovimientoProvider on ChangeNotifier {
 
   void initSocket() {
     // _updateSocket();
+    print('Refrescando movimiento provider');
     _userProvider.userListener.addListener(_updateSocket);
   }
 
@@ -156,9 +157,11 @@ mixin SocketMovimientoProvider on ChangeNotifier {
   }) {
     //Capturar nueva data para actualizar lista
     _socket!.on(newEvent, (data) async {
+      print('Nuevo Movimiento: $data');
       T newEntity = fromApi(data);
       await Future.delayed(Duration(seconds: 1));
       dataList.add(newEntity);
+      notifyListeners();
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }

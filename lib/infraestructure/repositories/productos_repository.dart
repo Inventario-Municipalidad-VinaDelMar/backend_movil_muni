@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
-import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/producto_model.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 
 class ProductosRepository {

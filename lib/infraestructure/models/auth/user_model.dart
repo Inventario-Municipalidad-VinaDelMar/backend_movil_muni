@@ -31,7 +31,7 @@ class UserModel {
       apellidoMaterno: data['apellidoMaterno'],
       imageUrl: data['imageUrl'],
       roles: List<String>.from(data['roles']),
-      jwtToken: data['token'],
+      jwtToken: data['token'] ?? '',
     );
   }
 

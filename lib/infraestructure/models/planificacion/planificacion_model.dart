@@ -1,5 +1,5 @@
-import 'package:frontend_movil_muni/infraestructure/models/detalle_planificacion.dart';
-import 'package:frontend_movil_muni/infraestructure/models/envio_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/detalle_planificacion.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 
 class PlanificacionModel {
   EnvioModel? envioIniciado;

@@ -1,3 +1,5 @@
+import 'package:frontend_movil_muni/infraestructure/models/auth/user_model.dart';
+
 class MovimientoModel {
   String id;
   int cantidadRetirada;
@@ -6,9 +8,7 @@ class MovimientoModel {
   String producto;
   String productoId;
   String envioId;
-
-  //TODO: Habilitar el usuario cuando haya login
-  // String usuario
+  UserModel realizador;
 
   MovimientoModel({
     required this.id,
@@ -18,6 +18,7 @@ class MovimientoModel {
     required this.producto,
     required this.productoId,
     required this.envioId,
+    required this.realizador,
   });
   factory MovimientoModel.fromApi(Map<String, dynamic> movimiento) {
     return MovimientoModel(
@@ -28,6 +29,7 @@ class MovimientoModel {
       producto: movimiento['producto'],
       productoId: movimiento['productoId'],
       envioId: movimiento['envioId'],
+      realizador: UserModel.fromApi(movimiento['realizador']),
     );
   }
 

@@ -1,9 +1,9 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/bodegas_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/producto_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/ubicaciones_model.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
 import 'package:frontend_movil_muni/src/utils/date_text.dart';

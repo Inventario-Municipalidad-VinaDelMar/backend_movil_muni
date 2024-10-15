@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/infraestructure/models/user_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/auth/user_model.dart';
 import 'package:frontend_movil_muni/infraestructure/repositories/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

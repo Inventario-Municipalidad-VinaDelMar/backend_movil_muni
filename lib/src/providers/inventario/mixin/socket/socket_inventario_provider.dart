@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
-import 'package:frontend_movil_muni/infraestructure/models/bodegas_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/tanda_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/bodegas_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/producto_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/tanda_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/inventario/ubicaciones_model.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -90,6 +90,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
 
   void initSocket() {
     // _updateSocket();
+    print('Refrescando inventario provider');
     _userProvider.userListener.addListener(_updateSocket);
   }
 

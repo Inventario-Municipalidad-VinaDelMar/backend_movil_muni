@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
@@ -9,13 +10,17 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 class SheetBuscarEnviosPage extends StatefulWidget {
   final String producto;
   final String productoId;
+  final String productoImgUrl;
   final String tandaId;
+  final int cantidadDisponible;
   const SheetBuscarEnviosPage({
     super.key,
     required this.side,
     required this.producto,
     required this.productoId,
     required this.tandaId,
+    required this.cantidadDisponible,
+    required this.productoImgUrl,
   });
 
   final ShadSheetSide side;
@@ -43,11 +48,24 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
               widget.side == ShadSheetSide.right
           ? const BoxConstraints(maxWidth: 512)
           : null,
-      title: Text('Tanda de "${widget.producto}"', style: textStyles.h3),
+      title: Row(
+        children: [
+          ShadAvatar(
+            widget.productoImgUrl,
+            placeholder: const SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                  shape: BoxShape.circle, width: 50, height: 50),
+            ),
+            backgroundColor: Colors.transparent,
+          ),
+          Text('Tanda de "${widget.producto}"', style: textStyles.h4),
+        ],
+      ),
       actions: [
         ShadButton(
-          enabled: _controller.value.text != '' &&
-              !movimientoProvider.creatingMovimiento,
+          enabled:
+              (_controller.value.text != '' && _controller.value.text != '0') &&
+                  !movimientoProvider.creatingMovimiento,
           size: ShadButtonSize.sm,
           onPressed: () async {
             if (!_formKey.currentState!.validate()) {
@@ -60,7 +78,8 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
             }).then((value) {
               if (context.mounted) {
                 context.pop();
-                context.pushReplacement('/envio');
+                context.pop();
+                // context.pushReplacement('/envio');
               }
             });
           },
@@ -110,13 +129,21 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
             onChanged: (p0) => setState(() {}),
             label: Padding(
               padding: const EdgeInsets.only(left: 5),
-              child: Text('Cantidad', style: textStyles.h4),
+              child: Row(
+                children: [
+                  Text('Cantidad a retirar', style: textStyles.p),
+                  Spacer(),
+                  ShadBadge(
+                      child: Text('Disponible: ${widget.cantidadDisponible}'))
+                ],
+              ),
             ),
-            placeholder: const Text('Ingrese la cantidad a retirar'),
+            placeholder: const Text('0'),
             keyboardType: TextInputType.number,
             description: Padding(
               padding: const EdgeInsets.only(left: 10),
-              child: Text('Cantidad maxima ${detalle!.cantidadPlanificada}'),
+              child: Text(
+                  'Retiro maximo por envío ${detalle!.cantidadPlanificada}'),
             ),
           ),
         ),

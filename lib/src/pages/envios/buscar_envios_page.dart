@@ -1,9 +1,11 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:frontend_movil_muni/src/pages/envios/sheet_buscar_envios_page.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
+import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -41,6 +43,7 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
     //final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
     final inventarioProvider = context.watch<InventarioProvider>();
+    final planificacionProvider = context.watch<PlanificacionProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +98,7 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                 margin: const EdgeInsets.only(
                                   bottom: 30,
                                 ),
-                                height: size.height * 0.15,
+                                height: size.height * 0.16,
                                 width: size.width,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
@@ -181,25 +184,55 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                               ],
                                             ),
                                             const SizedBox(height: 10),
-                                            Row(
+                                            Stack(
+                                              clipBehavior: Clip.none,
                                               children: [
-                                                AnimateIcon(
-                                                  width: 18,
-                                                  height: 18,
-                                                  color: Colors.white,
-                                                  onTap: () {},
-                                                  iconType: IconType
-                                                      .continueAnimation,
-                                                  animateIcon:
-                                                      AnimateIcons.calendar,
+                                                Row(
+                                                  children: [
+                                                    AnimateIcon(
+                                                      width: 18,
+                                                      height: 18,
+                                                      color: Colors.white,
+                                                      onTap: () {},
+                                                      iconType: IconType
+                                                          .continueAnimation,
+                                                      animateIcon:
+                                                          AnimateIcons.calendar,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      formatDate(tanda
+                                                          .fechaVencimiento!),
+                                                      style: textStyles.small
+                                                          .copyWith(
+                                                              color:
+                                                                  Colors.white),
+                                                    )
+                                                  ],
                                                 ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  formatDate(
-                                                      tanda.fechaVencimiento!),
-                                                  style: textStyles.small
-                                                      .copyWith(
-                                                          color: Colors.white),
+                                                Positioned(
+                                                  bottom: -size.height * 0.025,
+                                                  left: size.width * 0.07,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .arrow_upward_rounded,
+                                                        color: Colors.white,
+                                                        size: 15,
+                                                      ),
+                                                      Text(
+                                                        '(Fecha vencimiento)',
+                                                        style: textStyles.small
+                                                            .copyWith(
+                                                          color: Colors
+                                                              .orange[300],
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 )
                                               ],
                                             ),
@@ -216,6 +249,14 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                                   context: context,
                                                   builder: (context) =>
                                                       SheetBuscarEnviosPage(
+                                                    productoImgUrl:
+                                                        planificacionProvider
+                                                            .getOneDetallePlanificacion(
+                                                                widget
+                                                                    .productoId)!
+                                                            .urlImagen,
+                                                    cantidadDisponible:
+                                                        tanda.cantidadActual,
                                                     tandaId: tanda.id,
                                                     producto: tanda.producto,
                                                     productoId:
@@ -224,9 +265,10 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                                   ),
                                                 );
                                               },
+                                              backgroundColor: Colors.blue[900],
                                               size: ShadButtonSize.sm,
                                               icon: const Icon(
-                                                Icons.arrow_upward_rounded,
+                                                Icons.system_update_alt_rounded,
                                                 color: Colors.white,
                                               ),
                                               child: const Text('Retirar'),
