@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: size.height * 0.1,
                   ),
                   Image.asset(
-                    'assets/logos/muni.png', // Replace with your image
+                    'assets/logos/munidos.png', // Replace with your image
 
                     width: size.width * 0.7,
                     fit: BoxFit
