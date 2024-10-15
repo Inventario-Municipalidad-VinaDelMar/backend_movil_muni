@@ -27,116 +27,138 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size; // O
     final textStyles = ShadTheme.of(context).textTheme;
+    double topPadd = MediaQuery.of(context).padding.top;
     return Scaffold(
-      appBar: AppBar(),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Color(0x00000000),
+        scrolledUnderElevation: 0,
+        shadowColor: Color(0x00000000),
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Form(
-            key: _formKey, // Attach the form key
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
+        child: Container(
+          margin: EdgeInsets.only(
+            top: topPadd - 1, // use the topPadd here
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Form(
+              key: _formKey, // Attach the form key
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: size.height * 0.1,
                   ),
-                  child: Image.asset(
+                  Image.asset(
                     'assets/logos/muni.png', // Replace with your image
-                    height: 150,
-                  ),
-                ),
 
-                Container(
-                  height: 200,
-                  width: size.width * 0.4,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                    color: Colors.blue[500],
+                    width: size.width * 0.7,
+                    fit: BoxFit
+                        .fitWidth, // Otras opciones: BoxFit.contain, BoxFit.fill, BoxFit.fitHeight
                   ),
-                  child: Image.asset(
-                    'assets/logos/stocknow.png', // Replace with your image
-                    height: 150,
+                  SizedBox(height: size.height * 0.03),
+                  Text(
+                    "Gestión de Comedores Solidarios.",
+                    style: textStyles.h4.copyWith(
+                        color: Colors.black87, fontWeight: FontWeight.bold),
                   ),
-                ),
-                SizedBox(height: 40),
-                EmailInput(controller: _emailController),
+                  // Container(
+                  //   height: size.height * 0.1,
+                  //   width: size.width * 0.2,
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.all(Radius.circular(100)),
+                  //     color: Colors.blue[500],
+                  //   ),
+                  //   child: Image.asset(
+                  //     'assets/logos/stocknow.png', // Replace with your image
+                  //     height: 150,
+                  //   ),
+                  // ),
+                  SizedBox(height: size.height * 0.03),
+                  EmailInput(controller: _emailController),
 
-                SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-                PasswordInput(
-                  controller: _passwordController,
-                ),
+                  PasswordInput(
+                    controller: _passwordController,
+                  ),
 
-                SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // Handle "Forgot Password" action
-                    },
-                    child: Text(
-                      'Olvidaste tu contraseña?',
-                      style: textStyles.muted.copyWith(color: Colors.blue[500]),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                // Login Button
-                ElevatedButton(
-                  onPressed: () {
-                    // ########### ! Comentar la linea de abajo en ambiente de PROD ##############################
-                    context.go('/');
-                    if (_formKey.currentState!.validate()) {
-                      // If the form is valid, process the login
-                      print("Email: ${_emailController.text}");
-                      print("Password: ${_passwordController.text}");
-                      context.go('/');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[500],
-                    minimumSize: Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'Entrar',
-                    style: textStyles.p.copyWith(color: Colors.white),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: const [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text('--'),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Problemas con tu cuenta?",
-                      style: textStyles.p,
-                    ),
-                    TextButton(
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
                       onPressed: () {
-                        // Handle "Register" action
+                        // Handle "Forgot Password" action
                       },
                       child: Text(
-                        'Ayuda',
-                        style: textStyles.p.copyWith(color: Colors.blue[500]),
+                        '¿Olvidaste tu contraseña?',
+                        style:
+                            textStyles.muted.copyWith(color: Colors.blue[500]),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  SizedBox(height: 20),
+                  // Login Button
+                  ElevatedButton(
+                    onPressed: () {
+                      // ########### ! Comentar la linea de abajo en ambiente de PROD ##############################
+                      context.go('/');
+                      if (_formKey.currentState!.validate()) {
+                        // If the form is valid, process the login
+                        print("Email: ${_emailController.text}");
+                        print("Password: ${_passwordController.text}");
+                        context.go('/');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[500],
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      'Entrar',
+                      style: textStyles.p.copyWith(color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "¿Problemas con tu cuenta?",
+                        style: textStyles.p,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Handle "Register" action
+                        },
+                        child: Text(
+                          'Ayuda',
+                          style: textStyles.p.copyWith(color: Colors.blue[500]),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    children: const [
+                      Expanded(child: Divider()),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text('--'),
+                      ),
+                      Expanded(child: Divider()),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Text("Un producto de Sistemas y Servicios Stocknow Ltda.",
+                      style: textStyles.muted)
+                ],
+              ),
             ),
           ),
         ),
