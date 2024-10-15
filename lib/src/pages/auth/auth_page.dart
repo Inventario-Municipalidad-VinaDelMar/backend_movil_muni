@@ -42,9 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             HeaderLogin(),
             Container(
-              margin: EdgeInsets.only(
-                top: topPadd - 1, // use the topPadd here
-              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Form(
