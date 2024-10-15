@@ -59,10 +59,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         .fitWidth, // Otras opciones: BoxFit.contain, BoxFit.fill, BoxFit.fitHeight
                   ),
                   SizedBox(height: size.height * 0.03),
-                  Text(
-                    "Gestión de Comedores Solidarios.",
-                    style: textStyles.h4.copyWith(
-                        color: Colors.black87, fontWeight: FontWeight.bold),
+                  Container(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Gestión de Comedores Solidarios.",
+                        style: textStyles.h4.copyWith(
+                            color: Colors.black87, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                   // Container(
                   //   height: size.height * 0.1,
@@ -155,8 +160,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Text("Un producto de Sistemas y Servicios Stocknow Ltda.",
-                      style: textStyles.muted)
+                  Container(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                          "Un producto de Sistemas y Servicios Stocknow Ltda.",
+                          style: textStyles.muted.copyWith(),
+                          textAlign: TextAlign.justify),
+                    ),
+                  )
                 ],
               ),
             ),
