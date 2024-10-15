@@ -1,12 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
-import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
-import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
+import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
+import 'package:frontend_movil_muni/main.dart';
+import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+
+import 'widgets/side_menu.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,14 +17,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size =
         MediaQuery.of(context).size; // Obtenemos el tamaño de la pantalla
-    final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
 
-    //NO BORRAR LAS SIGUIENTE LINEAS HASTA QUE ESTÉ LISTO EL LOGIN
-    final inventarioProvider = context.watch<InventarioProvider>();
-    final planificacionProvider = context.watch<PlanificacionProvider>();
-    final movimientoProvider = context.watch<MovimientoProvider>();
-
+    final userProvider = context.watch<UserProvider>();
     // Data para cada tarjeta (con iconos temporales)
     final List<Map<String, dynamic>> gridItems = [
       {
@@ -54,35 +51,32 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.blue,
         leadingWidth: size.width * 0.2,
         leading: ShadButton.ghost(
+          pressedBackgroundColor: Colors.blue[300]!,
           child: Icon(
             LucideIcons.menu,
             color: Colors.white,
           ),
-          // onPressed: () => showShadSheet(
-          //   side: ShadSheetSide.left,
-          //   context: context,
-          //   builder: (context) => const SideMenu(
-          //     side: ShadSheetSide.left,
-          //   ),
-          // ),
-          onPressed: () {
-            context.push('/auth');
-          },
+          onPressed: () => showShadSheet(
+            side: ShadSheetSide.left,
+            context: context,
+            builder: (context) => const SideMenu(
+              side: ShadSheetSide.left,
+            ),
+          ),
         ),
         actions: [
-          // MenuDesplegable(),
           Padding(
             padding: const EdgeInsets.only(
               right: 20,
             ),
             child: FadeIn(
-              child: const ShadAvatar(
-                // userProvider.user?.imageUrl ??
-                'https://app.requestly.io/delay/2000/avatars.githubusercontent.com/u/124599?v=4',
-                // placeholder: const SkeletonAvatar(
-                //   style: SkeletonAvatarStyle(
-                //       shape: BoxShape.circle, width: 50, height: 50),
-                // ),
+              child: ShadAvatar(
+                userProvider.user?.imageUrl ??
+                    'https://app.requestly.io/delay/2000/avatars.githubusercontent.com/u/124599?v=4',
+                placeholder: const SkeletonAvatar(
+                  style: SkeletonAvatarStyle(
+                      shape: BoxShape.circle, width: 50, height: 50),
+                ),
                 backgroundColor: Colors.transparent,
               ),
             ),
@@ -108,8 +102,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   TextSpan(
-                    text: 'Franco Mangini Tapia',
-                    // text: userProvider.user?.fullName ?? 'Desconocido',
+                    // text: 'Franco Mangini Tapia',
+                    text:
+                        '${userProvider.user?.nombre} ${userProvider.user?.apellidoPaterno} ${userProvider.user?.apellidoMaterno}',
                     style: textStyles.h2.copyWith(
                       fontWeight: FontWeight.bold, // Hacer el texto más audaz
                       color: Colors.blue.withOpacity(.9), // Un toque de color
@@ -130,7 +125,7 @@ class HomePage extends StatelessWidget {
                   mainAxisSpacing: 16, // Espacio vertical entre tarjetas
                   childAspectRatio: size.width /
                       (size.height *
-                          0.6), // Ajuste dinámico de la proporción de las tarjetas
+                          0.7), // Ajuste dinámico de la proporción de las tarjetas
                 ),
                 itemCount: gridItems.length,
                 itemBuilder: (context, index) {
@@ -145,7 +140,7 @@ class HomePage extends StatelessWidget {
                       width: size.width *
                           0.4, // Las tarjetas ocupan el 40% del ancho de la pantalla
                       height: size.height *
-                          0.3, // Las tarjetas ocupan el 30% del alto de la pantalla
+                          0.35, // Las tarjetas ocupan el 30% del alto de la pantalla
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
@@ -204,14 +199,17 @@ class HomePage extends StatelessWidget {
                                       item['title'],
                                       style: textStyles.h4.copyWith(
                                         color: Colors.white,
+                                        fontSize: size.height *
+                                            0.025, // Tamaño responsivo
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
                                     Text(
                                       item['subtitle'],
                                       style: textStyles.small.copyWith(
                                         color: Colors.grey[300],
                                         height: 1.3,
+                                        fontSize: size.height *
+                                            0.02, // Tamaño responsivo
                                       ),
                                     ),
                                     const Spacer(),
@@ -223,6 +221,8 @@ class HomePage extends StatelessWidget {
                                         fontStyle: item['route'] != null
                                             ? null
                                             : FontStyle.italic,
+                                        fontSize: size.height *
+                                            0.018, // Tamaño responsivo
                                       ),
                                     ),
                                   ],

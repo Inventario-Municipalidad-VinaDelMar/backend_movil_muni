@@ -7,6 +7,10 @@ import 'package:frontend_movil_muni/infraestructure/models/ubicaciones_model.dar
 
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+import '../../../provider.dart';
+
+UserProvider _userProvider = UserProvider();
+
 enum InventarioEvent {
   //tandas
   getTandasByProducto,
@@ -85,18 +89,17 @@ mixin SocketInventarioProvider on ChangeNotifier {
   }
 
   void initSocket() {
-    _updateSocket();
-    // _userProvider.userListener.addListener(_updateSocket);
+    // _updateSocket();
+    _userProvider.userListener.addListener(_updateSocket);
   }
 
   void _updateSocket() {
-    // final token = _userProvider.user?.jwtToken;
-    const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhlODYwYTYxLTViZmMtNGEyYi1hMWEyLTU5OTc5YzFkOTAzZiIsImlhdCI6MTcyODkzNzQ3MiwiZXhwIjoxNzI4OTQ0NjcyfQ.6kJHrBVmgJwW1ieljfOTvg9PZ1d-XHtKn8D1yXj2n38';
+    final token = _userProvider.user?.jwtToken;
+
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
-    // if (token == null) return;
+    if (token == null) return;
 
     const namespace = 'inventario';
     _socket = io.io(

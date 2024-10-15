@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/infraestructure/models/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion_model.dart';
+import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-import '../../../../../config/environment/environment.dart';
+UserProvider _userProvider = UserProvider();
 
 enum PlanificacionEvent {
   planificacionActual,
@@ -36,16 +38,16 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
   };
 
   void initSocket() {
-    _updateSocket();
-    // _userProvider.userListener.addListener(_updateSocket);
+    // _updateSocket();
+    _userProvider.userListener.addListener(_updateSocket);
   }
 
   void _updateSocket() {
-    // final token = _userProvider.user?.jwtToken;
+    final token = _userProvider.user?.jwtToken;
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
-    // if (token == null) return;
+    if (token == null) return;
 
     const namespace = 'planificacion';
     _socket = io.io(
@@ -55,7 +57,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
           .disableAutoConnect()
           .disableForceNew()
           .disableForceNewConnection()
-          // .setExtraHeaders({'authentication': token})
+          .setExtraHeaders({'authentication': token})
           .build(),
     );
     _socket!.onConnect((_) {
@@ -142,7 +144,6 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     //?Capturar informacion solicitada
     if (emitEvent == 'getPlanificacion') {
       _socket!.on(loadEvent, (data) {
-        print('Nuevo planificacion: $data');
         Map<String, dynamic> dataToFormated = Map<String, dynamic>.from(data);
         dataList.clear();
         dataList.add(fromApi(dataToFormated));

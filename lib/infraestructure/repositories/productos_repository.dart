@@ -1,23 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/infraestructure/models/producto_model.dart';
+import 'package:frontend_movil_muni/src/providers/provider.dart';
 
 class ProductosRepository {
   late Dio dio;
 
-  ProductosRepository() {
+  ProductosRepository(UserProvider userProvider) {
     // Escucha cambios en el usuario y actualiza el Dio en consecuencia
-    // userProvider.userListener.addListener(() => _updateDio(userProvider));
-    _updateDio();
+    userProvider.userListener.addListener(() => _updateDio(userProvider));
+    // _updateDio();
   }
 
-  void _updateDio() {
+  void _updateDio(UserProvider userProvider) {
     dio = Dio(
       BaseOptions(
         baseUrl: Environment.apiRestUrl,
         headers: {
-          // 'Authorization':
-          //     'Bearer ${userProvider.userListener.value?.jwtToken}',
+          'Authorization':
+              'Bearer ${userProvider.userListener.value?.jwtToken}',
         },
       ),
     );

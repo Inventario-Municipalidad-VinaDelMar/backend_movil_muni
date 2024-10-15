@@ -5,6 +5,9 @@ import 'package:frontend_movil_muni/infraestructure/models/movimiento_model.dart
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../../../../config/environment/environment.dart';
+import '../../provider.dart';
+
+UserProvider _userProvider = UserProvider();
 
 enum MovimientoEvent {
   movimientosEnvio,
@@ -36,16 +39,16 @@ mixin SocketMovimientoProvider on ChangeNotifier {
   };
 
   void initSocket() {
-    _updateSocket();
-    // _userProvider.userListener.addListener(_updateSocket);
+    // _updateSocket();
+    _userProvider.userListener.addListener(_updateSocket);
   }
 
   void _updateSocket() {
-    // final token = _userProvider.user?.jwtToken;
+    final token = _userProvider.user?.jwtToken;
     if (_socket != null && _socket!.connected) {
       _disposeSocket();
     }
-    // if (token == null) return;
+    if (token == null) return;
 
     const namespace = 'movimientos';
     _socket = io.io(
@@ -55,7 +58,7 @@ mixin SocketMovimientoProvider on ChangeNotifier {
           .disableAutoConnect()
           .disableForceNew()
           .disableForceNewConnection()
-          // .setExtraHeaders({'authentication': token})
+          .setExtraHeaders({'authentication': token})
           .build(),
     );
     _socket!.onConnect((_) {

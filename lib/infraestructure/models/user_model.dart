@@ -1,4 +1,4 @@
-class UsuarioModel {
+class UserModel {
   String id;
   String rut;
   String email;
@@ -7,9 +7,9 @@ class UsuarioModel {
   String apellidoMaterno;
   String? imageUrl;
   List<String> roles;
-  String token;
+  String jwtToken;
 
-  UsuarioModel({
+  UserModel({
     required this.id,
     required this.rut,
     required this.email,
@@ -18,20 +18,20 @@ class UsuarioModel {
     required this.apellidoMaterno,
     this.imageUrl,
     required this.roles,
-    required this.token,
+    required this.jwtToken,
   });
 
-  factory UsuarioModel.fromApi(Map<String, dynamic> data) {
-    return UsuarioModel(
+  factory UserModel.fromApi(Map<String, dynamic> data) {
+    return UserModel(
       id: data['id'],
       rut: data['rut'],
       email: data['email'],
       nombre: data['nombre'],
       apellidoPaterno: data['apellidoPaterno'],
       apellidoMaterno: data['apellidoMaterno'],
-      imageUrl: data['imageUrl'] ?? "",
+      imageUrl: data['imageUrl'],
       roles: List<String>.from(data['roles']),
-      token: data['token'],
+      jwtToken: data['token'],
     );
   }
 
@@ -45,7 +45,7 @@ class UsuarioModel {
       'apellidoMaterno': apellidoMaterno,
       'imageUrl': imageUrl,
       'roles': roles,
-      'token': token,
+      'token': jwtToken,
     };
   }
 }

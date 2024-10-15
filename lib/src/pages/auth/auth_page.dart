@@ -1,10 +1,16 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/src/pages/auth/widget/header_login.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
+import '../../providers/provider.dart';
+
 class AuthPage extends StatelessWidget {
+  const AuthPage({super.key});
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -14,11 +20,13 @@ class AuthPage extends StatelessWidget {
 }
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _emailController = TextEditingController();
@@ -28,155 +36,166 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size; // O
     final textStyles = ShadTheme.of(context).textTheme;
-    double topPadd = MediaQuery.of(context).padding.top;
+
+    //Don't delete that, this instance triggers ..renewUser().
+    final userProvider = context.watch<UserProvider>();
+    //Don't delete that, this instance triggers ..initialize().
+    final inventarioProvider = context.watch<InventarioProvider>();
+    //Don't delete that, this instance triggers ..initialize().
+    final planificacionProvider = context.watch<PlanificacionProvider>();
+    //Don't delete that, this instance triggers ..initialize().
+    final movimientoProvider = context.watch<MovimientoProvider>();
+
+    final authProvider = context.watch<AuthProvider>();
     return Scaffold(
       extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   backgroundColor: Color(0x00000000),
-      //   scrolledUnderElevation: 0,
-      //   shadowColor: Color(0x00000000),
-      //   elevation: 0,
-      // ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            HeaderLogin(),
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Form(
-                  key: _formKey, // Attach the form key
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/logos/muni.png', // Replace with your image
+      body: userProvider.renewingUser
+          ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
+          : SingleChildScrollView(
+              child: FadeIn(
+                child: Column(
+                  children: [
+                    HeaderLogin(),
+                    SizedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Form(
+                          key: _formKey, // Attach the form key
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/logos/muni.png', // Replace with your image
 
-                        width: size.width * 0.6,
-                        fit: BoxFit
-                            .fitWidth, // Otras opciones: BoxFit.contain, BoxFit.fill, BoxFit.fitHeight
-                      ),
-                      SizedBox(height: size.height * 0.03),
-                      Container(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            "Gestión de Comedores Solidarios.",
-                            style: textStyles.h4.copyWith(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      // Container(
-                      //   height: size.height * 0.1,
-                      //   width: size.width * 0.2,
-                      //   decoration: BoxDecoration(
-                      //     borderRadius: BorderRadius.all(Radius.circular(100)),
-                      //     color: Colors.blue[500],
-                      //   ),
-                      //   child: Image.asset(
-                      //     'assets/logos/stocknow.png', // Replace with your image
-                      //     height: 150,
-                      //   ),
-                      // ),
-                      SizedBox(height: size.height * 0.03),
-                      EmailInput(controller: _emailController),
+                                width: size.width * 0.6,
+                                fit: BoxFit
+                                    .fitWidth, // Otras opciones: BoxFit.contain, BoxFit.fill, BoxFit.fitHeight
+                              ),
+                              SizedBox(height: size.height * 0.03),
+                              SizedBox(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    "Gestión de Comedores Solidarios.",
+                                    style: textStyles.h4.copyWith(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
 
-                      SizedBox(height: 20),
+                              SizedBox(height: size.height * 0.03),
+                              EmailInput(controller: _emailController),
 
-                      PasswordInput(
-                        controller: _passwordController,
-                      ),
+                              SizedBox(height: 20),
 
-                      SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            // Handle "Forgot Password" action
-                          },
-                          child: Text(
-                            '¿Olvidaste tu contraseña?',
-                            style: textStyles.muted
-                                .copyWith(color: Colors.blue[500]),
+                              PasswordInput(
+                                controller: _passwordController,
+                              ),
+
+                              SizedBox(height: 10),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    // Handle "Forgot Password" action
+                                  },
+                                  child: Text(
+                                    '¿Olvidaste tu contraseña?',
+                                    style: textStyles.muted
+                                        .copyWith(color: Colors.blue[500]),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              // Login Button
+                              ShadButton(
+                                enabled: !authProvider.authenticating,
+                                size: ShadButtonSize.lg,
+                                width: double.infinity,
+                                backgroundColor: Colors.blue[500],
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    // If the form is valid, process the login
+                                    await authProvider
+                                        .loginWithEmailAndPassword(
+                                      _emailController.value.text,
+                                      _passwordController.value.text,
+                                    );
+                                    context.go('/');
+                                  }
+                                },
+                                icon: !authProvider.inProgressEmailAndPassword
+                                    ? null
+                                    : const Padding(
+                                        padding: EdgeInsets.only(right: 8),
+                                        child: SizedBox.square(
+                                          dimension: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      ),
+                                child: authProvider.inProgressEmailAndPassword
+                                    ? const Text('Cargando...')
+                                    : const Text(
+                                        'INGRESAR',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
+                              ),
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "¿Problemas con tu cuenta?",
+                                    style: textStyles.p,
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Handle "Register" action
+                                    },
+                                    child: Text(
+                                      'Ayuda',
+                                      style: textStyles.p
+                                          .copyWith(color: Colors.blue[500]),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              Row(
+                                children: const [
+                                  Expanded(child: Divider()),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10.0),
+                                    child: Text('--'),
+                                  ),
+                                  Expanded(child: Divider()),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              Container(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                      "Un producto de Sistemas y Servicios Stocknow Ltda.",
+                                      style: textStyles.muted.copyWith(),
+                                      textAlign: TextAlign.justify),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      // Login Button
-                      ElevatedButton(
-                        onPressed: () {
-                          // ########### ! Comentar la linea de abajo en ambiente de PROD ##############################
-                          context.go('/');
-                          if (_formKey.currentState!.validate()) {
-                            // If the form is valid, process the login
-                            print("Email: ${_emailController.text}");
-                            print("Password: ${_passwordController.text}");
-                            context.go('/');
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[500],
-                          minimumSize: Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Entrar',
-                          style: textStyles.p.copyWith(color: Colors.white),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "¿Problemas con tu cuenta?",
-                            style: textStyles.p,
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // Handle "Register" action
-                            },
-                            child: Text(
-                              'Ayuda',
-                              style: textStyles.p
-                                  .copyWith(color: Colors.blue[500]),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        children: const [
-                          Expanded(child: Divider()),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text('--'),
-                          ),
-                          Expanded(child: Divider()),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                              "Un producto de Sistemas y Servicios Stocknow Ltda.",
-                              style: textStyles.muted.copyWith(),
-                              textAlign: TextAlign.justify),
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -245,6 +264,7 @@ class _EmailInputState extends State<EmailInput> {
   @override
   Widget build(BuildContext context) {
     return ShadInputFormField(
+      keyboardType: TextInputType.emailAddress,
       controller: widget.controller,
       placeholder: const Text('Email'),
       prefix: const Padding(

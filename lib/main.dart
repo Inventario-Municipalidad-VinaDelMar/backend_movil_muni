@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/config/theme/app_theme.dart';
-import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
-import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
-import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+
+import 'src/providers/provider.dart';
 
 void main() async {
   await Environment.initEnvironment();
@@ -22,6 +21,8 @@ class MyApp extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()..renewUser()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(
             create: (_) => MovimientoProvider()..initialize()),
         ChangeNotifierProvider(

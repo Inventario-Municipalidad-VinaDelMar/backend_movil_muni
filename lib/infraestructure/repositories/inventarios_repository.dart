@@ -1,23 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
-import 'package:frontend_movil_muni/infraestructure/models/tanda_model.dart';
+
+import '../../src/providers/provider.dart';
 
 class InventariosRepository {
   late Dio dio;
 
-  InventariosRepository() {
+  InventariosRepository(UserProvider userProvider) {
     // Escucha cambios en el usuario y actualiza el Dio en consecuencia
-    // userProvider.userListener.addListener(() => _updateDio(userProvider));
-    _updateDio();
+    userProvider.userListener.addListener(() => _updateDio(userProvider));
+    // _updateDio();
   }
 
-  void _updateDio() {
+  void _updateDio(UserProvider userProvider) {
     dio = Dio(
       BaseOptions(
         baseUrl: Environment.apiRestUrl,
         headers: {
-          // 'Authorization':
-          //     'Bearer ${userProvider.userListener.value?.jwtToken}',
+          'Authorization':
+              'Bearer ${userProvider.userListener.value?.jwtToken}',
         },
       ),
     )..interceptors.add(LogInterceptor(responseBody: true, requestBody: true));

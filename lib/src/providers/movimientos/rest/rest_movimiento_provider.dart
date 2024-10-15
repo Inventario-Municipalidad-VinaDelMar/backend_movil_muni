@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/infraestructure/repositories/movimiento_repository.dart';
+import 'package:frontend_movil_muni/src/providers/provider.dart';
+
+UserProvider _userProvider = UserProvider();
 
 mixin RestMovimientoProvider on ChangeNotifier {
   late MovimientoRepository _movimientoRepository;
   bool creatingMovimiento = false;
 
   void initRest() {
-    _movimientoRepository = MovimientoRepository();
+    _movimientoRepository = MovimientoRepository(_userProvider);
   }
 
   Future<void> addNewMovimiento(Map<String, dynamic> movimientoData) async {
