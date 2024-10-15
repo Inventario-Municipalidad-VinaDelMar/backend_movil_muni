@@ -38,22 +38,22 @@ class _LoginScreenState extends State<LoginScreen> {
       //   elevation: 0,
       // ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            HeaderLogin(),
-            Container(
-              margin: EdgeInsets.only(
-                top: topPadd - 1, // use the topPadd here
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Form(
-                  key: _formKey, // Attach the form key
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/logos/muni.png', // Replace with your image
+        child: Container(
+          margin: EdgeInsets.only(
+            top: topPadd - 1, // use the topPadd here
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Form(
+              key: _formKey, // Attach the form key
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: size.height * 0.1,
+                  ),
+                  Image.asset(
+                    'assets/logos/muni.png', // Replace with your image
 
                         width: size.width * 0.6,
                         fit: BoxFit
