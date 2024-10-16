@@ -4,6 +4,9 @@ import 'package:frontend_movil_muni/config/environment/environment.dart';
 class AuthRepository {
   final dio = Dio(
     BaseOptions(
+      headers: {
+        'Accept-Encoding': 'identity',
+      },
       baseUrl: Environment.apiRestUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
@@ -46,6 +49,7 @@ class AuthRepository {
     try {
       final response =
           await dio.post('/auth/token/renew', data: {'idToken': idToken});
+      print('Error al ejecutar renew');
       if (response.statusCode == 200) {
         return response.data;
       } else {
@@ -54,6 +58,7 @@ class AuthRepository {
         return null;
       }
     } catch (error) {
+      print('Error al ejecutar renew');
       if (error is DioException) {
         // Handle Dio errors
         print(error.response?.data);
