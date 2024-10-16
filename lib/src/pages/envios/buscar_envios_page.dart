@@ -174,7 +174,7 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                                       AnimateIcons.mapPointer,
                                                 ),
                                                 const SizedBox(width: 10),
-                                                Container(
+                                                SizedBox(
                                                     width: size.width * 0.5,
                                                     child: FittedBox(
                                                         alignment: Alignment
