@@ -358,93 +358,96 @@ class __MovimientosListState extends State<_MovimientosList> {
               ),
               SizedBox(
                 width: size.width,
-                height: size.height * 0.38,
-                child: ListView.builder(
-                  physics: BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  itemCount: movimientoProvider.movimientos.length,
-                  itemBuilder: (context, i) {
-                    final movimiento = movimientoProvider.movimientos[i];
-                    return FadeInRight(
-                      duration: Duration(milliseconds: 200),
-                      delay: Duration(milliseconds: i * 150),
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        margin: EdgeInsets.only(bottom: size.height * 0.01),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.blue,
-                        ),
-                        width: double.infinity,
-                        height: size.height * 0.09,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Positioned(
-                                right: 0,
-                                child: Text(
-                                  '${movimiento.hora.split(':')[0]}:${movimiento.hora.split(':')[1]} ${movimiento.getMedioDia()}',
-                                  style: textStyles.small.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            Row(
-                              children: [
-                                FadeIn(
-                                  child: ShadAvatar(
-                                    movimiento.realizador.imageUrl ??
-                                        'https://app.requestly.io/delay/2000/avatars.githubusercontent.com/u/124599?v=4',
-                                    placeholder: const SkeletonAvatar(
-                                      style: SkeletonAvatarStyle(
-                                          shape: BoxShape.circle,
-                                          width: 50,
-                                          height: 50),
+                height: size.height * 0.36,
+                child: Expanded(
+                  child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: movimientoProvider.movimientos.length,
+                    itemBuilder: (context, i) {
+                      final movimiento = movimientoProvider.movimientos[i];
+                      return FadeInRight(
+                        duration: Duration(milliseconds: 200),
+                        delay: Duration(milliseconds: i * 150),
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.only(bottom: size.height * 0.01),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.blue,
+                          ),
+                          width: double.infinity,
+                          height: size.height * 0.09,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                  right: 0,
+                                  child: Text(
+                                    '${movimiento.hora.split(':')[0]}:${movimiento.hora.split(':')[1]} ${movimiento.getMedioDia()}',
+                                    style: textStyles.small.copyWith(
+                                      color: Colors.white,
                                     ),
-                                    backgroundColor: Colors.transparent,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${movimiento.realizador.nombre} ${movimiento.realizador.apellidoPaterno} ${movimiento.realizador.apellidoMaterno}',
-                                      style: textStyles.p.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                  )),
+                              Row(
+                                children: [
+                                  FadeIn(
+                                    child: ShadAvatar(
+                                      movimiento.realizador.imageUrl ??
+                                          'https://app.requestly.io/delay/2000/avatars.githubusercontent.com/u/124599?v=4',
+                                      placeholder: const SkeletonAvatar(
+                                        style: SkeletonAvatarStyle(
+                                            shape: BoxShape.circle,
+                                            width: 50,
+                                            height: 50),
                                       ),
+                                      backgroundColor: Colors.transparent,
                                     ),
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: size.width * 0.22,
-                                          child: Text(
-                                            'Retiró ${movimiento.cantidadRetirada} de',
-                                            style: textStyles.small.copyWith(
-                                              color: Colors.grey[300],
+                                  ),
+                                  SizedBox(width: 10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${movimiento.realizador.nombre} ${movimiento.realizador.apellidoPaterno} ${movimiento.realizador.apellidoMaterno}',
+                                        style: textStyles.p.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: size.width * 0.22,
+                                            child: Text(
+                                              'Retiró ${movimiento.cantidadRetirada} de',
+                                              style: textStyles.small.copyWith(
+                                                color: Colors.grey[300],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        // SizedBox(width: 10),
-                                        ShadBadge(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 0, horizontal: 10),
-                                          child: Text(
-                                            movimiento.producto,
-                                            // style: textStyles.small.co,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ],
+                                          // SizedBox(width: 10),
+                                          ShadBadge(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 0, horizontal: 10),
+                                            child: Text(
+                                              movimiento.producto,
+                                              // style: textStyles.small.co,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

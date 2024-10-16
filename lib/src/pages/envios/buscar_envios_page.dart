@@ -174,13 +174,20 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                                       AnimateIcons.mapPointer,
                                                 ),
                                                 const SizedBox(width: 10),
-                                                Text(
-                                                  tanda.ubicacion,
-                                                  style:
-                                                      textStyles.small.copyWith(
-                                                    color: Colors.white,
-                                                  ),
-                                                )
+                                                Container(
+                                                    width: size.width * 0.5,
+                                                    child: FittedBox(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        fit: BoxFit.scaleDown,
+                                                        child: Text(
+                                                          tanda.ubicacion,
+                                                          style: textStyles
+                                                              .small
+                                                              .copyWith(
+                                                            color: Colors.white,
+                                                          ),
+                                                        )))
                                               ],
                                             ),
                                             const SizedBox(height: 10),
