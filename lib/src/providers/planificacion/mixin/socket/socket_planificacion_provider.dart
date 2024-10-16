@@ -178,6 +178,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
       if (newEvent == 'loadSolicitud') {
         dataList.clear();
         notifyListeners();
+        print('Solicitud recibida');
       }
       if (data == null) {
         return;

@@ -88,30 +88,47 @@ class _EnviosPageState extends State<EnviosPage> {
                       ),
                     ShadButton(
                       width: double.infinity,
-                      enabled: planificacionProvider
-                                  .solicitudEnCurso.isNotEmpty &&
-                              planificacionProvider
-                                      .solicitudEnCurso[0].status ==
-                                  SolicitudStatus.pendiente
+                      enabled: planificacionProvider.processingSolicitud
                           ? false
-                          : (planificacionProvider
-                                      .planificacionActual[0].envioIniciado !=
-                                  null
-                              ? planificacionProvider.planificacionActual[0]
-                                          .envioIniciado !=
-                                      null &&
-                                  planificacionProvider.planificacionActual[0]
-                                      .areAllDetailsComplete()
-                              : true),
+                          : planificacionProvider.completingEnvio
+                              ? false
+                              : planificacionProvider
+                                          .solicitudEnCurso.isNotEmpty &&
+                                      planificacionProvider
+                                              .solicitudEnCurso[0].status ==
+                                          SolicitudStatus.pendiente
+                                  ? false
+                                  : (planificacionProvider
+                                              .planificacionActual[0]
+                                              .envioIniciado !=
+                                          null
+                                      ? planificacionProvider
+                                                  .planificacionActual[0]
+                                                  .envioIniciado !=
+                                              null &&
+                                          planificacionProvider
+                                              .planificacionActual[0]
+                                              .areAllDetailsComplete()
+                                      : true),
                       size: ShadButtonSize.lg,
-                      onPressed: () {
-                        // setState(() {
-                        //   if (envioIniciado) {
-                        //     Navigator.pop(context);
-                        //   } else {
-                        //     envioIniciado = !envioIniciado;
-                        //   }
-                        // });
+                      onPressed: () async {
+                        if (planificacionProvider.solicitudEnCurso.isNotEmpty &&
+                            planificacionProvider.solicitudEnCurso[0].status ==
+                                SolicitudStatus.pendiente) {
+                          return;
+                        }
+                        await planificacionProvider.sendSolicitudAutorizacion();
+                        if (planificacionProvider
+                                .planificacionActual[0].envioIniciado !=
+                            null) {
+                          return;
+                        }
+                        if (!planificacionProvider.planificacionActual[0]
+                            .areAllDetailsComplete()) {
+                          return;
+                        }
+
+                        await planificacionProvider.completeCurrentEnvio();
                       },
                       icon: planificacionProvider.solicitudEnCurso.isNotEmpty &&
                               planificacionProvider
@@ -126,16 +143,23 @@ class _EnviosPageState extends State<EnviosPage> {
                       child: Row(
                         children: [
                           Text(
-                            planificacionProvider.solicitudEnCurso.isNotEmpty &&
-                                    planificacionProvider
-                                            .solicitudEnCurso[0].status ==
-                                        SolicitudStatus.pendiente
-                                ? 'Esperando'
-                                : planificacionProvider.planificacionActual[0]
-                                            .envioIniciado ==
-                                        null
-                                    ? 'Iniciar nuevo envío'
-                                    : 'Completar envío',
+                            planificacionProvider.processingSolicitud
+                                ? 'Creando solicitud'
+                                : planificacionProvider.completingEnvio
+                                    ? 'Completando envio'
+                                    : planificacionProvider
+                                                .solicitudEnCurso.isNotEmpty &&
+                                            planificacionProvider
+                                                    .solicitudEnCurso[0]
+                                                    .status ==
+                                                SolicitudStatus.pendiente
+                                        ? 'Esperando'
+                                        : planificacionProvider
+                                                    .planificacionActual[0]
+                                                    .envioIniciado ==
+                                                null
+                                            ? 'Iniciar nuevo envío'
+                                            : 'Completar envío',
                             style: textStyles.h4.copyWith(color: Colors.white),
                           ),
                           SizedBox(width: 5),
