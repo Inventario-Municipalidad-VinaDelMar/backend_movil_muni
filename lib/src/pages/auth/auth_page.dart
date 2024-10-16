@@ -122,7 +122,6 @@ class LoginScreenState extends State<LoginScreen> {
                                       _emailController.value.text,
                                       _passwordController.value.text,
                                     );
-                                    context.go('/');
                                   }
                                 },
                                 icon: !authProvider.inProgressEmailAndPassword
