@@ -191,56 +191,33 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
                                               ],
                                             ),
                                             const SizedBox(height: 10),
-                                            Stack(
-                                              clipBehavior: Clip.none,
+                                            Row(
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    AnimateIcon(
-                                                      width: 18,
-                                                      height: 18,
-                                                      color: Colors.white,
-                                                      onTap: () {},
-                                                      iconType: IconType
-                                                          .continueAnimation,
-                                                      animateIcon:
-                                                          AnimateIcons.calendar,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Text(
-                                                      formatDate(tanda
-                                                          .fechaVencimiento!),
-                                                      style: textStyles.small
-                                                          .copyWith(
-                                                              color:
-                                                                  Colors.white),
-                                                    )
-                                                  ],
+                                                AnimateIcon(
+                                                  width: 18,
+                                                  height: 18,
+                                                  color: Colors.white,
+                                                  onTap: () {},
+                                                  iconType: IconType
+                                                      .continueAnimation,
+                                                  animateIcon:
+                                                      AnimateIcons.calendar,
                                                 ),
-                                                Positioned(
-                                                  bottom: -size.height * 0.025,
-                                                  left: size.width * 0.07,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons
-                                                            .arrow_upward_rounded,
-                                                        color: Colors.white,
-                                                        size: 15,
-                                                      ),
-                                                      Text(
-                                                        '(Fecha vencimiento)',
-                                                        style: textStyles.small
-                                                            .copyWith(
-                                                          color: Colors
-                                                              .orange[300],
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  'Vence en:',
+                                                  style: textStyles.small
+                                                      .copyWith(
+                                                          color: Colors.white),
+                                                ),
+                                                Text(
+                                                  ' ${calcularDiasRestantes(tanda.fechaVencimiento)}',
+                                                  style:
+                                                      textStyles.small.copyWith(
+                                                    color: Colors.orange[300],
+                                                    fontWeight: FontWeight.bold,
                                                   ),
-                                                )
+                                                ),
                                               ],
                                             ),
                                           ],

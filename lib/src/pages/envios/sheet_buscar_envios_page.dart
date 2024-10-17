@@ -118,7 +118,7 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
                 return 'Ingrese un número válido';
               }
 
-              if (cantidad > detalle.cantidadPlanificada) {
+              if (cantidad > detalle!.cantidadPlanificada) {
                 return 'La cantidad no puede ser mayor a ${detalle.cantidadPlanificada}';
               }
 
@@ -142,8 +142,8 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
             keyboardType: TextInputType.number,
             description: Padding(
               padding: const EdgeInsets.only(left: 10),
-              child: Text(
-                  'Retiro maximo por envío ${detalle!.cantidadPlanificada}'),
+              child: Text('Puede retirar como maximo 10'),
+              // 'Retiro maximo por envío ${detalle!.cantidadPlanificada}'),
             ),
           ),
         ),

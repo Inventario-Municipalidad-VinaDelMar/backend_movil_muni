@@ -23,3 +23,26 @@ String getFormattedDate() {
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   return formatter.format(today);
 }
+
+String calcularDiasRestantes(DateTime? fechaObjetivo) {
+  if (fechaObjetivo == null) {
+    return 'No Vence';
+  }
+
+  // Obtener la fecha actual (sin horas)
+  DateTime fechaActual = DateTime.now();
+  DateTime fechaActualSinHoras =
+      DateTime(fechaActual.year, fechaActual.month, fechaActual.day);
+
+  // Calcular la diferencia en días
+  int diferenciaDias = fechaObjetivo.difference(fechaActualSinHoras).inDays;
+
+  // Retornar la diferencia formateada
+  if (diferenciaDias == 0) {
+    return "Hoy es el día";
+  } else if (diferenciaDias == 1) {
+    return "1 día";
+  } else {
+    return "$diferenciaDias días";
+  }
+}

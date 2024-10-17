@@ -27,6 +27,8 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
   List<PlanificacionModel> planificacionActual = [];
   List<SolicitudEnvioModel> solicitudEnCurso = [];
   bool loadingPlanificacionActual = false;
+  bool waitingTimeEnvio = false;
+  String countdownText = '';
 
   io.Socket? _socket;
   io.Socket? get socket => _socket;
@@ -103,6 +105,23 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     return detalle;
   }
 
+  void initWaitingTime() async {
+    int secondsRemaining = 5; // Tiempo total en segundos
+    waitingTimeEnvio = true; // Inicia la espera
+    notifyListeners();
+
+    while (secondsRemaining > 0) {
+      countdownText = 'Espere $secondsRemaining segs';
+      notifyListeners();
+      await Future.delayed(Duration(seconds: 1));
+      secondsRemaining--;
+    }
+
+    waitingTimeEnvio = false;
+    countdownText = '';
+    notifyListeners();
+  }
+
   void _registerListeners(List<PlanificacionEvent> events) {
     if (_socket == null) return;
     for (var event in events) {
@@ -150,10 +169,22 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     if (emitEvent == 'getPlanificacion') {
       _socket!.on(loadEvent, (data) {
         Map<String, dynamic> dataToFormated = Map<String, dynamic>.from(data);
+        final planificacion = fromApi(dataToFormated) as PlanificacionModel;
+        late bool envioPrevio;
+        try {
+          envioPrevio = planificacion.envioIniciado == null &&
+              planificacionActual[0].envioIniciado != null;
+        } catch (e) {
+          envioPrevio = false;
+        }
         dataList.clear();
         dataList.add(fromApi(dataToFormated));
         setLoading(false);
         WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+
+        if (envioPrevio) {
+          initWaitingTime();
+        }
       });
       return;
     }
@@ -178,7 +209,6 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
       if (newEvent == 'loadSolicitud') {
         dataList.clear();
         notifyListeners();
-        print('Solicitud recibida');
       }
       if (data == null) {
         return;

@@ -70,49 +70,58 @@ class _EnviosPageState extends State<EnviosPage> {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    if (!planificacionProvider.loadingPlanificacionActual &&
+                    if (!planificacionProvider.processingSolicitud &&
+                        !planificacionProvider.loadingPlanificacionActual &&
                         planificacionProvider.solicitudEnCurso.isNotEmpty &&
                         planificacionProvider.solicitudEnCurso[0].status ==
                             SolicitudStatus.pendiente)
                       Positioned(
                         top: -(size.height * 0.02),
                         left: size.width * 0.03,
-                        child: Row(
-                          children: [
-                            Text(
-                              'Esperando autorizacion de un administrador...',
-                              style: textStyles.small
-                                  .copyWith(color: Colors.black54),
-                            ),
-                          ],
+                        child: FadeInLeft(
+                          duration: Duration(milliseconds: 200),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Esperando autorizacion de un administrador...',
+                                style: textStyles.small
+                                    .copyWith(color: Colors.black54),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ShadButton(
                       width: double.infinity,
-                      enabled: planificacionProvider.processingSolicitud
+                      enabled: planificacionProvider.waitingTimeEnvio
                           ? false
-                          : planificacionProvider.completingEnvio
+                          : planificacionProvider.processingSolicitud
                               ? false
-                              : planificacionProvider
-                                          .solicitudEnCurso.isNotEmpty &&
-                                      planificacionProvider
-                                              .solicitudEnCurso[0].status ==
-                                          SolicitudStatus.pendiente
+                              : planificacionProvider.completingEnvio
                                   ? false
-                                  : (planificacionProvider
-                                              .planificacionActual[0]
-                                              .envioIniciado !=
-                                          null
-                                      ? planificacionProvider
+                                  : planificacionProvider
+                                              .solicitudEnCurso.isNotEmpty &&
+                                          planificacionProvider
+                                                  .solicitudEnCurso[0].status ==
+                                              SolicitudStatus.pendiente
+                                      ? false
+                                      : (planificacionProvider
                                                   .planificacionActual[0]
                                                   .envioIniciado !=
-                                              null &&
-                                          planificacionProvider
-                                              .planificacionActual[0]
-                                              .areAllDetailsComplete()
-                                      : true),
+                                              null
+                                          ? planificacionProvider
+                                                      .planificacionActual[0]
+                                                      .envioIniciado !=
+                                                  null &&
+                                              planificacionProvider
+                                                  .planificacionActual[0]
+                                                  .areAllDetailsComplete()
+                                          : true),
                       size: ShadButtonSize.lg,
                       onPressed: () async {
+                        if (planificacionProvider.waitingTimeEnvio) {
+                          return;
+                        }
                         if (planificacionProvider.solicitudEnCurso.isNotEmpty &&
                             planificacionProvider.solicitudEnCurso[0].status ==
                                 SolicitudStatus.pendiente) {
@@ -140,7 +149,8 @@ class _EnviosPageState extends State<EnviosPage> {
                                               .solicitudEnCurso[0].status ==
                                           SolicitudStatus.pendiente) ||
                                   planificacionProvider.completingEnvio ||
-                                  planificacionProvider.processingSolicitud
+                                  planificacionProvider.processingSolicitud ||
+                                  planificacionProvider.waitingTimeEnvio
                               ? null
                               : planificacionProvider.planificacionActual[0]
                                           .envioIniciado ==
@@ -150,23 +160,25 @@ class _EnviosPageState extends State<EnviosPage> {
                       child: Row(
                         children: [
                           Text(
-                            planificacionProvider.processingSolicitud
-                                ? 'Creando solicitud'
-                                : planificacionProvider.completingEnvio
-                                    ? 'Completando envio'
-                                    : planificacionProvider
-                                                .solicitudEnCurso.isNotEmpty &&
-                                            planificacionProvider
-                                                    .solicitudEnCurso[0]
-                                                    .status ==
-                                                SolicitudStatus.pendiente
-                                        ? 'Esperando'
-                                        : planificacionProvider
-                                                    .planificacionActual[0]
-                                                    .envioIniciado ==
-                                                null
-                                            ? 'Iniciar nuevo envío'
-                                            : 'Completar envío',
+                            planificacionProvider.waitingTimeEnvio
+                                ? planificacionProvider.countdownText
+                                : planificacionProvider.processingSolicitud
+                                    ? 'Creando solicitud'
+                                    : planificacionProvider.completingEnvio
+                                        ? 'Completando envio'
+                                        : planificacionProvider.solicitudEnCurso
+                                                    .isNotEmpty &&
+                                                planificacionProvider
+                                                        .solicitudEnCurso[0]
+                                                        .status ==
+                                                    SolicitudStatus.pendiente
+                                            ? 'Esperando'
+                                            : planificacionProvider
+                                                        .planificacionActual[0]
+                                                        .envioIniciado ==
+                                                    null
+                                                ? 'Iniciar nuevo envío'
+                                                : 'Completar envío',
                             style: textStyles.h4.copyWith(color: Colors.white),
                           ),
                           SizedBox(width: 5),
@@ -176,7 +188,8 @@ class _EnviosPageState extends State<EnviosPage> {
                                           .solicitudEnCurso[0].status ==
                                       SolicitudStatus.pendiente) ||
                               planificacionProvider.completingEnvio ||
-                              planificacionProvider.processingSolicitud)
+                              planificacionProvider.processingSolicitud ||
+                              planificacionProvider.waitingTimeEnvio)
                             AnimateIcon(
                               color: Colors.white,
                               animateIcon: AnimateIcons.loading6,
@@ -190,7 +203,8 @@ class _EnviosPageState extends State<EnviosPage> {
                                           .solicitudEnCurso[0].status !=
                                       SolicitudStatus.pendiente) &&
                               !planificacionProvider.completingEnvio &&
-                              !planificacionProvider.processingSolicitud)
+                              !planificacionProvider.processingSolicitud &&
+                              !planificacionProvider.waitingTimeEnvio)
                             const Icon(
                               Icons.arrow_forward_rounded,
                               color: Colors.white,

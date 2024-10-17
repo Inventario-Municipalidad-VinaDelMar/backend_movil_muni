@@ -14,14 +14,16 @@ class TandaModel {
     required this.cantidadIngresada,
     required this.cantidadActual,
     required this.fechaLlegada,
-    required this.fechaVencimiento,
     required this.bodega,
     required this.producto,
     required this.ubicacion,
     required this.productoId,
+    this.fechaVencimiento,
   });
   factory TandaModel.fromApi(Map<String, dynamic> tanda) {
-    DateTime fechaVencimiento = DateTime.parse(tanda['fechaVencimiento']);
+    DateTime? fechaVencimiento = tanda['fechaVencimiento'] == null
+        ? null
+        : DateTime.parse(tanda['fechaVencimiento']);
     DateTime fechaLlegada = DateTime.parse(tanda['fechaLlegada']);
     return TandaModel(
       id: tanda['id'],
