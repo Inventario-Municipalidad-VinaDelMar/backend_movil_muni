@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movimiento_provider.dart';
@@ -117,29 +118,35 @@ class _EnviosPageState extends State<EnviosPage> {
                                 SolicitudStatus.pendiente) {
                           return;
                         }
-                        await planificacionProvider.sendSolicitudAutorizacion();
-                        if (planificacionProvider
-                                .planificacionActual[0].envioIniciado !=
-                            null) {
-                          return;
-                        }
-                        if (!planificacionProvider.planificacionActual[0]
+                        if (planificacionProvider.planificacionActual[0]
                             .areAllDetailsComplete()) {
+                          await planificacionProvider.completeCurrentEnvio();
                           return;
                         }
 
-                        await planificacionProvider.completeCurrentEnvio();
+                        if (planificacionProvider
+                                    .planificacionActual[0].envioIniciado !=
+                                null &&
+                            planificacionProvider.planificacionActual[0]
+                                    .envioIniciado!.status ==
+                                EnvioStatus.sinCargar) {
+                          return;
+                        }
+                        await planificacionProvider.sendSolicitudAutorizacion();
                       },
-                      icon: planificacionProvider.solicitudEnCurso.isNotEmpty &&
-                              planificacionProvider
-                                      .solicitudEnCurso[0].status ==
-                                  SolicitudStatus.pendiente
-                          ? null
-                          : planificacionProvider
-                                      .planificacionActual[0].envioIniciado ==
-                                  null
-                              ? const Icon(Icons.swipe_up_outlined)
-                              : const Icon(Icons.fire_truck_outlined),
+                      icon:
+                          (planificacionProvider.solicitudEnCurso.isNotEmpty &&
+                                      planificacionProvider
+                                              .solicitudEnCurso[0].status ==
+                                          SolicitudStatus.pendiente) ||
+                                  planificacionProvider.completingEnvio ||
+                                  planificacionProvider.processingSolicitud
+                              ? null
+                              : planificacionProvider.planificacionActual[0]
+                                          .envioIniciado ==
+                                      null
+                                  ? const Icon(Icons.swipe_up_outlined)
+                                  : const Icon(Icons.fire_truck_outlined),
                       child: Row(
                         children: [
                           Text(
@@ -163,11 +170,13 @@ class _EnviosPageState extends State<EnviosPage> {
                             style: textStyles.h4.copyWith(color: Colors.white),
                           ),
                           SizedBox(width: 5),
-                          if (planificacionProvider
-                                  .solicitudEnCurso.isNotEmpty &&
-                              planificacionProvider
-                                      .solicitudEnCurso[0].status ==
-                                  SolicitudStatus.pendiente)
+                          if ((planificacionProvider
+                                      .solicitudEnCurso.isNotEmpty &&
+                                  planificacionProvider
+                                          .solicitudEnCurso[0].status ==
+                                      SolicitudStatus.pendiente) ||
+                              planificacionProvider.completingEnvio ||
+                              planificacionProvider.processingSolicitud)
                             AnimateIcon(
                               color: Colors.white,
                               animateIcon: AnimateIcons.loading6,
@@ -176,10 +185,12 @@ class _EnviosPageState extends State<EnviosPage> {
                               onTap: () {},
                               iconType: IconType.continueAnimation,
                             ),
-                          if (planificacionProvider.solicitudEnCurso.isEmpty ||
-                              planificacionProvider
-                                      .solicitudEnCurso[0].status !=
-                                  SolicitudStatus.pendiente)
+                          if ((planificacionProvider.solicitudEnCurso.isEmpty ||
+                                  planificacionProvider
+                                          .solicitudEnCurso[0].status !=
+                                      SolicitudStatus.pendiente) &&
+                              !planificacionProvider.completingEnvio &&
+                              !planificacionProvider.processingSolicitud)
                             const Icon(
                               Icons.arrow_forward_rounded,
                               color: Colors.white,

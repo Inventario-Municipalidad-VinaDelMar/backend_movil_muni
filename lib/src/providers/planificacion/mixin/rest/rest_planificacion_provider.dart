@@ -22,6 +22,7 @@ mixin RestPlanificacionProvider on ChangeNotifier {
     } catch (error) {
       print('Error al crear solicitud de autorizacion: $error');
     } finally {
+      await Future.delayed(Duration(seconds: 1));
       processingSolicitud = false;
       notifyListeners();
     }
@@ -36,6 +37,7 @@ mixin RestPlanificacionProvider on ChangeNotifier {
     } catch (error) {
       print('Error al completar el envio actual: $error');
     } finally {
+      await Future.delayed(Duration(seconds: 1));
       completingEnvio = false;
       notifyListeners();
     }
