@@ -46,13 +46,24 @@ class _AddTandasPageState extends State<AddTandasPage> {
 
   @override
   Widget build(BuildContext context) {
+    final textStyles = ShadTheme.of(context).textTheme;
     final inventarioProvider = context.watch<InventarioProvider>();
     final isLoading = inventarioProvider.loadingProductos ||
         inventarioProvider.loadingBodegas;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Añadir Tanda'),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.blue[500],
+        title: Text(
+          'Añadir Tanda',
+          style: textStyles.h4.copyWith(
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

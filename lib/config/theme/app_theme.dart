@@ -6,6 +6,15 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 class AppTheme {
   static ShadThemeData getShadTheme(Size size) {
     return ShadThemeData(
+      primaryButtonTheme: ShadButtonTheme(
+        backgroundColor: Colors.blue[500],
+        hoverBackgroundColor: Colors.blue[700],
+        pressedBackgroundColor: Colors.blue[700],
+      ),
+      // primaryBadgeTheme: ShadBadgeTheme(
+      //   backgroundColor: Colors.blue[500],
+      //   hoverBackgroundColor: Colors.blue[700],
+      // ),
       brightness: Brightness.light,
       // textTheme: ShadTextTheme(
       //   colorScheme: ShadColorScheme(background: background, foreground: foreground, card: card, cardForeground: cardForeground, popover: popover, popoverForeground: popoverForeground, primary: primary, primaryForeground: primaryForeground, secondary: secondary, secondaryForeground: secondaryForeground, muted: muted, mutedForeground: mutedForeground, accent: accent, accentForeground: accentForeground, destructive: destructive, destructiveForeground: destructiveForeground, border: border, input: input, ring: ring, selection: selection),
@@ -32,6 +41,14 @@ class AppTheme {
 
   static ShadThemeData getDarkShadTheme(Size size) {
     return ShadThemeData(
+      primaryButtonTheme: ShadButtonTheme(
+        backgroundColor: Colors.blue[500],
+        hoverBackgroundColor: Colors.blue[700],
+        pressedBackgroundColor: Colors.blue[700],
+      ),
+      // primaryBadgeTheme: ShadBadgeTheme(
+      //   backgroundColor: Colors.blue[500],
+      // ),
       buttonSizesTheme: ShadButtonSizesTheme(
         lg: ShadButtonSizeTheme(
           height: size.height * 0.06,

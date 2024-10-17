@@ -30,7 +30,7 @@ const List<MenuItem> sidemenuItems = [
   MenuItem(
     title: 'Entregas',
     subTitle: 'Registra entregas.',
-    link: '/',
+    link: '/entregas',
     icon: AnimateIcons.compass,
   ),
   MenuItem(

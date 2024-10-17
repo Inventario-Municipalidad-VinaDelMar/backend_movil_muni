@@ -61,4 +61,17 @@ class EnvioModel {
       status: EnvioStatusExtension.fromString(envio['status']),
     );
   }
+
+  String statusToString() {
+    switch (status) {
+      case EnvioStatus.sinCargar:
+        return 'Sin Cargar';
+      case EnvioStatus.cargando:
+        return 'Cargando';
+      case EnvioStatus.enEnvio:
+        return 'En envío';
+      case EnvioStatus.finalizado:
+        return 'Finalizado';
+    }
+  }
 }

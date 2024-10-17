@@ -1,8 +1,4 @@
-import 'package:frontend_movil_muni/src/pages/auth/auth_page.dart';
-import 'package:frontend_movil_muni/src/pages/envios/buscar_envios_page.dart';
-import 'package:frontend_movil_muni/src/pages/envios/envios_page.dart';
 import 'package:frontend_movil_muni/src/pages/pages.dart';
-import 'package:frontend_movil_muni/src/pages/tandas/add_tandas_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../src/providers/provider.dart';
@@ -15,6 +11,7 @@ final mainRouter = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomePage()),
     GoRoute(path: '/login', builder: (context, state) => AuthPage()),
+    GoRoute(path: '/entregas', builder: (context, state) => EntregasPage()),
     GoRoute(
       path: '/envio',
       builder: (context, state) => const EnviosPage(),

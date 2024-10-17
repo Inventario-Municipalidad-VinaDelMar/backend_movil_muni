@@ -35,17 +35,7 @@ class UserModel {
     );
   }
 
-  Map<String, dynamic> toApi() {
-    return {
-      'id': id,
-      'rut': rut,
-      'email': email,
-      'nombre': nombre,
-      'apellidoPaterno': apellidoPaterno,
-      'apellidoMaterno': apellidoMaterno,
-      'imageUrl': imageUrl,
-      'roles': roles,
-      'token': jwtToken,
-    };
+  String getFullName() {
+    return '$nombre $apellidoPaterno $apellidoPaterno';
   }
 }

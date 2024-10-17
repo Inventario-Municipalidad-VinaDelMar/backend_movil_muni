@@ -1,7 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:frontend_movil_muni/src/pages/envios/sheet_buscar_envios_page.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
@@ -47,7 +46,17 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tandas de productos'),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.blue[500],
+        title: Text(
+          'Tandas de productos',
+          style: textStyles.h4.copyWith(
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: inventarioProvider.loadingTandas
           ? Center(

@@ -50,7 +50,17 @@ class _EnviosPageState extends State<EnviosPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Planificacion'),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.blue[500],
+        title: Text(
+          'Planificacion',
+          style: textStyles.h4.copyWith(
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: planificacionProvider.loadingPlanificacionActual
           ? const Center(child: CircularProgressIndicator())

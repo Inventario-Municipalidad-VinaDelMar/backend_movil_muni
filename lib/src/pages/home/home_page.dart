@@ -39,9 +39,10 @@ class HomePage extends StatelessWidget {
       {
         'title': 'Entregas',
         'subtitle': 'Registra entregas a comedores solidarios.',
-        'footer': 'Proximamente...',
+        'footer': '',
+        // 'footer': 'Proximamente...',
         'icon': AnimateIcons.compass,
-        'route': null
+        'route': '/entregas'
       },
     ];
 

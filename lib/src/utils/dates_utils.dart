@@ -46,3 +46,32 @@ String calcularDiasRestantes(DateTime? fechaObjetivo) {
     return "$diferenciaDias días";
   }
 }
+
+String fechaToLargeName(String fecha) {
+  // Convertir el string en un objeto DateTime
+  DateTime date = DateTime.parse(fecha);
+
+  // Listado de meses en español
+  List<String> meses = [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre'
+  ];
+
+  // Extraer día, mes y año
+  int dia = date.day;
+  String mes = meses[date.month - 1];
+  int anio = date.year;
+
+  // Formatear la fecha como "día de Mes de año"
+  return "$dia de $mes de $anio";
+}
