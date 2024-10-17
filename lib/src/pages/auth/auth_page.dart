@@ -115,13 +115,35 @@ class LoginScreenState extends State<LoginScreen> {
                                 width: double.infinity,
                                 backgroundColor: Colors.blue[500],
                                 onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    // If the form is valid, process the login
-                                    await authProvider
-                                        .loginWithEmailAndPassword(
-                                      _emailController.value.text,
-                                      _passwordController.value.text,
-                                    );
+                                  try {
+                                    if (_formKey.currentState!.validate()) {
+                                      // If the form is valid, process the login
+                                      await authProvider
+                                          .loginWithEmailAndPassword(
+                                        _emailController.value.text,
+                                        _passwordController.value.text,
+                                      );
+                                    }
+                                  } catch (e) {
+                                    String error = e.toString();
+                                    List<String> parts = error.split(':');
+                                    String errorName = parts.length > 1
+                                        ? parts[1].trim()
+                                        : error;
+                                    if (error ==
+                                        "Exception: Credenciales no validas") {
+                                      showErrorToast(
+                                          context,
+                                          errorName,
+                                          "Las credenciales no son validas",
+                                          "Intentar de nuevo");
+                                    } else {
+                                      showErrorToast(
+                                          context,
+                                          errorName,
+                                          "Ha ocurrido un error desconocido",
+                                          "Intentar de nuevo");
+                                    }
                                   }
                                 },
                                 icon: !authProvider.inProgressEmailAndPassword
@@ -241,9 +263,6 @@ class _PasswordInputState extends State<PasswordInput> {
         if (value == null || value.isEmpty) {
           return 'Por favor, ingrese su contraseña';
         }
-        if (value.length < 6) {
-          return 'Ingrese una contraseña valida';
-        }
         return null;
       },
     );
@@ -286,4 +305,23 @@ class _EmailInputState extends State<EmailInput> {
       },
     );
   }
+}
+
+void showErrorToast(
+    BuildContext context, String titulo, String desc, String boton) {
+  ShadToaster.of(context).show(
+    ShadToast.destructive(
+      title: Text(titulo),
+      description: Text(desc),
+      action: ShadButton.destructive(
+        child: Text(boton),
+        decoration: ShadDecoration(
+          border: ShadBorder.all(
+            color: Colors.red,
+          ),
+        ),
+        onPressed: () => ShadToaster.of(context).hide(),
+      ),
+    ),
+  );
 }
