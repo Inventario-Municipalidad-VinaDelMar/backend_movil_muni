@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/src/pages/envios/sheet_buscar_envios_page.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
+import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +20,16 @@ class BuscarEnviosPage extends StatefulWidget {
 
 class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
   late InventarioProvider _inventarioProvider;
+  late PlanificacionProvider _planificacionProvider;
   @override
   void initState() {
+    _planificacionProvider = context.read<PlanificacionProvider>();
+    final detalle =
+        _planificacionProvider.getOneDetallePlanificacion(widget.productoId);
+    _planificacionProvider.connect([
+      PlanificacionEvent.detallesTaken,
+    ], idDetalle: detalle!.id);
+
     _inventarioProvider = context.read<InventarioProvider>();
     _inventarioProvider.connect([
       InventarioEvent.getTandasByProducto,
@@ -30,6 +39,16 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
 
   @override
   void dispose() {
+    final detalle =
+        _planificacionProvider.getOneDetallePlanificacion(widget.productoId);
+    _planificacionProvider.connect([
+      PlanificacionEvent.detallesTaken,
+    ], idDetalle: detalle!.id);
+
+    _planificacionProvider.disconnect([
+      PlanificacionEvent.detallesTaken,
+    ]);
+
     _inventarioProvider.disconnect([
       InventarioEvent.getTandasByProducto,
     ], productoId: widget.productoId);

@@ -1,3 +1,23 @@
+import 'package:frontend_movil_muni/infraestructure/models/auth/user_model.dart';
+
+class DetallesTaken {
+  String idDetalle;
+  UserModel? user;
+
+  DetallesTaken({
+    required this.idDetalle,
+    this.user,
+  });
+
+  factory DetallesTaken.fromApi(Map<String, dynamic> detalleTaken) {
+    return DetallesTaken(
+      idDetalle: detalleTaken[
+          'idDetalle'], //Puede ser null, si no se ha creado el envio
+      user: UserModel.fromApi(detalleTaken['user']),
+    );
+  }
+}
+
 class DetallePlanificacion {
   String? id;
   int cantidadPlanificada;

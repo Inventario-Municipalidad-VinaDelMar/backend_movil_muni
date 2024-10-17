@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
@@ -27,6 +28,7 @@ class _EnviosPageState extends State<EnviosPage> {
     _planificacionProvider.connect([
       PlanificacionEvent.loadSolicitudEnvio,
       PlanificacionEvent.planificacionActual,
+      PlanificacionEvent.detallesTaken,
     ]);
     super.initState();
   }
@@ -34,6 +36,7 @@ class _EnviosPageState extends State<EnviosPage> {
   @override
   void dispose() {
     _planificacionProvider.disconnect([
+      PlanificacionEvent.detallesTaken,
       PlanificacionEvent.loadSolicitudEnvio,
       PlanificacionEvent.planificacionActual,
     ]);
@@ -286,6 +289,8 @@ class _TablePlanificacion extends StatelessWidget {
                 Row(
                   children: [
                     ShadAvatar(
+                      // size: Size(40, 40),
+                      fit: BoxFit.fitHeight,
                       detalle.urlImagen,
                       placeholder: SkeletonAvatar(
                         style: SkeletonAvatarStyle(
@@ -332,10 +337,22 @@ class _TablePlanificacion extends StatelessWidget {
               DataCell(
                 Center(
                   child: ShadButton(
+                    width: size.width * 0.33,
                     enabled: (planificacionProvider
                                 .planificacionActual[0].envioIniciado !=
                             null) &&
-                        !detalle.isComplete,
+                        !detalle.isComplete &&
+                        planificacionProvider.detallesTaken
+                                .firstWhere(
+                                    (dt) =>
+                                        dt.idDetalle ==
+                                        detalle.id, // Condición de búsqueda
+                                    orElse: () => DetallesTaken(
+                                        idDetalle: '', user: null))
+                                .idDetalle ==
+                            '',
+
+                    // !planificacionProvider.detalleIsTaken(detalle.id),
                     size: ShadButtonSize.sm,
                     onPressed: planificacionProvider
                                 .planificacionActual[0].envioIniciado !=
@@ -344,14 +361,44 @@ class _TablePlanificacion extends StatelessWidget {
                             context.push('/envio/${detalle.productoId}/tandas');
                           }
                         : null,
-                    icon: Icon(
-                      detalle.isComplete ? Icons.checklist_sharp : Icons.search,
-                      size: 16,
-                    ),
-                    child: Text(
-                      detalle.isComplete ? 'Hecho' : 'Buscar',
-                      style: textStyles.small.copyWith(color: Colors.white),
-                    ),
+                    icon: planificacionProvider.detallesTaken
+                                .firstWhere(
+                                    (dt) =>
+                                        dt.idDetalle ==
+                                        detalle.id, // Condición de búsqueda
+                                    orElse: () => DetallesTaken(
+                                        idDetalle: '', user: null))
+                                .idDetalle !=
+                            ''
+                        ? Icon(
+                            Icons.account_circle,
+                            size: size.width * 0.05,
+                          )
+                        : Icon(
+                            detalle.isComplete
+                                ? Icons.checklist_sharp
+                                : Icons.search,
+                            size: 16,
+                          ),
+                    child: planificacionProvider.detallesTaken
+                                .firstWhere(
+                                    (dt) =>
+                                        dt.idDetalle ==
+                                        detalle.id, // Condición de búsqueda
+                                    orElse: () => DetallesTaken(
+                                        idDetalle: '', user: null))
+                                .idDetalle !=
+                            ''
+                        ? Text(
+                            'Tomada ...',
+                            style:
+                                textStyles.small.copyWith(color: Colors.white),
+                          )
+                        : Text(
+                            detalle.isComplete ? 'Hecho' : 'Buscar',
+                            style:
+                                textStyles.small.copyWith(color: Colors.white),
+                          ),
                   ),
                 ),
               ),

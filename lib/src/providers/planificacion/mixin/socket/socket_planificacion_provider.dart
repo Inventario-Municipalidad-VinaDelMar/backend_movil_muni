@@ -11,23 +11,32 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 UserProvider _userProvider = UserProvider();
 
-enum PlanificacionEvent { planificacionActual, loadSolicitudEnvio }
+enum PlanificacionEvent {
+  planificacionActual,
+  loadSolicitudEnvio,
+  detallesTaken,
+}
 
 class SocketEvents {
   //Emiten al servidor para preguntar por datos
   static const String getPlanificacion = 'getPlanificacion';
+  static const String setDetalleAsTaken = 'setDetalleAsTaken';
 
   //Reciben informacion desde el server como listener
   static const String loadPlanificacion = 'loadPlanificacion';
   static const String loadSolicitud = 'loadSolicitud';
+  static const String loadDetallesTaken = 'loadDetallesTaken';
 }
 
 mixin SocketPlanificacionProvider on ChangeNotifier {
   //Siempre existirá solo 1 elemento en esta lista.
   List<PlanificacionModel> planificacionActual = [];
   List<SolicitudEnvioModel> solicitudEnCurso = [];
+  List<DetallesTaken> detallesTaken = [];
+
   bool loadingPlanificacionActual = false;
   bool waitingTimeEnvio = false;
+  bool takingDetalle = false;
   String countdownText = '';
 
   io.Socket? _socket;
@@ -73,9 +82,9 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     _socket?.connect();
   }
 
-  void connect(List<PlanificacionEvent> events) {
+  void connect(List<PlanificacionEvent> events, {String? idDetalle}) {
     _clearListeners(events);
-    _registerListeners(events);
+    _registerListeners(events, idDetalle: idDetalle);
   }
 
   void disconnect(
@@ -90,6 +99,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     _socket?.disconnect();
     _socket = null;
     planificacionActual.clear();
+    detallesTaken.clear();
   }
 
   DetallePlanificacion? getOneDetallePlanificacion(String productoId) {
@@ -103,6 +113,17 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     });
 
     return detalle;
+  }
+
+  bool detalleIsTaken(idDetalle) {
+    bool taken = false;
+    detallesTaken.forEach((d) {
+      if (d.idDetalle == idDetalle) {
+        taken = true;
+      }
+    });
+
+    return taken;
   }
 
   void initWaitingTime() async {
@@ -122,7 +143,8 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     notifyListeners();
   }
 
-  void _registerListeners(List<PlanificacionEvent> events) {
+  void _registerListeners(List<PlanificacionEvent> events,
+      {String? idDetalle}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
@@ -142,6 +164,31 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
             fromApi: (data) => PlanificacionModel.fromApi(data),
             emitPayload: {
               'fecha': getFormattedDate(),
+            },
+          );
+          break;
+        case PlanificacionEvent.detallesTaken:
+          // if (idDetalle == null) {
+          //   _socket!.on(SocketEvents.loadDetallesTaken, (data) {
+          //     print('Detalle taken: $data');
+          //     List<Map<String, dynamic>> listData =
+          //         List<Map<String, dynamic>>.from(data);
+          //     detallesTaken.clear();
+          //     detallesTaken.addAll(
+          //         listData.map((r) => DetallesTaken.fromApi(r)).toList());
+          //     notifyListeners();
+          //   });
+          //   return;
+          // }
+          _handleDataListEvent<DetallesTaken>(
+            emitEvent: SocketEvents.setDetalleAsTaken,
+            loadEvent: SocketEvents.loadDetallesTaken,
+            dataList: detallesTaken,
+            setLoading: (loading) => takingDetalle = loading,
+            fromApi: (data) => DetallesTaken.fromApi(data),
+            emitPayload: {
+              'fecha': getFormattedDate(),
+              'idDetalle': idDetalle,
             },
           );
           break;
@@ -189,11 +236,13 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
       return;
     }
     _socket!.on(loadEvent, (data) {
+      print('Detalle taken: $data');
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
+      notifyListeners();
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }
@@ -224,6 +273,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
       _socket?.off(SocketEvents.loadPlanificacion);
     }
     _socket?.off(SocketEvents.loadSolicitud);
+    _socket?.off(SocketEvents.loadDetallesTaken);
   }
 
   void _clearListeners(events) {
@@ -235,6 +285,9 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
           break;
         case PlanificacionEvent.planificacionActual:
           _socket?.off(SocketEvents.loadPlanificacion);
+          break;
+        case PlanificacionEvent.detallesTaken:
+          _socket?.off(SocketEvents.loadDetallesTaken);
           break;
       }
     }
