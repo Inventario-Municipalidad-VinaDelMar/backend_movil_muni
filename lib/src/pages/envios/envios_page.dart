@@ -36,9 +36,9 @@ class _EnviosPageState extends State<EnviosPage> {
   @override
   void dispose() {
     _planificacionProvider.disconnect([
-      PlanificacionEvent.detallesTakenLoad,
       PlanificacionEvent.loadSolicitudEnvio,
       PlanificacionEvent.planificacionActual,
+      PlanificacionEvent.detallesTakenLoad,
     ]);
 
     super.dispose();

@@ -157,6 +157,10 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
           );
           break;
         case PlanificacionEvent.planificacionActual:
+          final fecha = getFormattedDate();
+          print('Emitiendo:${SocketEvents.getPlanificacion} con fecha $fecha');
+          print(
+              'Recibiendo:${SocketEvents.loadPlanificacion} con fecha $fecha');
           _handleDataListEvent<PlanificacionModel>(
             emitEvent: SocketEvents.getPlanificacion,
             loadEvent: SocketEvents.loadPlanificacion,
@@ -164,7 +168,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
             setLoading: (loading) => loadingPlanificacionActual = loading,
             fromApi: (data) => PlanificacionModel.fromApi(data),
             emitPayload: {
-              'fecha': getFormattedDate(),
+              'fecha': fecha,
             },
           );
           break;
@@ -204,7 +208,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     setLoading(true);
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     //?Solicitar la informacion
-
+    _socket!.emit(emitEvent, emitPayload);
     //?Capturar informacion solicitada
     if (emitEvent == 'getPlanificacion') {
       _socket!.on(loadEvent, (data) {
