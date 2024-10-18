@@ -145,31 +145,35 @@ class _EntregasPageState extends State<EntregasPage> {
                           ),
                           child: Column(
                             children: [
-                              Row(
-                                children: [
-                                  ShadBadge(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: size.width * 0.08,
-                                      vertical: 7,
-                                    ),
-                                    child: Text(
-                                      envio.statusToString(),
-                                      style: textStyles.h4.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 5),
+                                child: Row(
+                                  children: [
+                                    ShadBadge(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: size.width * 0.08,
+                                        vertical: 7,
+                                      ),
+                                      child: Text(
+                                        envio.statusToString(),
+                                        style: textStyles.h4.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Spacer(),
-                                  ShadAvatar(
-                                    size: Size(
-                                      size.height * 0.07,
-                                      size.height * 0.07,
+                                    Spacer(),
+                                    ShadAvatar(
+                                      size: Size(
+                                        size.height * 0.07,
+                                        size.height * 0.07,
+                                      ),
+                                      'assets/logos/camiones3.gif',
+                                      backgroundColor: Colors.white,
                                     ),
-                                    'assets/logos/camiones3.gif',
-                                    backgroundColor: Colors.white,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               SizedBox(height: size.height * 0.03),
                               Row(

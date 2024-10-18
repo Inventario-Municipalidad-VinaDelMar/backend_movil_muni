@@ -28,7 +28,7 @@ class _EnviosPageState extends State<EnviosPage> {
     _planificacionProvider.connect([
       PlanificacionEvent.loadSolicitudEnvio,
       PlanificacionEvent.planificacionActual,
-      PlanificacionEvent.detallesTaken,
+      PlanificacionEvent.detallesTakenLoad,
     ]);
     super.initState();
   }
@@ -36,7 +36,7 @@ class _EnviosPageState extends State<EnviosPage> {
   @override
   void dispose() {
     _planificacionProvider.disconnect([
-      PlanificacionEvent.detallesTaken,
+      PlanificacionEvent.detallesTakenLoad,
       PlanificacionEvent.loadSolicitudEnvio,
       PlanificacionEvent.planificacionActual,
     ]);

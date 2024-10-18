@@ -27,7 +27,7 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
     final detalle =
         _planificacionProvider.getOneDetallePlanificacion(widget.productoId);
     _planificacionProvider.connect([
-      PlanificacionEvent.detallesTaken,
+      PlanificacionEvent.detallesTakenEmit,
     ], idDetalle: detalle!.id);
 
     _inventarioProvider = context.read<InventarioProvider>();
@@ -42,12 +42,8 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
     final detalle =
         _planificacionProvider.getOneDetallePlanificacion(widget.productoId);
     _planificacionProvider.connect([
-      PlanificacionEvent.detallesTaken,
+      PlanificacionEvent.detallesTakenEmit,
     ], idDetalle: detalle!.id);
-
-    _planificacionProvider.disconnect([
-      PlanificacionEvent.detallesTaken,
-    ]);
 
     _inventarioProvider.disconnect([
       InventarioEvent.getTandasByProducto,

@@ -14,7 +14,8 @@ UserProvider _userProvider = UserProvider();
 enum PlanificacionEvent {
   planificacionActual,
   loadSolicitudEnvio,
-  detallesTaken,
+  detallesTakenEmit,
+  detallesTakenLoad,
 }
 
 class SocketEvents {
@@ -167,19 +168,21 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
             },
           );
           break;
-        case PlanificacionEvent.detallesTaken:
+        case PlanificacionEvent.detallesTakenLoad:
           // if (idDetalle == null) {
-          //   _socket!.on(SocketEvents.loadDetallesTaken, (data) {
-          //     print('Detalle taken: $data');
-          //     List<Map<String, dynamic>> listData =
-          //         List<Map<String, dynamic>>.from(data);
-          //     detallesTaken.clear();
-          //     detallesTaken.addAll(
-          //         listData.map((r) => DetallesTaken.fromApi(r)).toList());
-          //     notifyListeners();
-          //   });
+          _socket!.on(SocketEvents.loadDetallesTaken, (data) {
+            print('Detalle taken: $data');
+            List<Map<String, dynamic>> listData =
+                List<Map<String, dynamic>>.from(data);
+            detallesTaken.clear();
+            detallesTaken
+                .addAll(listData.map((r) => DetallesTaken.fromApi(r)).toList());
+            notifyListeners();
+          });
           //   return;
           // }
+          break;
+        case PlanificacionEvent.detallesTakenEmit:
           _handleDataListEvent<DetallesTaken>(
             emitEvent: SocketEvents.setDetalleAsTaken,
             loadEvent: SocketEvents.loadDetallesTaken,
@@ -211,7 +214,9 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     //?Solicitar la informacion
     _socket!.emit(emitEvent, emitPayload);
-
+    if (emitEvent == SocketEvents.setDetalleAsTaken) {
+      return;
+    }
     //?Capturar informacion solicitada
     if (emitEvent == 'getPlanificacion') {
       _socket!.on(loadEvent, (data) {
@@ -236,7 +241,6 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
       return;
     }
     _socket!.on(loadEvent, (data) {
-      print('Detalle taken: $data');
       List<Map<String, dynamic>> listData =
           List<Map<String, dynamic>>.from(data);
       dataList.clear();
@@ -286,7 +290,12 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
         case PlanificacionEvent.planificacionActual:
           _socket?.off(SocketEvents.loadPlanificacion);
           break;
-        case PlanificacionEvent.detallesTaken:
+        case PlanificacionEvent.detallesTakenLoad:
+          detallesTaken.clear();
+          _socket?.off(SocketEvents.loadDetallesTaken);
+          break;
+        case PlanificacionEvent.detallesTakenEmit:
+          detallesTaken.clear();
           _socket?.off(SocketEvents.loadDetallesTaken);
           break;
       }
