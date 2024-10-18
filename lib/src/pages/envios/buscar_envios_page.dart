@@ -26,6 +26,7 @@ class _BuscarEnviosPageState extends State<BuscarEnviosPage> {
     _planificacionProvider = context.read<PlanificacionProvider>();
     final detalle =
         _planificacionProvider.getOneDetallePlanificacion(widget.productoId);
+
     _planificacionProvider.connect([
       PlanificacionEvent.detallesTakenEmit,
     ], idDetalle: detalle!.id);

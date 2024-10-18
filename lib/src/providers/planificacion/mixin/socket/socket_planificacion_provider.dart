@@ -169,9 +169,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
           );
           break;
         case PlanificacionEvent.detallesTakenLoad:
-          // if (idDetalle == null) {
           _socket!.on(SocketEvents.loadDetallesTaken, (data) {
-            print('Detalle taken: $data');
             List<Map<String, dynamic>> listData =
                 List<Map<String, dynamic>>.from(data);
             detallesTaken.clear();
@@ -179,21 +177,14 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
                 .addAll(listData.map((r) => DetallesTaken.fromApi(r)).toList());
             notifyListeners();
           });
-          //   return;
-          // }
+
           break;
         case PlanificacionEvent.detallesTakenEmit:
-          _handleDataListEvent<DetallesTaken>(
-            emitEvent: SocketEvents.setDetalleAsTaken,
-            loadEvent: SocketEvents.loadDetallesTaken,
-            dataList: detallesTaken,
-            setLoading: (loading) => takingDetalle = loading,
-            fromApi: (data) => DetallesTaken.fromApi(data),
-            emitPayload: {
-              'fecha': getFormattedDate(),
-              'idDetalle': idDetalle,
-            },
-          );
+          final fecha = getFormattedDate();
+          _socket!.emit(SocketEvents.setDetalleAsTaken, {
+            'idDetalle': idDetalle,
+            'fecha': fecha,
+          });
           break;
 
         default:
@@ -213,10 +204,7 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     setLoading(true);
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     //?Solicitar la informacion
-    _socket!.emit(emitEvent, emitPayload);
-    if (emitEvent == SocketEvents.setDetalleAsTaken) {
-      return;
-    }
+
     //?Capturar informacion solicitada
     if (emitEvent == 'getPlanificacion') {
       _socket!.on(loadEvent, (data) {
@@ -275,9 +263,9 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
   void _clearAllListeners() {
     if (_socket != null) {
       _socket?.off(SocketEvents.loadPlanificacion);
+      _socket?.off(SocketEvents.loadSolicitud);
+      _socket?.off(SocketEvents.loadDetallesTaken);
     }
-    _socket?.off(SocketEvents.loadSolicitud);
-    _socket?.off(SocketEvents.loadDetallesTaken);
   }
 
   void _clearListeners(events) {
@@ -295,8 +283,9 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
           _socket?.off(SocketEvents.loadDetallesTaken);
           break;
         case PlanificacionEvent.detallesTakenEmit:
-          detallesTaken.clear();
-          _socket?.off(SocketEvents.loadDetallesTaken);
+          // detallesTaken.clear();
+          // _socket?.off(SocketEvents.loadDetallesTaken);
+          print('');
           break;
       }
     }
