@@ -110,7 +110,7 @@ class _EntregasPageState extends State<EntregasPage> {
                         delay: Duration(milliseconds: i * 150),
                         child: Container(
                           padding: EdgeInsets.all(10),
-                          margin: EdgeInsets.only(bottom: 10),
+                          margin: EdgeInsets.only(bottom: 25),
                           width: double.infinity,
                           height: size.height * 0.4,
                           decoration: BoxDecoration(
