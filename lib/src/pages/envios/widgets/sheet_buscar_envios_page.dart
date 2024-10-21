@@ -49,16 +49,31 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
           ? const BoxConstraints(maxWidth: 512)
           : null,
       title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ShadAvatar(
             widget.productoImgUrl,
-            placeholder: const SkeletonAvatar(
+            placeholder: SkeletonAvatar(
               style: SkeletonAvatarStyle(
-                  shape: BoxShape.circle, width: 50, height: 50),
+                shape: BoxShape.circle,
+                // width: size.height * 0.1,
+                // height: size.height * 0.1,
+              ),
             ),
             backgroundColor: Colors.transparent,
           ),
-          Text('Tanda de "${widget.producto}"', style: textStyles.h4),
+          SizedBox(width: size.width * 0.01),
+          Flexible(
+            child: Wrap(
+              children: [
+                Text(
+                  'Tanda de "${widget.producto}"',
+                  style: textStyles.h4,
+                  softWrap: true,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       actions: [

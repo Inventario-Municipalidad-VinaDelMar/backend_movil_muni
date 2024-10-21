@@ -11,6 +11,86 @@ class AppTheme {
         hoverBackgroundColor: Colors.blue[700],
         pressedBackgroundColor: Colors.blue[700],
       ),
+      selectTheme: ShadSelectTheme(
+        decoration: ShadDecoration(
+          fallbackToBorder: false,
+          border: ShadBorder(
+            bottom: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+            top: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+            right: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+            left: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+          ),
+          secondaryFocusedBorder: ShadBorder(
+            bottom: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+            top: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+            right: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+            left: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+          ),
+        ),
+      ),
+      inputTheme: ShadInputTheme(
+        decoration: ShadDecoration(
+          fallbackToBorder: false,
+          border: ShadBorder(
+            bottom: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+            top: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+            right: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+            left: BorderSide(
+              color: Colors.blue[100]!,
+            ),
+          ),
+          secondaryFocusedBorder: ShadBorder(
+            bottom: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+            top: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+            right: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+            left: BorderSide(
+              color: Colors.blue[500]!,
+              width: 1.5,
+            ),
+          ),
+          // focusedBorder: ShadBorder(
+          //   bottom: BorderSide(color: Colors.blue[500]!),
+          //   top: BorderSide(color: Colors.blue[500]!),
+          //   right: BorderSide(color: Colors.blue[500]!),
+          //   left: BorderSide(color: Colors.blue[500]!),
+          // ),
+        ),
+      ),
       // primaryBadgeTheme: ShadBadgeTheme(
       //   backgroundColor: Colors.blue[500],
       //   hoverBackgroundColor: Colors.blue[700],

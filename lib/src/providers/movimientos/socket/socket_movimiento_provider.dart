@@ -73,7 +73,6 @@ mixin SocketMovimientoProvider on ChangeNotifier {
   }
 
   void connect(List<MovimientoEvent> events, {String? id}) {
-    print('Envio socket: $id');
     _clearListeners(events, idEnvio: id);
     _registerListeners(events, idEnvio: id);
   }

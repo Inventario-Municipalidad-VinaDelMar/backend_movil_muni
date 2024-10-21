@@ -83,9 +83,15 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     _socket?.connect();
   }
 
-  void connect(List<PlanificacionEvent> events, {String? idDetalle}) {
+  void connect(List<PlanificacionEvent> events,
+      {String? idDetalle,
+      void Function(SolicitudEnvioModel)? onSolicitudReceived}) {
     _clearListeners(events);
-    _registerListeners(events, idDetalle: idDetalle);
+    _registerListeners(
+      events,
+      idDetalle: idDetalle,
+      onSolicitudReceived: onSolicitudReceived,
+    );
   }
 
   void disconnect(
@@ -99,8 +105,11 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     _clearAllListeners();
     _socket?.disconnect();
     _socket = null;
+
+    //Limpiar si hay datos, pueden haber datos exclusivos de 1 usuario
     planificacionActual.clear();
     detallesTaken.clear();
+    solicitudEnCurso.clear();
   }
 
   DetallePlanificacion? getOneDetallePlanificacion(String productoId) {
@@ -144,8 +153,11 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     notifyListeners();
   }
 
-  void _registerListeners(List<PlanificacionEvent> events,
-      {String? idDetalle}) {
+  void _registerListeners(
+    List<PlanificacionEvent> events, {
+    String? idDetalle,
+    void Function(SolicitudEnvioModel)? onSolicitudReceived,
+  }) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
@@ -154,13 +166,12 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
             newEvent: SocketEvents.loadSolicitud,
             dataList: solicitudEnCurso,
             fromApi: (data) => SolicitudEnvioModel.fromApi(data),
+            //Solo funciona para el evento "loadSolicitud"
+            onSolicitudReceived: onSolicitudReceived,
           );
           break;
         case PlanificacionEvent.planificacionActual:
           final fecha = getFormattedDate();
-          print('Emitiendo:${SocketEvents.getPlanificacion} con fecha $fecha');
-          print(
-              'Recibiendo:${SocketEvents.loadPlanificacion} con fecha $fecha');
           _handleDataListEvent<PlanificacionModel>(
             emitEvent: SocketEvents.getPlanificacion,
             loadEvent: SocketEvents.loadPlanificacion,
@@ -247,18 +258,21 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     required String newEvent,
     required List<T> dataList,
     required T Function(Map<String, dynamic>) fromApi,
+    //Uso exclusivo para hacer algo en el listenner "loadSolicitud"
+    void Function(T)? onSolicitudReceived,
   }) {
     //Capturar nueva data para actualizar lista
     _socket!.on(newEvent, (data) async {
-      // await Future.delayed(Duration(seconds: 1));
-      if (newEvent == 'loadSolicitud') {
-        dataList.clear();
-        notifyListeners();
-      }
       if (data == null) {
         return;
       }
       T newEntity = fromApi(data);
+      if (newEvent == 'loadSolicitud') {
+        dataList.clear();
+        notifyListeners();
+        //Ejecutar la funcion que procesa el resultado de la solicitud en pantalla
+        onSolicitudReceived!(newEntity);
+      }
       dataList.add(newEntity);
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
@@ -277,19 +291,16 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
     for (var event in events) {
       switch (event) {
         case PlanificacionEvent.loadSolicitudEnvio:
+          solicitudEnCurso.clear();
           _socket?.off(SocketEvents.loadSolicitud);
           break;
         case PlanificacionEvent.planificacionActual:
+          planificacionActual.clear();
           _socket?.off(SocketEvents.loadPlanificacion);
           break;
         case PlanificacionEvent.detallesTakenLoad:
           detallesTaken.clear();
           _socket?.off(SocketEvents.loadDetallesTaken);
-          break;
-        case PlanificacionEvent.detallesTakenEmit:
-          // detallesTaken.clear();
-          // _socket?.off(SocketEvents.loadDetallesTaken);
-          print('');
           break;
       }
     }
