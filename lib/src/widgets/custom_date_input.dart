@@ -1,8 +1,6 @@
-import 'dart:math';
-
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class DateTextInputFormatter extends TextInputFormatter {
@@ -43,21 +41,24 @@ class DateTextInputFormatter extends TextInputFormatter {
 
 class CustomDateInput extends StatefulWidget {
   final String label;
-  final TextEditingController controller;
+  final String id;
+  final TextEditingController? controller;
   final void Function(String?) validator;
 
-  const CustomDateInput(
-      {super.key,
-      required this.label,
-      required this.validator,
-      required this.controller});
+  const CustomDateInput({
+    super.key,
+    required this.label,
+    required this.validator,
+    this.controller,
+    required this.id,
+  });
 
   @override
   State<CustomDateInput> createState() => _CustomDateInputState();
 }
 
 class _CustomDateInputState extends State<CustomDateInput> {
-  // final TextEditingController _controller = TextEditingController();
+  late TextEditingController _controller;
   String _errorText = "";
   bool _hasInitialValue = false;
   String errorValidate = "";
@@ -65,19 +66,21 @@ class _CustomDateInputState extends State<CustomDateInput> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(_handleTextChange);
-    widget.controller.value.text;
+    // Si el controller es null, creamos uno nuevo
+    _controller = widget.controller ?? TextEditingController();
+    _controller.addListener(_handleTextChange);
+    _controller.value.text;
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_handleTextChange);
-    widget.controller.dispose();
+    _controller.removeListener(_handleTextChange);
+    _controller.dispose();
     super.dispose();
   }
 
   void _handleTextChange() {
-    if (!_hasInitialValue && widget.controller.text.isNotEmpty) {
+    if (!_hasInitialValue && _controller.text.isNotEmpty) {
       _hasInitialValue = true;
     }
   }
@@ -132,52 +135,50 @@ class _CustomDateInputState extends State<CustomDateInput> {
   @override
   Widget build(BuildContext context) {
     final colors = ShadTheme.of(context).colorScheme;
-    return FadeInLeft(
-      delay: const Duration(milliseconds: 400),
-      duration: const Duration(milliseconds: 200),
-      child: ShadInputFormField(
-        validator: (v) {
-          if (_errorText != "") {
-            setState(() {
-              errorValidate = _errorText;
-            });
-            return "";
-          }
-          if (v.isEmpty) {
-            setState(() {
-              errorValidate = 'Selecciona una fecha';
-            });
 
-            return "";
-          }
+    return GenericTextInput(
+      id: widget.id,
+      labelText: widget.label,
+      placeHolder: '00-00-0000',
+      inputType: TextInputType.number,
+      validator: (v) {
+        if (_errorText != "") {
+          setState(() {
+            errorValidate = _errorText;
+          });
+          return "";
+        }
+        if (v.isEmpty) {
+          setState(() {
+            errorValidate = 'Selecciona una fecha';
+          });
 
-          return null;
-        },
-        placeholder: Text(widget.label),
-        error: (error) {
-          print(error);
-          return errorValidate != ""
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    errorValidate,
-                    style: TextStyle(color: colors.destructive),
-                  ))
-              : Container();
-        },
-        keyboardType: TextInputType.emailAddress,
-        controller: widget.controller,
-        inputFormatters: [DateTextInputFormatter()],
-        onChanged: (p0) => _validateDate(context, p0),
-        onPressed: () {
-          if (!_hasInitialValue && widget.controller.text.isEmpty) {
-            setState(() {
-              widget.controller.text = '0';
-              _hasInitialValue = true;
-            });
-          }
-        },
-      ),
+          return "";
+        }
+
+        return null;
+      },
+      error: (error) {
+        return errorValidate != ''
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  errorValidate,
+                  style: TextStyle(color: colors.destructive),
+                ))
+            : Container();
+      },
+      controller: _controller,
+      inputFormatters: [DateTextInputFormatter()],
+      onChanged: (p0) => _validateDate(context, p0!),
+      onPressed: () {
+        if (!_hasInitialValue && _controller.text.isEmpty) {
+          setState(() {
+            _controller.text = '0';
+            _hasInitialValue = true;
+          });
+        }
+      },
     );
   }
 }

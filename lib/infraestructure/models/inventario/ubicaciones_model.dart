@@ -11,4 +11,8 @@ class UbicacionesModel {
     return UbicacionesModel(
         id: ubicacion['id'], descripcion: ubicacion['descripcion']);
   }
+
+  static UbicacionesModel getNull() {
+    return UbicacionesModel(id: '', descripcion: '');
+  }
 }

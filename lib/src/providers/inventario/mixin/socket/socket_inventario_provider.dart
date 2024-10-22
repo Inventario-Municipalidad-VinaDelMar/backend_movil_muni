@@ -52,7 +52,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   List<TandaModel> tandaByProducto = [];
   List<SelectionProductModel> productosSelection = [];
   List<BodegaModel> bodegas = [];
-  List<UbicacionesModel> ubicacion = [];
+  List<UbicacionesModel> ubicaciones = [];
 
   bool loadingProductos = false;
   bool loadingBodegas = false;
@@ -65,7 +65,6 @@ mixin SocketInventarioProvider on ChangeNotifier {
     'idProducto': null,
     'idBodega': null,
     'idUbicacion': null,
-    'idCategoria': null
   };
 
   io.Socket? _socket;
@@ -186,7 +185,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
           _handleDataListEvent<UbicacionesModel>(
             emitEvent: SocketEvents.getUbicacionesByBodega,
             loadEvent: SocketEvents.loadUbicacionesByBodega,
-            dataList: ubicacion,
+            dataList: ubicaciones,
             setLoading: (loading) => loadingUbicacion = loading,
             fromApi: (data) => UbicacionesModel.fromApi(data),
             emitPayload: {'idBodega': formularioTandaData['idBodega']},
@@ -210,6 +209,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
   void _clearAllListeners() {
     if (_socket != null) {
       _socket?.off(SocketEvents.loadProductos);
+      _socket?.off(SocketEvents.loadAllBodegas);
       _socket?.off(SocketEvents.newProducto);
     }
   }
@@ -221,12 +221,14 @@ mixin SocketInventarioProvider on ChangeNotifier {
         case InventarioEvent.getProductos:
           _socket?.off(SocketEvents.loadProductos);
           break;
-
+        case InventarioEvent.getAllBodegas:
+          _socket?.off(SocketEvents.loadAllBodegas);
+          break;
         case InventarioEvent.newProducto:
           _socket?.off(SocketEvents.newProducto);
+          break;
         case InventarioEvent.getTandasByProducto:
           _socket?.off('$productoId${SocketEvents.loadTandasByProducto}');
-
           break;
       }
     }
@@ -242,7 +244,6 @@ mixin SocketInventarioProvider on ChangeNotifier {
   }) {
     setLoading(true);
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-
     //?Solicitar la informacion
     _socket!.emit(emitEvent, emitPayload);
 
@@ -253,6 +254,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
       dataList.clear();
       dataList.addAll(listData.map((r) => fromApi(r)).toList());
       setLoading(false);
+
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }

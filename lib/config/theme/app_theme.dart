@@ -46,6 +46,25 @@ class AppTheme {
               width: 1.5,
             ),
           ),
+          errorBorder: ShadBorder(
+            radius: BorderRadius.circular(10),
+            bottom: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+            top: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+            right: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+            left: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+          ),
         ),
       ),
       inputTheme: ShadInputTheme(
@@ -83,12 +102,25 @@ class AppTheme {
               width: 1.5,
             ),
           ),
-          // focusedBorder: ShadBorder(
-          //   bottom: BorderSide(color: Colors.blue[500]!),
-          //   top: BorderSide(color: Colors.blue[500]!),
-          //   right: BorderSide(color: Colors.blue[500]!),
-          //   left: BorderSide(color: Colors.blue[500]!),
-          // ),
+          errorBorder: ShadBorder(
+            radius: BorderRadius.circular(10),
+            bottom: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+            top: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+            right: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+            left: BorderSide(
+              color: Colors.red[500]!,
+              width: 1.5,
+            ),
+          ),
         ),
       ),
       // primaryBadgeTheme: ShadBadgeTheme(

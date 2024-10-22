@@ -3,6 +3,5 @@ export 'package:frontend_movil_muni/src/pages/entregas/entregas_page.dart';
 export 'package:frontend_movil_muni/src/pages/envios/buscar_envios_page.dart';
 export 'package:frontend_movil_muni/src/pages/envios/envios_page.dart';
 export 'package:frontend_movil_muni/src/pages/tandas/add_tandas_page.dart';
-export 'package:frontend_movil_muni/src/pages/tandas/tandas_page.dart';
 
 export 'package:frontend_movil_muni/src/pages/home/home_page.dart';

@@ -27,10 +27,7 @@ class InventariosRepository {
 
   Future<void> addTanda(Map<String, dynamic> formularioTandaData) async {
     try {
-      final response =
-          await dio.post('/inventario/tandas', data: formularioTandaData);
-      print(response);
-      // return response;
+      await dio.post('/inventario/tandas', data: formularioTandaData);
     } on DioException catch (error) {
       print(error.message);
       print(error.response?.data);

@@ -37,4 +37,8 @@ class SelectionProductModel {
       nombre: selectionProducto['nombre'],
     );
   }
+
+  static SelectionProductModel getNull() {
+    return SelectionProductModel(id: '', nombre: '');
+  }
 }

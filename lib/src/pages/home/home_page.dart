@@ -2,7 +2,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
-import 'package:frontend_movil_muni/main.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -133,9 +132,24 @@ class HomePage extends StatelessWidget {
                   final item = gridItems[index];
 
                   return InkWell(
-                    onTap: () {
+                    onTap: () async {
                       if (item['route'] == null) return;
-                      context.push(item['route']);
+                      // context.push(item['route']);
+                      // Función que navega a la ruta y verifica el resultado
+                      Future<void> navigateAndCheckResult() async {
+                        final result = await context.push(item['route']);
+
+                        // Si el resultado es true, volver a navegar a la misma página
+                        if (result == true && context.mounted) {
+                          // await Future.delayed(Duration(
+                          //     milliseconds:
+                          //         200)); // Un pequeño delay si lo necesitas
+                          navigateAndCheckResult(); // Llamar de nuevo para crear el bucle
+                        }
+                      }
+
+                      // Llamamos la función de navegación inicial
+                      navigateAndCheckResult();
                     },
                     child: SizedBox(
                       width: size.width *

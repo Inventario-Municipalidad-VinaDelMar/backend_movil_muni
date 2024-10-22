@@ -17,8 +17,7 @@ mixin RestInventarioProvider on ChangeNotifier {
 
     notifyListeners();
     try {
-      //TODO: Eliminar delay en production
-      await Future.delayed(const Duration(seconds: 3));
+      // await Future.delayed(const Duration(seconds: 3));
       await _inventariosRepository.addTanda(tandaData);
     } catch (error) {
       print('Error al añadir tanda: $error');
