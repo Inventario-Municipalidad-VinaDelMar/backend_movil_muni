@@ -13,7 +13,7 @@ extension EnvioStatusExtension on EnvioStatus {
       case EnvioStatus.cargando:
         return 'Cargando';
       case EnvioStatus.enEnvio:
-        return 'En envío';
+        return 'En envio';
       case EnvioStatus.finalizado:
         return 'Finalizado';
     }
@@ -26,7 +26,7 @@ extension EnvioStatusExtension on EnvioStatus {
         return EnvioStatus.sinCargar;
       case 'Cargando':
         return EnvioStatus.cargando;
-      case 'En envío':
+      case 'En envio':
         return EnvioStatus.enEnvio;
       case 'Finalizado':
         return EnvioStatus.finalizado;
@@ -69,7 +69,7 @@ class EnvioModel {
       case EnvioStatus.cargando:
         return 'Cargando';
       case EnvioStatus.enEnvio:
-        return 'En envío';
+        return 'En envio';
       case EnvioStatus.finalizado:
         return 'Finalizado';
     }
