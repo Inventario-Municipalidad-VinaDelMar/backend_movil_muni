@@ -6,6 +6,7 @@ import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
+import 'package:frontend_movil_muni/src/pages/envios/widgets/custom_avatar.dart';
 import 'package:frontend_movil_muni/src/pages/envios/widgets/handle_toast_solicitud.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movimiento_provider.dart';
@@ -66,6 +67,7 @@ class _EnviosPageState extends State<EnviosPage> {
     final planificacionProvider = context.watch<PlanificacionProvider>();
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: Colors.white,
@@ -303,17 +305,21 @@ class _TablePlanificacion extends StatelessWidget {
               DataCell(
                 Row(
                   children: [
-                    ShadAvatar(
-                      // size: Size(40, 40),
-                      fit: BoxFit.fitHeight,
-                      detalle.urlImagen,
-                      placeholder: SkeletonAvatar(
-                        style: SkeletonAvatarStyle(
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      backgroundColor: Colors.transparent,
+                    CustomAvatar(
+                      size: size.height * 0.056,
+                      imageUrl: detalle.urlImagen,
                     ),
+                    // ShadAvatar(
+                    //   // size: Size(40, 40),
+                    //   fit: BoxFit.fitHeight,
+                    //   detalle.urlImagen,
+                    //   placeholder: SkeletonAvatar(
+                    //     style: SkeletonAvatarStyle(
+                    //       shape: BoxShape.circle,
+                    //     ),
+                    //   ),
+                    //   backgroundColor: Colors.transparent,
+                    // ),
                     SizedBox(width: size.width * 0.02),
                     Expanded(
                       // Asegurar que el texto ocupe el espacio necesario
