@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/planificacion/planificacion_model.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;

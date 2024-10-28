@@ -120,7 +120,6 @@ class _HeaderMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
     Size size = MediaQuery.of(context).size;
     final userProvider = context.watch<UserProvider>();

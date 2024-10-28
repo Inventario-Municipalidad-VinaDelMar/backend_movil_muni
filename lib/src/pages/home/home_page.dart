@@ -301,7 +301,6 @@ class HomePage extends StatelessWidget {
 class _BackgroundCircles {
   static List<Widget> _buildCircles(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final colors = ShadTheme.of(context).colorScheme;
     return [
       Positioned(
         top: 0,

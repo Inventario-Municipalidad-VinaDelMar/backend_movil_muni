@@ -1,17 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
 import 'package:frontend_movil_muni/src/pages/envios/widgets/custom_avatar.dart';
 import 'package:frontend_movil_muni/src/pages/envios/widgets/handle_toast_solicitud.dart';
-import 'package:frontend_movil_muni/src/providers/movimientos/movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
-import 'package:frontend_movil_muni/src/providers/planificacion/planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
