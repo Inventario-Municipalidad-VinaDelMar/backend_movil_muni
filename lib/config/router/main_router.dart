@@ -11,7 +11,26 @@ final mainRouter = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomePage()),
     GoRoute(path: '/login', builder: (context, state) => AuthPage()),
-    GoRoute(path: '/entregas', builder: (context, state) => EntregasPage()),
+    GoRoute(
+      path: '/entregas',
+      builder: (context, state) => EntregasPage(),
+      routes: [
+        GoRoute(
+          path: 'list-envios',
+          builder: (context, state) {
+            // final idProducto = state.pathParameters['id'] ?? '';
+            return EntregasListaEnvios();
+          },
+        ),
+        GoRoute(
+          path: 'list-entregas',
+          builder: (context, state) {
+            // final idProducto = state.pathParameters['id'] ?? '';
+            return EntregasLista();
+          },
+        ),
+      ],
+    ),
     GoRoute(
       path: '/envio',
       builder: (context, state) => const EnviosPage(),

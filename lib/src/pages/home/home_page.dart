@@ -83,177 +83,216 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            width: size.width,
-            height: size.height * 0.12,
-            padding: const EdgeInsets.only(left: 16.0, top: 5),
-            alignment: Alignment.center,
-            child: RichText(
-              text: TextSpan(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              padding: EdgeInsets.only(
+                left: 16,
+              ),
+              width: double.infinity,
+              height: size.height * 0.03,
+              child: Row(
                 children: [
-                  TextSpan(
-                    text: 'Bienvenido, ',
-                    style: textStyles.h2.copyWith(
-                      fontWeight:
-                          FontWeight.w300, // Hacer el "Bienvenido" más ligero
-                      color: Colors.black.withOpacity(.7), // Un color más suave
-                    ),
-                  ),
-                  TextSpan(
-                    // text: 'Franco Mangini Tapia',
-                    text:
-                        '${userProvider.user?.nombre} ${userProvider.user?.apellidoPaterno} ${userProvider.user?.apellidoMaterno}',
-                    style: textStyles.h2.copyWith(
-                      fontWeight: FontWeight.bold, // Hacer el texto más audaz
-                      color: Colors.blue.withOpacity(.9), // Un toque de color
-                    ),
-                  ),
+                  // Text('Roles: '),
+                  ...userProvider.user?.roles
+                      .map((r) => Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: ShadBadge(
+                              backgroundColor: Colors.blue[500],
+                              child: Text(
+                                r
+                                    .split(' ')
+                                    .map((word) => word.isNotEmpty
+                                        ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}'
+                                        : '')
+                                    .join(' '),
+                              ),
+                            ),
+                          ))
+                      .toList() as List<Widget>,
                 ],
               ),
             ),
-          ),
-          SizedBox(
-            height: size.height * 0.7,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Dos columnas
-                  crossAxisSpacing: 16, // Espacio horizontal entre tarjetas
-                  mainAxisSpacing: 16, // Espacio vertical entre tarjetas
-                  childAspectRatio: size.width /
-                      (size.height *
-                          0.7), // Ajuste dinámico de la proporción de las tarjetas
-                ),
-                itemCount: gridItems.length,
-                itemBuilder: (context, index) {
-                  final item = gridItems[index];
-
-                  return InkWell(
-                    onTap: () async {
-                      if (item['route'] == null) return;
-                      // context.push(item['route']);
-                      // Función que navega a la ruta y verifica el resultado
-                      Future<void> navigateAndCheckResult() async {
-                        final result = await context.push(item['route']);
-
-                        // Si el resultado es true, volver a navegar a la misma página
-                        if (result == true && context.mounted) {
-                          // await Future.delayed(Duration(
-                          //     milliseconds:
-                          //         200)); // Un pequeño delay si lo necesitas
-                          navigateAndCheckResult(); // Llamar de nuevo para crear el bucle
-                        }
-                      }
-
-                      // Llamamos la función de navegación inicial
-                      navigateAndCheckResult();
-                    },
-                    child: SizedBox(
-                      width: size.width *
-                          0.4, // Las tarjetas ocupan el 40% del ancho de la pantalla
-                      height: size.height *
-                          0.35, // Las tarjetas ocupan el 30% del alto de la pantalla
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blue[700]!,
-                              Colors.teal[300]!
-                            ], // Azul y verde
-                            stops: const [
-                              0.5,
-                              1.0,
-                            ], // Gradiente entre dos tonos de azul
-                            begin: Alignment.bottomLeft,
-                            end: Alignment.topRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              offset: const Offset(
-                                  2, 4), // Desplazamiento de la sombra
-                              blurRadius: 6, // Difusión de la sombra
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            ..._BackgroundCircles._buildCircles(context),
-                            Card(
-                              color: Colors
-                                  .transparent, // Hace la tarjeta transparente para que se vea el gradiente
-                              elevation:
-                                  0, // Evitar sombras para que el gradiente se vea más limpio
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 16, left: 16, bottom: 12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(.2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: AnimateIcon(
-                                        onTap: () {},
-                                        iconType: IconType.continueAnimation,
-                                        color: Colors.orange[100]!,
-                                        animateIcon: item['icon'],
-                                      ),
-                                    ),
-                                    SizedBox(height: size.height * 0.015),
-                                    Text(
-                                      item['title'],
-                                      style: textStyles.h4.copyWith(
-                                        color: Colors.white,
-                                        fontSize: size.height *
-                                            0.025, // Tamaño responsivo
-                                      ),
-                                    ),
-                                    Text(
-                                      item['subtitle'],
-                                      style: textStyles.small.copyWith(
-                                        color: Colors.grey[300],
-                                        height: 1.3,
-                                        fontSize: size.height *
-                                            0.02, // Tamaño responsivo
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      item['footer'],
-                                      style: textStyles.small.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: item['route'] != null
-                                            ? null
-                                            : FontStyle.italic,
-                                        fontSize: size.height *
-                                            0.018, // Tamaño responsivo
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+            Container(
+              width: size.width,
+              height: size.height * 0.12,
+              padding: const EdgeInsets.only(left: 16.0),
+              alignment: Alignment.topCenter,
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Bienvenido, ',
+                      style: textStyles.h2.copyWith(
+                        fontWeight:
+                            FontWeight.w300, // Hacer el "Bienvenido" más ligero
+                        color:
+                            Colors.black.withOpacity(.7), // Un color más suave
                       ),
                     ),
-                  );
-                },
+                    TextSpan(
+                      // text: 'Franco Mangini Tapia',
+                      text:
+                          '${userProvider.user?.nombre} ${userProvider.user?.apellidoPaterno} ${userProvider.user?.apellidoMaterno}',
+                      style: textStyles.h2.copyWith(
+                        fontWeight: FontWeight.bold, // Hacer el texto más audaz
+                        color: Colors.blue.withOpacity(.9), // Un toque de color
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            SizedBox(
+              height: size.height * 0.7,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Dos columnas
+                    crossAxisSpacing: 16, // Espacio horizontal entre tarjetas
+                    mainAxisSpacing: 16, // Espacio vertical entre tarjetas
+                    childAspectRatio: size.width /
+                        (size.height *
+                            0.7), // Ajuste dinámico de la proporción de las tarjetas
+                  ),
+                  itemCount: gridItems.length,
+                  itemBuilder: (context, index) {
+                    final item = gridItems[index];
+
+                    return InkWell(
+                      onTap: () async {
+                        if (item['route'] == null) return;
+                        // context.push(item['route']);
+                        // Función que navega a la ruta y verifica el resultado
+                        Future<void> navigateAndCheckResult() async {
+                          final result = await context.push(item['route']);
+
+                          // Si el resultado es true, volver a navegar a la misma página
+                          if (result == true && context.mounted) {
+                            // await Future.delayed(Duration(
+                            //     milliseconds:
+                            //         200)); // Un pequeño delay si lo necesitas
+                            navigateAndCheckResult(); // Llamar de nuevo para crear el bucle
+                          }
+                        }
+
+                        // Llamamos la función de navegación inicial
+                        navigateAndCheckResult();
+                      },
+                      child: ZoomIn(
+                        duration: Duration(milliseconds: 200),
+                        child: SizedBox(
+                          width: size.width *
+                              0.4, // Las tarjetas ocupan el 40% del ancho de la pantalla
+                          height: size.height *
+                              0.35, // Las tarjetas ocupan el 30% del alto de la pantalla
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blue[700]!,
+                                  Colors.teal[300]!
+                                ], // Azul y verde
+                                stops: const [
+                                  0.5,
+                                  1.0,
+                                ], // Gradiente entre dos tonos de azul
+                                begin: Alignment.bottomLeft,
+                                end: Alignment.topRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  offset: const Offset(
+                                      2, 4), // Desplazamiento de la sombra
+                                  blurRadius: 6, // Difusión de la sombra
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              children: [
+                                ..._BackgroundCircles._buildCircles(context),
+                                Card(
+                                  color: Colors
+                                      .transparent, // Hace la tarjeta transparente para que se vea el gradiente
+                                  elevation:
+                                      0, // Evitar sombras para que el gradiente se vea más limpio
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 16, left: 16, bottom: 12),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(.2),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: AnimateIcon(
+                                            onTap: () {},
+                                            iconType:
+                                                IconType.continueAnimation,
+                                            color: Colors.orange[100]!,
+                                            animateIcon: item['icon'],
+                                          ),
+                                        ),
+                                        SizedBox(height: size.height * 0.015),
+                                        Text(
+                                          item['title'],
+                                          style: textStyles.h4.copyWith(
+                                            color: Colors.white,
+                                            fontSize: size.height *
+                                                0.025, // Tamaño responsivo
+                                          ),
+                                        ),
+                                        Text(
+                                          item['subtitle'],
+                                          style: textStyles.small.copyWith(
+                                            color: Colors.grey[300],
+                                            height: 1.3,
+                                            fontSize: size.height *
+                                                0.02, // Tamaño responsivo
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          item['footer'],
+                                          style: textStyles.small.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle: item['route'] != null
+                                                ? null
+                                                : FontStyle.italic,
+                                            fontSize: size.height *
+                                                0.018, // Tamaño responsivo
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

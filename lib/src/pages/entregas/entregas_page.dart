@@ -1,11 +1,33 @@
-import 'package:animated_icon/animated_icon.dart';
-import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/src/providers/logistica/socket/socket_logistica_provider.dart';
-import 'package:frontend_movil_muni/src/providers/provider.dart';
-import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
-import 'package:provider/provider.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:frontend_movil_muni/config/router/main_router.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
+
+class EntregaOption {
+  String title;
+  String description;
+  String asset;
+  double width;
+  double height;
+  String textButton;
+  IconData iconButton;
+  String route;
+  bool extraPadding;
+
+  EntregaOption({
+    required this.title,
+    required this.description,
+    required this.asset,
+    required this.textButton,
+    required this.route,
+    required this.width,
+    required this.height,
+    required this.extraPadding,
+    required this.iconButton,
+  });
+}
 
 class EntregasPage extends StatefulWidget {
   const EntregasPage({super.key});
@@ -15,309 +37,405 @@ class EntregasPage extends StatefulWidget {
 }
 
 class _EntregasPageState extends State<EntregasPage> {
-  late LogisticaProvider _logisticaProvider;
+  late PageController _pageController;
+  late int _pageSelected;
+
+  List<EntregaOption> options = [];
 
   @override
   void initState() {
-    _logisticaProvider = context.read<LogisticaProvider>();
-    _logisticaProvider.connect([LogisticaEvent.enviosByFecha]);
     super.initState();
+    _pageSelected = 0;
+    _pageController = PageController(initialPage: 0);
   }
 
   @override
   void dispose() {
-    _logisticaProvider.disconnect([LogisticaEvent.enviosByFecha]);
+    _pageController.dispose();
     super.dispose();
+  }
+
+  void _onOptionChange(int page) {
+    setState(() {
+      _pageSelected = page - 1;
+    });
+    _pageController.animateToPage(
+      page - 1,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.linear,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
-    final logisticaProvider = context.watch<LogisticaProvider>();
+    Size size = MediaQuery.of(context).size;
+    double topPadd = MediaQuery.of(context).padding.top;
 
+    // Configuramos la lista `options` dentro del build usando el size
+    options = [
+      EntregaOption(
+        title: 'Nueva entrega',
+        description: 'Registra una entrega perteneciente a un envío en curso.',
+        asset: 'assets/logos/entrega_realizada.gif',
+        textButton: 'Crear una nueva entrega',
+        route: '/entregas/list-envios',
+        width: size.width,
+        height: size.height * 0.5,
+        extraPadding: true,
+        iconButton: MdiIcons.truckCargoContainer,
+      ),
+      EntregaOption(
+        title: 'Actualización de entrega',
+        description: 'Adjunta el acta legal que valida la entrega realizada.',
+        asset: 'assets/logos/entrega_update.gif',
+        textButton: 'Seleccionar entrega',
+        route: '/entregas/list-entregas',
+        width: size.width,
+        height: size.height * 0.5,
+        extraPadding: true,
+        iconButton: MdiIcons.chevronTripleRight,
+      ),
+      EntregaOption(
+        title: 'Incidente durante envío',
+        description:
+            'Informa acerca de un accidente durante el transporte de productos.',
+        asset: 'assets/logos/entrega_accidente.gif',
+        textButton: 'Registrar incidente',
+        route: '/entregas/list-envios',
+        width: size.width,
+        height: size.height * 0.3,
+        extraPadding: false,
+        iconButton: MdiIcons.carEmergency,
+      ),
+    ];
     return Scaffold(
-      backgroundColor:
-          Colors.grey[200], // Cambiamos el fondo a un color más suave
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue[600],
+        backgroundColor: Colors.blue[600]!,
         title: Text(
-          'Seleccione un envío',
+          'Entregas',
           style: textStyles.h4.copyWith(
             fontWeight: FontWeight.normal,
             color: Colors.white,
           ),
         ),
       ),
-      body: logisticaProvider.loadingEnvios
-          ? const Center(child: CircularProgressIndicator())
-          : logisticaProvider.enviosLogisticos.isEmpty
-              ? _buildEmptyState(context, size, textStyles)
-              : _buildEnviosList(logisticaProvider, size, textStyles),
-    );
-  }
-
-  Widget _buildEmptyState(
-      BuildContext context, Size size, ShadTextTheme textStyles) {
-    return ZoomIn(
-      duration: const Duration(milliseconds: 200),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: size.height * 0.25,
-              child: Image.asset(
-                'assets/logos/empty.png', // Cambié la imagen a una versión más estilizada
-                color: Colors.grey[400],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'No se han realizado envíos el día de hoy',
-              style: textStyles.p.copyWith(color: Colors.grey[500]),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[400],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: Text(
-                'Volver al inicio',
-                style: textStyles.p.copyWith(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEnviosList(LogisticaProvider logisticaProvider, Size size,
-      ShadTextTheme textStyles) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: logisticaProvider.enviosLogisticos.length,
-      itemBuilder: (context, i) {
-        final envio = logisticaProvider.enviosLogisticos[i];
-        return FadeInRight(
-          duration: const Duration(milliseconds: 300),
-          delay: Duration(milliseconds: i * 120),
-          child: _buildEnvioCard(envio, size, textStyles),
-        );
-      },
-    );
-  }
-
-  Widget _buildEnvioCard(dynamic envio, Size size, ShadTextTheme textStyles) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        // color: Colors.white70,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(4, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+      body: SizedBox(
+        width: size.width,
+        height: size.height,
         child: Stack(
           children: [
-            // Positioned(
-            //   top: -(size.width * 0.08),
-            //   right: -(size.width * 0.125),
-            //   child: Container(
-            //     width: size.height * 0.32,
-            //     height: size.height * 0.32,
-            //     decoration: BoxDecoration(
-            //       color: Colors.blue[500],
-            //       shape: BoxShape.circle,
-            //     ),
-            //   ),
-            // ),
-            Positioned(
-              top: -(size.width * 0.08),
-              right: -(size.width * 0.125),
-              child: ClipPath(
-                clipper: CurvedClipper(),
-                child: Container(
-                  width: size.width * 0.78,
-                  height: size.height * 0.6,
-                  color:
-                      Colors.blue[700], // Azul para mantener el estilo actual
-                ),
-              ),
+            _HeaderOptions(
+              topPadd: topPadd,
+              pageSelected: _pageSelected,
+              onOptionClicked: _onOptionChange,
             ),
-
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCardHeader(envio, size, textStyles),
-                  SizedBox(height: size.height * 0.01),
-                  _buildInfoRow(
-                      'Autorizado por: ',
-                      envio.solicitud.administrador?.getFullName() ?? 'N/A',
-                      textStyles),
-                  _buildInfoRow('Fecha creación: ',
-                      fechaToLargeName(envio.fecha), textStyles),
-                  _buildInfoRow(
-                      'Hora de inicio: ', envio.getHoraFormatted(), textStyles),
-                  const SizedBox(height: 10),
-                  _buildEndHourRow(envio, textStyles),
-                  const Divider(),
-                  _buildProductsList(envio, size, textStyles),
-                ],
+            Positioned(
+              bottom: 0,
+              child: Container(
+                width: size.width,
+                height: size.height * 0.52,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: PageView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _pageController,
+                  itemCount: options.length,
+                  itemBuilder: (context, i) {
+                    final option = options[i];
+                    return _PageCardAtion(
+                      option: option,
+                    );
+                  },
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCardHeader(dynamic envio, Size size, ShadTextTheme textStyles) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.blue[100],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            envio.statusToString(),
-            style: textStyles.p.copyWith(
-              color: Colors.blue[800],
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const Spacer(),
-        CircleAvatar(
-          backgroundColor: Colors.transparent,
-          radius: size.height * 0.04,
-          backgroundImage: const AssetImage('assets/logos/camiones3.gif'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value, ShadTextTheme textStyles) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: textStyles.p
-                .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: textStyles.small.copyWith(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEndHourRow(dynamic envio, ShadTextTheme textStyles) {
-    return Row(
-      children: [
-        Text(
-          'Hora de termino: ',
-          style: textStyles.p
-              .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
-        ),
-        const Spacer(),
-        if (envio.horaFinalizacion == null)
-          AnimateIcon(
-            width: 20,
-            animateIcon: AnimateIcons.loading3,
-            onTap: () {},
-            color: Colors.blue[500]!,
-            iconType: IconType.continueAnimation,
-          )
-        else
-          Text(
-            envio.getHoraFormatted(),
-            style: textStyles.p.copyWith(color: Colors.grey[600]),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildProductsList(
-      dynamic envio, Size size, ShadTextTheme textStyles) {
-    return SizedBox(
-      height:
-          size.height * 0.08, // Ajustamos la altura para el ListView horizontal
-      child: ListView.builder(
-        physics: BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: envio.productos.length,
-        itemBuilder: (context, index) {
-          final producto = envio.productos[index];
-          return Padding(
-            padding:
-                const EdgeInsets.only(right: 10), // Espaciado entre productos
-            child: ShadAvatar(
-              producto.urlImagen,
-              fit: BoxFit.cover,
-              backgroundColor: Colors.transparent,
-              size: Size(
-                  size.height * 0.07, size.height * 0.07), // Tamaño del avatar
-            ),
-          );
-        },
       ),
     );
   }
 }
 
-class CurvedClipper extends CustomClipper<Path> {
+class _PageCardAtion extends StatelessWidget {
+  final EntregaOption option;
+  const _PageCardAtion({
+    required this.option,
+  });
+
   @override
-  Path getClip(Size size) {
-    Path path = Path();
-
-    // Empezamos desde la parte superior izquierda
-    path.lineTo(size.width * 0.3, 0); // Primer punto (izquierda)
-
-    // Curva hacia abajo
-    path.quadraticBezierTo(
-      0, size.height * 0.58, // Primer punto de control
-      size.width * 0.5, size.height * 0.5, // Primer punto de destino
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    final textStyles = ShadTheme.of(context).textTheme;
+    return Container(
+      padding: EdgeInsets.all(20),
+      width: size.width,
+      height: double.infinity,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            child: Container(
+              padding: option.extraPadding
+                  ? EdgeInsets.only(bottom: size.height * 0.05)
+                  : null,
+              width: option.width,
+              height: option.height,
+              child: Image.asset(
+                option.asset,
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                option.title,
+                style: textStyles.h3,
+              ),
+              Text(
+                option.description,
+                style: textStyles.p.copyWith(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              Spacer(),
+              ShadButton(
+                onPressed: () => context.push(option.route),
+                size: ShadButtonSize.lg,
+                width: double.infinity,
+                icon: Text(
+                  option.textButton,
+                  style: textStyles.p.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                child: Icon(
+                  option.iconButton,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
-
-    // Segunda curva hacia arriba
-    path.quadraticBezierTo(
-      size.width * 0.8, size.height * 0.45, // Segundo punto de control
-      size.width, size.height * 0.6, // Segundo punto de destino
-    );
-
-    path.lineTo(size.width, 0); // Lado superior derecho
-    path.close(); // Cerramos la figura
-
-    return path;
   }
+}
+
+class _HeaderOptions extends StatelessWidget {
+  final double topPadd;
+  final int pageSelected;
+  final void Function(int page) onOptionClicked;
+  const _HeaderOptions({
+    required this.topPadd,
+    required this.pageSelected,
+    required this.onOptionClicked,
+  });
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) {
-    return false;
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
+    double appBarHeight = kToolbarHeight;
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 15),
+      margin: EdgeInsets.only(
+        top: (topPadd + appBarHeight) - 1, // use the topPadd here
+      ),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.blue[600]!,
+          Colors.blue[700]!,
+          Colors.blue[800]!,
+          Colors.blue[900]!,
+        ],
+      )),
+      width: double.infinity,
+      height: size.height * 0.4,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            width: double.infinity,
+            height: (size.height * 0.36 - 30) / 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () => onOptionClicked(1),
+                  child: _CardAction(
+                    selected: 0 == pageSelected,
+                    title: 'Registrar una entrega',
+                    description: 'Asigna una entrega a un envío.',
+                    color: Colors.green[600]!,
+                    icon: MdiIcons.packageCheck,
+                  ),
+                ),
+                InkWell(
+                  onTap: () => onOptionClicked(2),
+                  child: _CardAction(
+                    selected: 1 == pageSelected,
+                    delay: 150,
+                    title: 'Actualiza una entrega',
+                    description: 'Adjunta documento acta legal.',
+                    color: Colors.purple[400]!,
+                    icon: MdiIcons.folderArrowUp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // SizedBox()
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            width: double.infinity,
+            height: (size.height * 0.36 - 30) / 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () => onOptionClicked(3),
+                  child: _CardAction(
+                    selected: 2 == pageSelected,
+                    delay: 300,
+                    title: 'Registrar un incidente ',
+                    description: 'Registra incidente durante envio.',
+                    color: Colors.orange[600]!,
+                    icon: MdiIcons.truckAlertOutline,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CardAction extends StatelessWidget {
+  final String title;
+  final String description;
+  final Color color;
+  final int delay;
+  final IconData icon;
+  final bool selected;
+  const _CardAction({
+    required this.color,
+    required this.title,
+    required this.description,
+    this.delay = 0,
+    required this.icon,
+    required this.selected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    final textStyles = ShadTheme.of(context).textTheme;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          top: -13,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            height: 10,
+            width: (size.width - 30) * 0.48,
+            child: Align(
+              alignment: Alignment.center,
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                height: 3,
+                width: selected
+                    ? (size.width - 70) * 0.48
+                    : 10, // Cambiado de 0 a 1
+                decoration: BoxDecoration(
+                  color: selected ? Colors.white : Colors.white.withOpacity(.3),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+            ),
+          ),
+        ),
+        ZoomIn(
+          duration: Duration(milliseconds: 200),
+          delay: Duration(milliseconds: delay),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            height: double.infinity,
+            width: (size.width - 30) * 0.48,
+            decoration: BoxDecoration(
+              boxShadow: !selected
+                  ? []
+                  : [
+                      BoxShadow(
+                        color: color.withOpacity(
+                            0.25), // Reduce la opacidad para un efecto más suave
+                        offset: Offset(2,
+                            4), // La sombra caerá más directamente debajo del widget
+                        blurRadius:
+                            15, // Aumenta el desenfoque para una sombra más difusa
+                        spreadRadius:
+                            -3, // Disminuye la extensión para concentrar la sombra
+                      ),
+                    ],
+              color: selected ? color : color.withOpacity(.5),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                    top: -size.height * 0.01,
+                    right: 0,
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: selected
+                            ? Colors.white.withOpacity(.3)
+                            : Colors.grey[400]!.withOpacity(.3),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: selected ? Colors.white : Colors.grey[400],
+                      ),
+                    )),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: textStyles.small.copyWith(
+                        color: selected ? Colors.white : Colors.grey[400],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.015),
+                    Text(
+                      description,
+                      style: textStyles.small.copyWith(
+                        color: selected ? Colors.white : Colors.grey[400],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

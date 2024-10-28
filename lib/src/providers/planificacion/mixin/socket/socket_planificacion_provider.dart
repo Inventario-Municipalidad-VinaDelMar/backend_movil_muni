@@ -226,12 +226,14 @@ mixin SocketPlanificacionProvider on ChangeNotifier {
         Map<String, dynamic> dataToFormated = Map<String, dynamic>.from(data);
         final planificacion = fromApi(dataToFormated) as PlanificacionModel;
         late bool envioPrevio;
-        try {
-          envioPrevio = planificacion.envioIniciado == null &&
-              planificacionActual[0].envioIniciado != null;
-        } catch (e) {
+
+        if (planificacion.envioIniciado == null &&
+            planificacionActual.isNotEmpty) {
+          envioPrevio = planificacionActual[0].envioIniciado != null;
+        } else {
           envioPrevio = false;
         }
+
         dataList.clear();
         dataList.add(fromApi(dataToFormated));
         setLoading(false);
