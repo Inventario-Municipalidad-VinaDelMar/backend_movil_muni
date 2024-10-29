@@ -1,13 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/infraestructure/models/movimiento/movimiento_model.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
-
-import '../../../../../config/environment/environment.dart';
-import '../../provider.dart';
-
-UserProvider _userProvider = UserProvider();
+import 'package:frontend_movil_muni/src/providers/socket_base.dart';
 
 enum MovimientoEvent {
   movimientosEnvio,
@@ -23,54 +17,19 @@ class SocketEvents {
   static const String newMovimientoOnEnvio = 'newMovimientoOnEnvio';
 }
 
-mixin SocketMovimientoProvider on ChangeNotifier {
+mixin SocketMovimientoProvider on SocketProviderBase {
+  @override
+  String get namespace => 'movimientos';
   //Siempre existirá solo 1 elemento en esta lista.
   List<MovimientoModel> movimientos = [];
 
   bool loadingMovimientos = false;
-
-  io.Socket? _socket;
-  io.Socket? get socket => _socket;
 
   final Map<MovimientoEvent, Timer?> _timers = {};
   final Map<MovimientoEvent, bool> connectionTimeouts = {
     MovimientoEvent.movimientosEnvio: false,
     //Añadir mas si creas mas evento
   };
-
-  void initSocket() {
-    // _updateSocket();
-    print('Refrescando movimiento provider');
-    _userProvider.userListener.addListener(_updateSocket);
-  }
-
-  void _updateSocket() {
-    final token = _userProvider.user?.jwtToken;
-    if (_socket != null && _socket!.connected) {
-      _disposeSocket();
-    }
-    if (token == null) return;
-
-    const namespace = 'movimientos';
-    _socket = io.io(
-      '${Environment.apiSocketUrl}/$namespace',
-      io.OptionBuilder()
-          .setTransports(['websocket'])
-          .disableAutoConnect()
-          .disableForceNew()
-          .disableForceNewConnection()
-          .setExtraHeaders({'authentication': token})
-          .build(),
-    );
-    _socket!.onConnect((_) {
-      print('Conectado a Movimientos');
-    });
-    _socket!.onDisconnect((_) {
-      print('Desconectado de Movimientos');
-    });
-
-    _socket?.connect();
-  }
 
   void connect(List<MovimientoEvent> events, {String? id}) {
     _clearListeners(events, idEnvio: id);
@@ -83,16 +42,8 @@ mixin SocketMovimientoProvider on ChangeNotifier {
     movimientos.clear();
   }
 
-  void _disposeSocket({String? id}) {
-    //Esta funcion debería ejecutarse en cada cierre de sesión
-    _clearAllListeners(idEnvio: id);
-    _socket?.disconnect();
-    _socket = null;
-    movimientos.clear();
-  }
-
   void _registerListeners(List<MovimientoEvent> events, {String? idEnvio}) {
-    if (_socket == null) return;
+    if (socket == null) return;
     for (var event in events) {
       switch (event) {
         case MovimientoEvent.movimientosEnvio:
@@ -100,7 +51,7 @@ mixin SocketMovimientoProvider on ChangeNotifier {
             print('Id envio es null: $idEnvio');
             return;
           }
-          _handleDataListEvent<MovimientoModel>(
+          handleSocketEvent<MovimientoModel>(
             emitEvent: SocketEvents.getMovimientos,
             loadEvent: '$idEnvio${SocketEvents.loadMovimientos}',
             dataList: movimientos,
@@ -109,12 +60,18 @@ mixin SocketMovimientoProvider on ChangeNotifier {
             emitPayload: {
               'idEnvio': idEnvio,
             },
+            // extraAction: async(p0, p1) {
+            //    await Future.delayed(Duration(seconds: 1));
+            // },
           );
           break;
         case MovimientoEvent.movimientoOnEnvio:
-          _handleNewEntityEvent<MovimientoModel>(
+          handleNewEntityEvent<MovimientoModel>(
             newEvent: SocketEvents.newMovimientoOnEnvio,
-            dataList: movimientos,
+            setEntity: (movimiento) {
+              movimientos.add(movimiento);
+              notifyListeners();
+            },
             fromApi: (data) => MovimientoModel.fromApi(data),
           );
           break;
@@ -125,64 +82,15 @@ mixin SocketMovimientoProvider on ChangeNotifier {
     }
   }
 
-  void _handleDataListEvent<T>({
-    required String emitEvent,
-    required String loadEvent,
-    required List<T> dataList,
-    required void Function(bool) setLoading,
-    required Map<String, dynamic> emitPayload,
-    required T Function(Map<String, dynamic>) fromApi,
-  }) {
-    setLoading(true);
-    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-    //?Solicitar la informacion
-    _socket!.emit(emitEvent, emitPayload);
-
-    //?Capturar informacion solicitada
-    _socket!.on(loadEvent, (data) {
-      List<Map<String, dynamic>> listData =
-          List<Map<String, dynamic>>.from(data);
-      dataList.clear();
-      dataList.addAll(listData.map((r) => fromApi(r)).toList());
-      setLoading(false);
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-    });
-  }
-
-  void _handleNewEntityEvent<T>({
-    required String newEvent,
-    required List<T> dataList,
-    required T Function(Map<String, dynamic>) fromApi,
-  }) {
-    //Capturar nueva data para actualizar lista
-    _socket!.on(newEvent, (data) async {
-      print('Nuevo Movimiento: $data');
-      T newEntity = fromApi(data);
-      await Future.delayed(Duration(seconds: 1));
-      dataList.add(newEntity);
-      notifyListeners();
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
-    });
-  }
-
-  void _clearAllListeners({String? idEnvio}) {
-    if (_socket != null) {
-      if (idEnvio != null) {
-        _socket?.off('$idEnvio${SocketEvents.loadMovimientos}');
-      }
-      _socket?.off(SocketEvents.newMovimientoOnEnvio);
-    }
-  }
-
   void _clearListeners(events, {String? idEnvio}) {
-    if (_socket == null) return;
+    if (socket == null) return;
     for (var event in events) {
       switch (event) {
         case MovimientoEvent.movimientosEnvio:
-          _socket?.off('$idEnvio${SocketEvents.loadMovimientos}');
+          socket?.off('$idEnvio${SocketEvents.loadMovimientos}');
           break;
         case MovimientoEvent.movimientoOnEnvio:
-          _socket?.off(SocketEvents.newMovimientoOnEnvio);
+          socket?.off(SocketEvents.newMovimientoOnEnvio);
           break;
       }
     }

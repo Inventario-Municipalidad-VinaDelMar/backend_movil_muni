@@ -1,6 +1,6 @@
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/src/providers/logistica/socket/socket_logistica_provider.dart';
+import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
 import 'package:go_router/go_router.dart';
@@ -16,18 +16,18 @@ class EntregasListaEnvios extends StatefulWidget {
 }
 
 class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
-  late LogisticaProvider _logisticaProvider;
+  late EnvioProvider _envioProvider;
 
   @override
   void initState() {
-    _logisticaProvider = context.read<LogisticaProvider>();
-    _logisticaProvider.connect([LogisticaEvent.enviosByFecha]);
+    _envioProvider = context.read<EnvioProvider>();
+    _envioProvider.connect([EnvioEvent.enviosByFecha]);
     super.initState();
   }
 
   @override
   void dispose() {
-    _logisticaProvider.disconnect([LogisticaEvent.enviosByFecha]);
+    _envioProvider.disconnect([EnvioEvent.enviosByFecha]);
     super.dispose();
   }
 
@@ -35,7 +35,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
-    final logisticaProvider = context.watch<LogisticaProvider>();
+    final envioProvider = context.watch<EnvioProvider>();
 
     return Scaffold(
       backgroundColor:
@@ -51,11 +51,11 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
           ),
         ),
       ),
-      body: logisticaProvider.loadingEnvios
+      body: envioProvider.loadingEnvios
           ? const Center(child: CircularProgressIndicator())
-          : logisticaProvider.enviosLogisticos.isEmpty
+          : envioProvider.enviosLogisticos.isEmpty
               ? _buildEmptyState(context, size, textStyles)
-              : _buildEnviosList(logisticaProvider, size, textStyles),
+              : _buildEnviosList(envioProvider, size, textStyles),
     );
   }
 
@@ -94,13 +94,13 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildEnviosList(LogisticaProvider logisticaProvider, Size size,
-      ShadTextTheme textStyles) {
+  Widget _buildEnviosList(
+      EnvioProvider envioProvider, Size size, ShadTextTheme textStyles) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: logisticaProvider.enviosLogisticos.length,
+      itemCount: envioProvider.enviosLogisticos.length,
       itemBuilder: (context, i) {
-        final envio = logisticaProvider.enviosLogisticos[i];
+        final envio = envioProvider.enviosLogisticos[i];
         return FadeInRight(
           duration: const Duration(milliseconds: 300),
           delay: Duration(milliseconds: i * 120),

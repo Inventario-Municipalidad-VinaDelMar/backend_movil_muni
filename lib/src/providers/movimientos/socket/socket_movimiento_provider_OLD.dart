@@ -1,44 +1,46 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/config/environment/environment.dart';
-import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
-import 'package:frontend_movil_muni/src/providers/provider.dart';
-import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
+import 'package:frontend_movil_muni/infraestructure/models/movimiento/movimiento_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+
+import '../../../../../config/environment/environment.dart';
+import '../../provider.dart';
 
 UserProvider _userProvider = UserProvider();
 
-enum LogisticaEvent {
-  enviosByFecha,
-  newEnvio,
+enum MovimientoEvent {
+  movimientosEnvio,
+  movimientoOnEnvio,
 }
 
 class SocketEvents {
   //Emiten al servidor para preguntar por datos
-  static const String getEnviosByFecha = 'getEnviosByFecha';
+  static const String getMovimientos = 'getMovimientosByEnvio';
 
   //Reciben informacion desde el server como listener
-  static const String loadEnviosByFecha = 'loadEnviosByFecha';
+  static const String loadMovimientos = '-loadMovimientos';
+  static const String newMovimientoOnEnvio = 'newMovimientoOnEnvio';
 }
 
-mixin SocketLogisticaProvider on ChangeNotifier {
+mixin SocketMovimientoProvider on ChangeNotifier {
   //Siempre existirá solo 1 elemento en esta lista.
-  List<EnvioLogisticoModel> enviosLogisticos = [];
-  bool loadingEnvios = false;
+  List<MovimientoModel> movimientos = [];
+
+  bool loadingMovimientos = false;
 
   io.Socket? _socket;
   io.Socket? get socket => _socket;
 
-  final Map<LogisticaEvent, Timer?> _timers = {};
-  final Map<LogisticaEvent, bool> connectionTimeouts = {
-    LogisticaEvent.enviosByFecha: false,
+  final Map<MovimientoEvent, Timer?> _timers = {};
+  final Map<MovimientoEvent, bool> connectionTimeouts = {
+    MovimientoEvent.movimientosEnvio: false,
     //Añadir mas si creas mas evento
   };
 
   void initSocket() {
     // _updateSocket();
-    print('Refrescando logistica provider');
+    print('Refrescando movimiento provider');
     _userProvider.userListener.addListener(_updateSocket);
   }
 
@@ -49,7 +51,7 @@ mixin SocketLogisticaProvider on ChangeNotifier {
     }
     if (token == null) return;
 
-    const namespace = 'logistica/envios';
+    const namespace = 'movimientos';
     _socket = io.io(
       '${Environment.apiSocketUrl}/$namespace',
       io.OptionBuilder()
@@ -61,59 +63,64 @@ mixin SocketLogisticaProvider on ChangeNotifier {
           .build(),
     );
     _socket!.onConnect((_) {
-      print('Conectado a Logistica Envios');
+      print('Conectado a Movimientos');
     });
     _socket!.onDisconnect((_) {
-      print('Desconectado de Logistica Envios');
+      print('Desconectado de Movimientos');
     });
 
     _socket?.connect();
   }
 
-  void connect(List<LogisticaEvent> events) {
-    _clearListeners(events);
-    _registerListeners(events);
+  void connect(List<MovimientoEvent> events, {String? id}) {
+    _clearListeners(events, idEnvio: id);
+    _registerListeners(events, idEnvio: id);
   }
 
-  void disconnect(
-    List<LogisticaEvent> events,
-  ) {
-    _clearListeners(events);
+  void disconnect(List<MovimientoEvent> events, {String? id}) {
+    _clearListeners(events, idEnvio: id);
+    //?Probando si sirve esta linea
+    movimientos.clear();
   }
 
-  void _disposeSocket() {
+  void _disposeSocket({String? id}) {
     //Esta funcion debería ejecutarse en cada cierre de sesión
-    _clearAllListeners();
+    _clearAllListeners(idEnvio: id);
     _socket?.disconnect();
     _socket = null;
+    movimientos.clear();
   }
 
-  void _registerListeners(List<LogisticaEvent> events) {
+  void _registerListeners(List<MovimientoEvent> events, {String? idEnvio}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
-        // case LogisticaEvent.loadSolicitudEnvio:
-        //   _handleNewEntityEvent<SolicitudEnvioModel>(
-        //     newEvent: SocketEvents.loadSolicitud,
-        //     dataList: solicitudEnCurso,
-        //     fromApi: (data) => SolicitudEnvioModel.fromApi(data),
-        //   );
-        //   break;
-        case LogisticaEvent.enviosByFecha:
-          _handleDataListEvent<EnvioLogisticoModel>(
-            emitEvent: SocketEvents.getEnviosByFecha,
-            loadEvent: SocketEvents.loadEnviosByFecha,
-            dataList: enviosLogisticos,
-            setLoading: (loading) => loadingEnvios = loading,
-            fromApi: (data) => EnvioLogisticoModel.fromApi(data),
+        case MovimientoEvent.movimientosEnvio:
+          if (idEnvio == null) {
+            print('Id envio es null: $idEnvio');
+            return;
+          }
+          _handleDataListEvent<MovimientoModel>(
+            emitEvent: SocketEvents.getMovimientos,
+            loadEvent: '$idEnvio${SocketEvents.loadMovimientos}',
+            dataList: movimientos,
+            setLoading: (loading) => loadingMovimientos = loading,
+            fromApi: (data) => MovimientoModel.fromApi(data),
             emitPayload: {
-              'fecha': getFormattedDate(),
+              'idEnvio': idEnvio,
             },
+          );
+          break;
+        case MovimientoEvent.movimientoOnEnvio:
+          _handleNewEntityEvent<MovimientoModel>(
+            newEvent: SocketEvents.newMovimientoOnEnvio,
+            dataList: movimientos,
+            fromApi: (data) => MovimientoModel.fromApi(data),
           );
           break;
 
         default:
-          print('Evento no manejado, en LogisticaEnviosSocket: $event');
+          print('Evento no manejado, en MovimientosSocker: $event');
       }
     }
   }
@@ -149,33 +156,34 @@ mixin SocketLogisticaProvider on ChangeNotifier {
   }) {
     //Capturar nueva data para actualizar lista
     _socket!.on(newEvent, (data) async {
-      // await Future.delayed(Duration(seconds: 1));
-
-      if (data == null) {
-        return;
-      }
+      print('Nuevo Movimiento: $data');
       T newEntity = fromApi(data);
+      await Future.delayed(Duration(seconds: 1));
       dataList.add(newEntity);
+      notifyListeners();
       WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     });
   }
 
-  void _clearAllListeners() {
+  void _clearAllListeners({String? idEnvio}) {
     if (_socket != null) {
-      _socket?.off(SocketEvents.loadEnviosByFecha);
+      if (idEnvio != null) {
+        _socket?.off('$idEnvio${SocketEvents.loadMovimientos}');
+      }
+      _socket?.off(SocketEvents.newMovimientoOnEnvio);
     }
   }
 
-  void _clearListeners(events) {
+  void _clearListeners(events, {String? idEnvio}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
-        case LogisticaEvent.enviosByFecha:
-          _socket?.off(SocketEvents.loadEnviosByFecha);
+        case MovimientoEvent.movimientosEnvio:
+          _socket?.off('$idEnvio${SocketEvents.loadMovimientos}');
           break;
-        // case PlanificacionEvent.planificacionActual:
-        //   _socket?.off(SocketEvents.loadPlanificacion);
-        //   break;
+        case MovimientoEvent.movimientoOnEnvio:
+          _socket?.off(SocketEvents.newMovimientoOnEnvio);
+          break;
       }
     }
   }

@@ -89,7 +89,7 @@ class _EntregasPageState extends State<EntregasPage> {
         description: 'Adjunta el acta legal que valida la entrega realizada.',
         asset: 'assets/logos/entrega_update.gif',
         textButton: 'Seleccionar entrega',
-        route: '/entregas/list-entregas',
+        route: '/entregas/list-envios',
         width: size.width,
         height: size.height * 0.5,
         extraPadding: true,

@@ -1,7 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/src/pages/auth/widget/header_login.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -40,7 +39,7 @@ class LoginScreenState extends State<LoginScreen> {
     //Don't delete that, this instance triggers ..renewUser().
     final userProvider = context.watch<UserProvider>();
     //Don't delete that, this instance triggers ..initialize().
-    final logisticaProvider = context.watch<LogisticaProvider>();
+    final envioProvider = context.watch<EnvioProvider>();
     //Don't delete that, this instance triggers ..initialize().
     final inventarioProvider = context.watch<InventarioProvider>();
     //Don't delete that, this instance triggers ..initialize().

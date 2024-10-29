@@ -1,4 +1,4 @@
-mixin RestLogisticaProvider {
+mixin RestEnvioProvider {
   // late PlanificacionRepository _planificacionRepository;
   // bool processingSolicitud = false;
   // bool completingEnvio = false;
