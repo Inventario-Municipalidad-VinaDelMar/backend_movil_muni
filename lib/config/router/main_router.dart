@@ -16,17 +16,44 @@ final mainRouter = GoRouter(
       builder: (context, state) => EntregasPage(),
       routes: [
         GoRoute(
-          path: 'list-envios',
+          path: ':finalidad/list-envios',
           builder: (context, state) {
-            // final idProducto = state.pathParameters['id'] ?? '';
-            return EntregasListaEnvios();
+            final finalidadStr = state.pathParameters['finalidad'];
+            final finalidad = EntregasFinalidad.values.firstWhere(
+              (e) => e.toString().split('.').last == finalidadStr,
+              orElse: () => EntregasFinalidad
+                  .registro, // Valor predeterminado en caso de que no haya coincidencia
+            );
+            return EntregasListaEnvios(
+              finalidad: finalidad,
+            );
           },
         ),
         GoRoute(
-          path: 'list-entregas',
+          path: ':id/list-entregas',
           builder: (context, state) {
-            // final idProducto = state.pathParameters['id'] ?? '';
-            return EntregasLista();
+            final idEnvio = state.pathParameters['id'] ?? '';
+            return EntregasLista(
+              idEnvio: idEnvio,
+            );
+          },
+        ),
+        GoRoute(
+          path: ':id/add-entrega',
+          builder: (context, state) {
+            final idEnvio = state.pathParameters['id'] ?? '';
+            return EntregasFormulario(
+              idEnvio: idEnvio,
+            );
+          },
+        ),
+        GoRoute(
+          path: ':id/add-incidente',
+          builder: (context, state) {
+            final idEnvio = state.pathParameters['id'] ?? '';
+            return EntregasFormularioIncidente(
+              idEnvio: idEnvio,
+            );
           },
         ),
       ],

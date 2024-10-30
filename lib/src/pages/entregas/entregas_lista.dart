@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class EntregasLista extends StatelessWidget {
-  const EntregasLista({super.key});
+  final String idEnvio;
+  const EntregasLista({
+    super.key,
+    required this.idEnvio,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +14,7 @@ class EntregasLista extends StatelessWidget {
         title: Text('Entregas lista'),
       ),
       body: Center(
-        child: Text('Lista de entregas'),
+        child: Text('Lista de entregas de: $idEnvio'),
       ),
     );
   }

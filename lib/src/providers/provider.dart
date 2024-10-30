@@ -1,3 +1,5 @@
+export 'package:frontend_movil_muni/src/providers/logistica/entregas/entrega_provider.dart';
+
 export 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
 
 export 'package:frontend_movil_muni/src/providers/auth/auth_provider.dart';

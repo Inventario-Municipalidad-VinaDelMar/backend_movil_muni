@@ -39,6 +39,8 @@ class LoginScreenState extends State<LoginScreen> {
     //Don't delete that, this instance triggers ..renewUser().
     final userProvider = context.watch<UserProvider>();
     //Don't delete that, this instance triggers ..initialize().
+    final entregaProvider = context.watch<EntregaProvider>();
+    //Don't delete that, this instance triggers ..initialize().
     final envioProvider = context.watch<EnvioProvider>();
     //Don't delete that, this instance triggers ..initialize().
     final inventarioProvider = context.watch<InventarioProvider>();

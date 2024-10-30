@@ -1,3 +1,6 @@
+export 'package:frontend_movil_muni/src/pages/entregas/entregas_fomulario_incidente.dart';
+export 'package:frontend_movil_muni/src/pages/entregas/entregas_formulario.dart';
+
 export 'package:frontend_movil_muni/src/pages/entregas/entregas_lista.dart';
 
 export 'package:frontend_movil_muni/src/pages/entregas/entregas_lista_envios.dart';

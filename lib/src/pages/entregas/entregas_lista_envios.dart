@@ -1,5 +1,7 @@
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
@@ -8,8 +10,14 @@ import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:animate_do/animate_do.dart';
 
+enum EntregasFinalidad { incidente, registro, actualizacion }
+
 class EntregasListaEnvios extends StatefulWidget {
-  const EntregasListaEnvios({super.key});
+  final EntregasFinalidad finalidad;
+  const EntregasListaEnvios({
+    super.key,
+    required this.finalidad,
+  });
 
   @override
   State<EntregasListaEnvios> createState() => _EntregasListaEnviosState();
@@ -96,21 +104,92 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
 
   Widget _buildEnviosList(
       EnvioProvider envioProvider, Size size, ShadTextTheme textStyles) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: envioProvider.enviosLogisticos.length,
-      itemBuilder: (context, i) {
-        final envio = envioProvider.enviosLogisticos[i];
-        return FadeInRight(
-          duration: const Duration(milliseconds: 300),
-          delay: Duration(milliseconds: i * 120),
-          child: _buildEnvioCard(envio, size, textStyles),
-        );
-      },
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          width: size.width,
+          child: _buildShadBadge(textStyles),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: envioProvider.enviosLogisticos.length,
+            itemBuilder: (context, i) {
+              final envio = envioProvider.enviosLogisticos[i];
+              return FadeInRight(
+                duration: const Duration(milliseconds: 300),
+                delay: Duration(milliseconds: i * 120),
+                child: _buildEnvioCard(envio, size, textStyles),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildEnvioCard(dynamic envio, Size size, ShadTextTheme textStyles) {
+  Widget _buildShadBadge(ShadTextTheme textStyles) {
+    String text;
+    IconData icon;
+
+    // Configuramos el texto y el icono en función del valor de widget.finalidad
+    switch (widget.finalidad) {
+      case EntregasFinalidad.incidente:
+        text = 'Para registrar un INCIDENTE';
+        icon = MdiIcons.truckAlertOutline;
+        break;
+      case EntregasFinalidad.registro:
+        text = 'Para registrar una NUEVA ENTREGA';
+        icon = MdiIcons.packageCheck;
+        break;
+      case EntregasFinalidad.actualizacion:
+        text = 'Para adjuntar ACTA LEGAL de entrega';
+        icon = MdiIcons.folderArrowUp;
+        break;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue[600],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            text,
+            style: textStyles.small.copyWith(color: Colors.white),
+          ),
+          SizedBox(width: 5),
+          Icon(
+            icon,
+            color: Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnvioCard(
+      EnvioLogisticoModel envio, Size size, ShadTextTheme textStyles) {
+    String route;
+
+    switch (widget.finalidad) {
+      case EntregasFinalidad.incidente:
+        route = '/entregas/${envio.id}/add-incidente';
+        break;
+      case EntregasFinalidad.registro:
+        route = '/entregas/${envio.id}/add-entrega';
+        break;
+      case EntregasFinalidad.actualizacion:
+        route = '/entregas/${envio.id}/list-entregas';
+        break;
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -129,18 +208,6 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         borderRadius: BorderRadius.circular(15),
         child: Stack(
           children: [
-            // Positioned(
-            //   top: -(size.width * 0.08),
-            //   right: -(size.width * 0.125),
-            //   child: Container(
-            //     width: size.height * 0.32,
-            //     height: size.height * 0.32,
-            //     decoration: BoxDecoration(
-            //       color: Colors.blue[500],
-            //       shape: BoxShape.circle,
-            //     ),
-            //   ),
-            // ),
             Positioned(
               top: -(size.width * 0.08),
               right: -(size.width * 0.125),
@@ -154,7 +221,6 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -174,6 +240,15 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   _buildEndHourRow(envio, textStyles),
                   const Divider(),
                   _buildProductsList(envio, size, textStyles),
+                  // const Divider(),
+                  SizedBox(height: 5),
+                  ShadButton(
+                    onPressed: () => context.push(route),
+                    size: ShadButtonSize.sm,
+                    width: double.infinity,
+                    icon: Icon(MdiIcons.chevronTripleRight),
+                    child: Text('Seleccionar'),
+                  ),
                 ],
               ),
             ),
@@ -259,8 +334,9 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   Widget _buildProductsList(
       dynamic envio, Size size, ShadTextTheme textStyles) {
     return SizedBox(
+      // color: Colors.red,
       height:
-          size.height * 0.08, // Ajustamos la altura para el ListView horizontal
+          size.height * 0.05, // Ajustamos la altura para el ListView horizontal
       child: ListView.builder(
         physics: BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
@@ -272,10 +348,12 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                 const EdgeInsets.only(right: 10), // Espaciado entre productos
             child: ShadAvatar(
               producto.urlImagen,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               backgroundColor: Colors.transparent,
               size: Size(
-                  size.height * 0.07, size.height * 0.07), // Tamaño del avatar
+                size.height * 0.045,
+                size.height * 0.045,
+              ), // Tamaño del avatar
             ),
           );
         },
