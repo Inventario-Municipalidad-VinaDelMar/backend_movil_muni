@@ -30,36 +30,47 @@ class GenericTextInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
     return FadeInLeft(
       duration: const Duration(milliseconds: 200),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
-        child: ShadInputFormField(
-          id: id,
-          decoration: ShadDecoration(
-            errorLabelStyle: textStyles.p,
-            labelStyle: textStyles.p,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(
+              labelText,
+              style: textStyles.p,
+            ),
           ),
-          label: Padding(
-            padding: EdgeInsets.only(left: 5),
-            child: Text(labelText),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: size.width * 0.9,
+            ),
+            child: ShadInputFormField(
+              id: id,
+              decoration: ShadDecoration(
+                errorLabelStyle: textStyles.p,
+                labelStyle: textStyles.p,
+              ),
+              validator: validator,
+              error: error ??
+                  (error) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(error),
+                    );
+                  },
+              controller: controller,
+              inputFormatters: inputFormatters,
+              onPressed: onPressed,
+              placeholder: Text(placeHolder),
+              keyboardType: inputType,
+              onChanged: onChanged,
+            ),
           ),
-          validator: validator,
-          error: error ??
-              (error) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(error),
-                );
-              },
-          controller: controller,
-          inputFormatters: inputFormatters,
-          onPressed: onPressed,
-          placeholder: Text(placeHolder),
-          keyboardType: inputType,
-          onChanged: onChanged,
-        ),
+        ],
       ),
     );
   }

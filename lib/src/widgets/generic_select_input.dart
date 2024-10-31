@@ -13,7 +13,9 @@ class GenericSelectInput<T> extends StatefulWidget {
     this.initialValue,
     required this.labelText,
     required this.fieldId,
+    required this.padding,
   });
+  final double padding;
   final String fieldId;
   final String labelText;
   final String? initialValue;
@@ -52,79 +54,87 @@ class _GenericSelectInputState<T> extends State<GenericSelectInput<T>> {
     final textStyles = ShadTheme.of(context).textTheme;
     return FadeInLeft(
       duration: const Duration(milliseconds: 200),
-      child: ShadSelectFormField<String>.withSearch(
-        id: widget.fieldId,
-        decoration: ShadDecoration(
-          errorLabelStyle: textStyles.p,
-          labelStyle: textStyles.p,
-        ),
-        label: Padding(
-          padding: const EdgeInsets.only(left: 5),
-          child: Text(widget.labelText),
-        ),
-        minWidth: size.width * 0.94,
-        placeholder: Text(widget.placeholderText),
-        onSearchChanged: (value) => setState(() {
-          searchValue = value;
-        }),
-        searchPlaceholder: Text(widget.searchPlaceholderText),
-        options: [
-          if (filteredItems.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Text('No se encontraron elementos...'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(
+              widget.labelText,
+              style: textStyles.p,
             ),
-          ...filteredItems.map((item) {
-            final itemKey = widget.displayField(item);
-            return ShadOption(
-              value: itemKey,
-              child: Text(itemKey),
-            );
-          }),
+          ),
+          ShadSelectFormField<String>.withSearch(
+            id: widget.fieldId,
+            decoration: ShadDecoration(
+              errorLabelStyle: textStyles.p,
+              labelStyle: textStyles.p,
+            ),
+            minWidth: size.width - widget.padding,
+            placeholder: Text(widget.placeholderText),
+            onSearchChanged: (value) => setState(() {
+              searchValue = value;
+            }),
+            searchPlaceholder: Text(widget.searchPlaceholderText),
+            options: [
+              if (filteredItems.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Text('No se encontraron elementos...'),
+                ),
+              ...filteredItems.map((item) {
+                final itemKey = widget.displayField(item);
+                return ShadOption(
+                  value: itemKey,
+                  child: Text(itemKey),
+                );
+              }),
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, selecciona un elemento';
+              }
+              // if ((value == null || value.isEmpty) &&
+              //     (widget.initialValue != null)) {
+              //   return 'Por favor, selecciona un elemento';
+              // }
+              return null;
+            },
+            error: (error) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(error),
+              );
+            },
+            onReset: () {
+              if (widget.initialValue == null) {
+                return;
+              }
+              setState(() {
+                selectedValue = widget
+                    .initialValue; // Actualizamos el valor seleccionado en el estado
+              });
+              if (widget.onChanged != null) {
+                widget.onChanged!(widget.initialValue); // Notificamos el cambio
+              }
+            },
+            initialValue: selectedValue,
+            onChanged: (value) {
+              setState(() {
+                selectedValue =
+                    value; // Actualizamos el valor seleccionado en el estado
+              });
+              if (widget.onChanged != null) {
+                widget.onChanged!(value); // Notificamos el cambio
+              }
+            },
+            selectedOptionBuilder: (context, value) {
+              final selectedItem = widget.items
+                  .firstWhere((item) => widget.displayField(item) == value);
+              return Text(widget.displayField(selectedItem));
+            },
+          ),
         ],
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Por favor, selecciona un elemento';
-          }
-          // if ((value == null || value.isEmpty) &&
-          //     (widget.initialValue != null)) {
-          //   return 'Por favor, selecciona un elemento';
-          // }
-          return null;
-        },
-        error: (error) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(error),
-          );
-        },
-        onReset: () {
-          if (widget.initialValue == null) {
-            return;
-          }
-          setState(() {
-            selectedValue = widget
-                .initialValue; // Actualizamos el valor seleccionado en el estado
-          });
-          if (widget.onChanged != null) {
-            widget.onChanged!(widget.initialValue); // Notificamos el cambio
-          }
-        },
-        initialValue: selectedValue,
-        onChanged: (value) {
-          setState(() {
-            selectedValue =
-                value; // Actualizamos el valor seleccionado en el estado
-          });
-          if (widget.onChanged != null) {
-            widget.onChanged!(value); // Notificamos el cambio
-          }
-        },
-        selectedOptionBuilder: (context, value) {
-          final selectedItem = widget.items
-              .firstWhere((item) => widget.displayField(item) == value);
-          return Text(widget.displayField(selectedItem));
-        },
       ),
     );
   }

@@ -1,15 +1,10 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:frontend_movil_muni/config/environment/environment.dart';
+import 'package:frontend_movil_muni/infraestructure/models/logistica/comedor_solidario_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/entrega_model.dart';
-import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/providers/socket_base.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
-
-UserProvider _userProvider = UserProvider();
 
 enum EntregaEvent {
+  comedoresSolidarios,
   entregasByEnvio,
   entregaById,
 }
@@ -18,10 +13,12 @@ class _SocketEvents {
   //Emiten al servidor para preguntar por datos
   static const String getEntregasByEnvio = 'getEntregasByEnvio';
   static const String getEntregaById = 'getEntregaById';
+  static const String getAllComedores = 'getAllComedores';
 
   //Reciben informacion desde el server como listener
   static const String loadEntregasByEnvio = 'loadEntregasByEnvio';
   static const String loadEntregaById = '-loadEntregaById';
+  static const String loadAllComedores = 'loadAllComedores';
 }
 
 mixin SocketEntregaProvider on SocketProviderBase {
@@ -29,9 +26,11 @@ mixin SocketEntregaProvider on SocketProviderBase {
   String get namespace => 'logistica/entregas';
   //Siempre existirá solo 1 elemento en esta lista.
   List<EntregaModel> entregas = [];
+  List<ComedorSolidarioModel> comedores = [];
   EntregaModel? entrega;
   bool loadingEntregas = false;
   bool loadingOneEntrega = false;
+  bool loadingComedores = false;
 
   final Map<EntregaEvent, Timer?> _timers = {};
   final Map<EntregaEvent, bool> connectionTimeouts = {
@@ -91,6 +90,16 @@ mixin SocketEntregaProvider on SocketProviderBase {
             },
           );
           break;
+        case EntregaEvent.comedoresSolidarios:
+          handleSocketEvent<ComedorSolidarioModel>(
+            emitEvent: _SocketEvents.getAllComedores,
+            loadEvent: _SocketEvents.loadAllComedores,
+            dataList: comedores,
+            setLoading: (loading) => loadingComedores = loading,
+            fromApi: (data) => ComedorSolidarioModel.fromApi(data),
+            emitPayload: {},
+          );
+          break;
 
         default:
           print('Evento no manejado, en LogisticaEntregasSocket: $event');
@@ -107,6 +116,9 @@ mixin SocketEntregaProvider on SocketProviderBase {
           break;
         case EntregaEvent.entregaById:
           socket?.off('$idEntrega${_SocketEvents.loadEntregaById}');
+          break;
+        case EntregaEvent.comedoresSolidarios:
+          socket?.off(_SocketEvents.loadAllComedores);
           break;
       }
     }

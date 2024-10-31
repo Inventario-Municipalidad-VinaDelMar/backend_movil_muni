@@ -101,6 +101,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
                       children: [
                         //?Producto input - select
                         GenericSelectInput<SelectionProductModel>(
+                          padding: 20,
                           items: inventarioProvider
                               .productosSelection, // Usamos directamente la lista de productos
                           displayField: (producto) => producto
@@ -207,6 +208,7 @@ class _AddTandasPageState extends State<AddTandasPage> {
 
                         //?Ubicacion
                         GenericSelectInput<UbicacionesModel>(
+                          padding: 20,
                           items: inventarioProvider
                               .ubicaciones, // Usamos directamente la lista de productos
                           displayField: (ubicacion) => ubicacion
@@ -286,65 +288,76 @@ class _SelectListBodegaState extends State<SelectListBodega> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
     final colors = ShadTheme.of(context).colorScheme;
     return FadeInLeft(
       delay: const Duration(milliseconds: 600),
       duration: const Duration(milliseconds: 200),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 180),
-        child: ShadSelectFormField<String>(
-          id: 'bodega',
-          decoration: ShadDecoration(
-            errorLabelStyle: textStyles.p,
-            labelStyle: textStyles.p,
-          ),
-          label: Padding(
-            padding: EdgeInsets.only(left: 5),
-            child: Text(widget.labelText),
-          ),
-          initialValue: widget.lista[0].id,
-          placeholder: const Text('Seleccionar bodegas'),
-          options: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
-              child: Text(
-                widget.nombre,
-                style: textStyles.muted.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colors.popoverForeground,
-                ),
-                textAlign: TextAlign.start,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(
+              widget.labelText,
+              style: textStyles.p,
             ),
-            ...widget.lista.map((e) => ShadOption(
-                value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
-          ],
-          onChanged: (newValue) {
-            if (newValue != _selectedBodegaId) {
-              setState(() {
-                _selectedBodegaId = newValue;
-              });
-              if (newValue == null) {
-                return;
+          ),
+          ShadSelectFormField<String>(
+            id: 'bodega',
+            decoration: ShadDecoration(
+              errorLabelStyle: textStyles.p,
+              labelStyle: textStyles.p,
+            ),
+            minWidth: size.width - 20,
+            // label: Padding(
+            //   padding: EdgeInsets.only(left: 5),
+            //   child: Text(widget.labelText),
+            // ),
+            initialValue: widget.lista[0].id,
+            placeholder: const Text('Seleccionar bodegas'),
+            options: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 6, 6, 6),
+                child: Text(
+                  widget.nombre,
+                  style: textStyles.muted.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.popoverForeground,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              ...widget.lista.map((e) => ShadOption(
+                  value: e.id, child: Text("${e.nombre} - ${e.direccion}")))
+            ],
+            onChanged: (newValue) {
+              if (newValue != _selectedBodegaId) {
+                setState(() {
+                  _selectedBodegaId = newValue;
+                });
+                if (newValue == null) {
+                  return;
+                }
+                widget.onBodegaChanged(newValue); // Emitir solo si cambia
               }
-              widget.onBodegaChanged(newValue); // Emitir solo si cambia
-            }
-          },
-          selectedOptionBuilder: (context, value) {
-            for (var bodega in widget.lista) {
-              if (bodega.id == value) {
-                return Row(
-                  children: [
-                    const Icon(MdiIcons.mapMarkerRadiusOutline),
-                    Text('${bodega.nombre} - ${bodega.direccion}'),
-                  ],
-                );
+            },
+            selectedOptionBuilder: (context, value) {
+              for (var bodega in widget.lista) {
+                if (bodega.id == value) {
+                  return Row(
+                    children: [
+                      const Icon(MdiIcons.mapMarkerRadiusOutline),
+                      Text('${bodega.nombre} - ${bodega.direccion}'),
+                    ],
+                  );
+                }
               }
-            }
-            return const Text('Selecciona una opción');
-          },
-        ),
+              return const Text('Selecciona una opción');
+            },
+          ),
+        ],
       ),
     );
   }

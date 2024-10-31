@@ -2,6 +2,7 @@ import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
@@ -107,17 +108,18 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
+          padding:
+              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
           width: size.width,
           child: _buildShadBadge(textStyles),
         ),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 16,
+            ),
             itemCount: envioProvider.enviosLogisticos.length,
             itemBuilder: (context, i) {
               final envio = envioProvider.enviosLogisticos[i];
@@ -243,6 +245,9 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   // const Divider(),
                   SizedBox(height: 5),
                   ShadButton(
+                    enabled: envio.productos.isNotEmpty &&
+                        envio.status != EnvioStatus.cargando &&
+                        envio.status != EnvioStatus.sinCargar,
                     onPressed: () => context.push(route),
                     size: ShadButtonSize.sm,
                     width: double.infinity,
@@ -305,7 +310,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildEndHourRow(dynamic envio, ShadTextTheme textStyles) {
+  Widget _buildEndHourRow(EnvioLogisticoModel envio, ShadTextTheme textStyles) {
     return Row(
       children: [
         Text(
@@ -332,32 +337,40 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   }
 
   Widget _buildProductsList(
-      dynamic envio, Size size, ShadTextTheme textStyles) {
+      EnvioLogisticoModel envio, Size size, ShadTextTheme textStyles) {
     return SizedBox(
       // color: Colors.red,
       height:
           size.height * 0.05, // Ajustamos la altura para el ListView horizontal
-      child: ListView.builder(
-        physics: BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: envio.productos.length,
-        itemBuilder: (context, index) {
-          final producto = envio.productos[index];
-          return Padding(
-            padding:
-                const EdgeInsets.only(right: 10), // Espaciado entre productos
-            child: ShadAvatar(
-              producto.urlImagen,
-              fit: BoxFit.contain,
-              backgroundColor: Colors.transparent,
-              size: Size(
-                size.height * 0.045,
-                size.height * 0.045,
-              ), // Tamaño del avatar
+      child: envio.productos.isEmpty
+          ? Text(
+              'Se estan cargando productos...',
+              style: textStyles.small.copyWith(
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
+              ),
+            )
+          : ListView.builder(
+              physics: BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: envio.productos.length,
+              itemBuilder: (context, index) {
+                final producto = envio.productos[index];
+                return Padding(
+                  padding: const EdgeInsets.only(
+                      right: 10), // Espaciado entre productos
+                  child: ShadAvatar(
+                    producto.urlImagen,
+                    fit: BoxFit.contain,
+                    backgroundColor: Colors.transparent,
+                    size: Size(
+                      size.height * 0.045,
+                      size.height * 0.045,
+                    ), // Tamaño del avatar
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
