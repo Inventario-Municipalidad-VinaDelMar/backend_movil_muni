@@ -185,46 +185,48 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
                 width: double.infinity,
                 height: productosEntregados.isEmpty ? null : size.height * 0.31,
                 child: productosEntregados.isEmpty
-                    ? FadeInRight(
-                        duration: Duration(milliseconds: 200),
-                        delay: Duration(milliseconds: 200),
-                        child: DottedBorder(
-                          color: Colors.blue.withOpacity(.7),
-                          dashPattern: const [4.5, 4.5, 4.5, 4.5],
-                          borderType: BorderType.RRect,
-                          radius: Radius.circular(12),
-                          padding: EdgeInsets.all(6),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 25),
-                              height: size.height * 0.07,
-                              width: double.infinity,
-                              color: Colors.blue[500]!.withOpacity(.2),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ShadButton(
-                                    onPressed: () => executeAddProduct(
-                                      size,
-                                      envio,
-                                      textStyles,
-                                    ),
-                                    backgroundColor: Colors.blueAccent,
-                                    size: ShadButtonSize.sm,
-                                    icon: Icon(
-                                      Icons.add,
-                                      size: 20,
-                                    ),
-                                    child: Text(
-                                      'Registrar',
-                                      style: textStyles.small.copyWith(
-                                        color: Colors.white,
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: FadeInRight(
+                          duration: Duration(milliseconds: 200),
+                          delay: Duration(milliseconds: 200),
+                          child: DottedBorder(
+                            color: Colors.blue.withOpacity(.7),
+                            dashPattern: const [4.5, 4.5, 4.5, 4.5],
+                            borderType: BorderType.RRect,
+                            radius: Radius.circular(12),
+                            padding: EdgeInsets.all(6),
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12)),
+                              child: Container(
+                                height: size.height * 0.07,
+                                width: double.infinity,
+                                color: Colors.blue[500]!.withOpacity(.2),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ShadButton(
+                                      onPressed: () => executeAddProduct(
+                                        size,
+                                        envio,
+                                        textStyles,
                                       ),
-                                    ),
-                                  )
-                                ],
+                                      backgroundColor: Colors.blueAccent,
+                                      size: ShadButtonSize.sm,
+                                      icon: Icon(
+                                        Icons.add,
+                                        size: 20,
+                                      ),
+                                      child: Text(
+                                        'Registrar',
+                                        style: textStyles.small.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
