@@ -1,9 +1,32 @@
-mixin RestEntregaProvider {
-  // late PlanificacionRepository _planificacionRepository;
-  // bool processingSolicitud = false;
+import 'package:flutter/material.dart';
+import 'package:frontend_movil_muni/infraestructure/repositories/logistica_repository.dart';
+import 'package:frontend_movil_muni/src/providers/provider.dart';
+
+UserProvider _userProvider = UserProvider();
+
+mixin RestEntregaProvider on ChangeNotifier {
+  late LogisticaRepository _logisticaRepository;
+  bool creatingEntrega = false;
   // bool completingEnvio = false;
 
   void initRest() {
-    // _planificacionRepository = PlanificacionRepository(_userProvider);
+    _logisticaRepository = LogisticaRepository(_userProvider);
+  }
+
+  Future<void> addNewEntrega(Map<String, dynamic> entregaData) async {
+    creatingEntrega = true;
+    notifyListeners();
+
+    try {
+      //TODO: Eliminar delay en production
+      await Future.delayed(const Duration(seconds: 1));
+
+      await _logisticaRepository.addNewEntrega(entregaData);
+    } catch (error) {
+      print('Error crear movimiento: $error');
+    } finally {
+      creatingEntrega = false;
+      notifyListeners();
+    }
   }
 }

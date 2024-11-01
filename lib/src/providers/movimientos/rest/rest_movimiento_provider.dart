@@ -18,7 +18,7 @@ mixin RestMovimientoProvider on ChangeNotifier {
 
     try {
       //TODO: Eliminar delay en production
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 1));
 
       await _movimientoRepository.newMovimiento(movimientoData);
     } catch (error) {

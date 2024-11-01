@@ -8,6 +8,7 @@ class GenericSelectInput<T> extends StatefulWidget {
     required this.items,
     required this.displayField,
     this.placeholderText = 'Seleccionar elemento...',
+    this.errorText = 'Por favor, selecciona un elemento',
     this.searchPlaceholderText = 'Buscar...',
     this.onChanged,
     this.initialValue,
@@ -17,6 +18,7 @@ class GenericSelectInput<T> extends StatefulWidget {
   });
   final double padding;
   final String fieldId;
+  final String errorText;
   final String labelText;
   final String? initialValue;
   final List<T> items; // Lista de elementos a seleccionar
@@ -92,7 +94,7 @@ class _GenericSelectInputState<T> extends State<GenericSelectInput<T>> {
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Por favor, selecciona un elemento';
+                return widget.errorText;
               }
               // if ((value == null || value.isEmpty) &&
               //     (widget.initialValue != null)) {

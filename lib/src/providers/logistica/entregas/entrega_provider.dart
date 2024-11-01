@@ -35,6 +35,25 @@ class EntregaProvider
     notifyListeners();
   }
 
+  Future<void> generateNewEntrega(
+      Map<String, dynamic> entregaData, String idEnvio) async {
+    //Esta funcion es heredada
+    await addNewEntrega(entregaData).then((value) {
+      productosPorEnvio.remove(idEnvio);
+      notifyListeners();
+    });
+  }
+
+  String findIdComedorSolidario(String name) {
+    String id = '';
+    comedores.forEach((m) {
+      if (name == m.nombre) {
+        id = m.id;
+      }
+    });
+    return id;
+  }
+
   void removeOneProduct(String idEnvio, ProductoEnvio prodEntregado) {
     // Verifica si el idEnvio existe en el mapa
     if (productosPorEnvio.containsKey(idEnvio)) {
