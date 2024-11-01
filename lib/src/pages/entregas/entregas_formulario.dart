@@ -27,6 +27,8 @@ class EntregasFormulario extends StatefulWidget {
 class _EntregasFormularioState extends State<EntregasFormulario> {
   final formEntrega = GlobalKey<ShadFormState>();
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollRutaActual = ScrollController();
+  final ScrollController _scrollSingleChild = ScrollController();
   late EntregaProvider _entregaProvider;
   @override
   void initState() {
@@ -36,6 +38,8 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
         EntregaEvent.comedoresSolidarios,
       ],
     );
+    scrollToMaxRight();
+    scrollToBottomSingleChild();
     super.initState();
   }
 
@@ -53,6 +57,35 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent, // Posición máxima de scroll
       duration: Duration(milliseconds: 450), // Duración de la animación
+      curve: Curves.easeOut, // Curva de la animación
+    );
+  }
+
+  Future<void> scrollToMaxRight() async {
+    await Future.delayed(Duration(milliseconds: 200));
+    _scrollRutaActual.animateTo(
+      _scrollRutaActual.position.maxScrollExtent -
+          22, // Posición máxima de scroll
+      duration: Duration(milliseconds: 1250), // Duración de la animación
+      curve: Curves.easeOut, // Curva de la animación
+    );
+  }
+
+  Future<void> scrollToBottomSingleChild({bool addedProduct = false}) async {
+    final productoEntregados =
+        _entregaProvider.getProductosPorEnvio(widget.idEnvio);
+    if (productoEntregados.isEmpty) {
+      return;
+    }
+    int delay = 1400;
+    if (addedProduct) {
+      delay = 300;
+    }
+    await Future.delayed(Duration(milliseconds: delay));
+    _scrollSingleChild.animateTo(
+      _scrollSingleChild.position.maxScrollExtent -
+          22, // Posición máxima de scroll
+      duration: Duration(milliseconds: 400), // Duración de la animación
       curve: Curves.easeOut, // Curva de la animación
     );
   }
@@ -90,7 +123,8 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
       ),
     ).then((value) async {
       await Future.delayed(Duration(milliseconds: 200));
-      scrollToBottom();
+      // scrollToBottom();
+      scrollToBottomSingleChild(addedProduct: true);
     });
   }
 
@@ -119,7 +153,75 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Visibility(
+        visible: productosEntregados.isNotEmpty &&
+            MediaQuery.of(context).viewInsets.bottom == 0,
+        child: FadeInUp(
+          duration: Duration(milliseconds: 200),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
+            child: ShadButton(
+              enabled: !entregasProvider.creatingEntrega,
+              onPressed: () async {
+                if (!formEntrega.currentState!.saveAndValidate()) {
+                  return;
+                }
+                final idComedor = entregasProvider.findIdComedorSolidario(
+                    formEntrega.currentState?.fields['comedor']!.value);
+                if (idComedor.isEmpty) {
+                  return;
+                }
+                await entregasProvider.generateNewEntrega(
+                  {
+                    'idEnvio': widget.idEnvio,
+                    'idComedor': idComedor,
+                    'detalles': List.from(productosEntregados.map((p) {
+                      return {
+                        'productoId': p.productoId,
+                        'cantidadEntregada': p.cantidad,
+                      };
+                    }).toList()),
+                  },
+                  widget.idEnvio,
+                ).then((value) {
+                  if (!context.mounted) {
+                    return;
+                  }
+                  context.pop();
+                });
+              },
+              width: size.width,
+              size: ShadButtonSize.lg,
+              icon: entregasProvider.creatingEntrega
+                  ? SizedBox(
+                      width: size.height * 0.03,
+                      height: size.height * 0.03,
+                      child: AnimateIcon(
+                        animateIcon: AnimateIcons.loading6,
+                        color: Colors.white,
+                        iconType: IconType.continueAnimation,
+                        onTap: () {},
+                      ),
+                    )
+                  : null,
+              child: entregasProvider.creatingEntrega
+                  ? Text('Creando entrega',
+                      style: textStyles.h4.copyWith(
+                        color: Colors.white,
+                      ))
+                  : Text(
+                      'Ingresar entrega',
+                      style: textStyles.h4.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
+        controller: _scrollSingleChild,
         child: ShadForm(
           key: formEntrega,
           child: Column(
@@ -132,93 +234,215 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
                   style: textStyles.p,
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(top: 5),
-                width: size.width,
-                height: size.height * 0.085,
-                child: ListView.builder(
+              if (envio!.entregas.isEmpty)
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: envio!.entregas.length + 1,
-                  itemBuilder: (context, i) {
-                    EntregaEnvio? entrega;
-                    bool isLast = i == envio.entregas.length;
-                    if (!isLast) {
-                      entrega = envio.entregas[i];
-                    }
-                    return Container(
-                      width: size.width * 0.2,
-                      margin: EdgeInsets.only(right: size.width * 0.045),
-                      child: Column(
-                        children: [
-                          Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
-                            children: [
-                              AnimatedContainer(
-                                duration: Duration(milliseconds: 200),
-                                height: size.height * 0.045,
-                                width: size.height * 0.045,
-                                decoration: BoxDecoration(
-                                  color: isLast
-                                      ? Colors.blue.withOpacity(.5)
-                                      : Colors.blue,
-                                  shape: BoxShape.circle,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        SizedBox(
+                          width: size.width * 0.4,
+                          child: FadeIn(
+                            duration: Duration(milliseconds: 200),
+                            child: Column(
+                              children: [
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Positioned(
+                                      top: -size.height * 0.014,
+                                      left: -size.width * 0.1,
+                                      child: ZoomIn(
+                                        duration: Duration(milliseconds: 500),
+                                        child: Icon(
+                                          Icons.arrow_right_alt_rounded,
+                                          color: Colors.blue,
+                                          size: 30,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      left: -size.width * 0.155,
+                                      child: AnimatedContainer(
+                                        duration: Duration(milliseconds: 200),
+                                        height: 5,
+                                        width: size.width * 0.155,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ),
+                                    AnimatedContainer(
+                                      duration: Duration(milliseconds: 200),
+                                      height: size.height * 0.045,
+                                      width: size.height * 0.045,
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(.7),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        MdiIcons.downloadBox,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      // top: 0,
+                                      right: -size.width * 0.22,
+                                      child: SizedBox(
+                                        // width: size.height * 0.02,
+                                        height: size.height * 0.02,
+                                        child: Text(
+                                          'Primera entrega',
+                                          style: textStyles.small.copyWith(
+                                            color: Colors.blue.withOpacity(.7),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                child: Icon(
-                                  isLast
-                                      ? MdiIcons.downloadBox
-                                      : MdiIcons.mapMarker,
-                                  color: Colors.white,
+                                SizedBox(
+                                  height: size.height * 0.008,
                                 ),
-                              ),
-                              Positioned(
-                                right: -size.width * 0.155,
-                                child: AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  height: 5,
-                                  width: isLast ? 0 : size.width * 0.155,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          SizedBox(
-                            height: size.height * 0.008,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (envio.entregas.isNotEmpty)
+                Container(
+                  margin: EdgeInsets.only(top: 5),
+                  width: size.width,
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  height: size.height * 0.085,
+                  child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    controller: _scrollRutaActual,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: envio.entregas.length + 1,
+                    itemBuilder: (context, i) {
+                      EntregaEnvio? entrega;
+                      bool isLast = i == envio.entregas.length;
+                      if (!isLast) {
+                        entrega = envio.entregas[i];
+                      }
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: size.width * 0.2,
+                            margin: EdgeInsets.only(right: size.width * 0.045),
+                            child: FadeIn(
+                              duration: Duration(milliseconds: 200),
+                              delay: Duration(milliseconds: i * 150),
+                              child: Column(
+                                children: [
+                                  Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Positioned(
+                                        left: -size.width * 0.155,
+                                        child: AnimatedContainer(
+                                          duration: Duration(milliseconds: 200),
+                                          height: 5,
+                                          width:
+                                              isLast ? 0 : size.width * 0.155,
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ),
+                                      AnimatedContainer(
+                                        duration: Duration(milliseconds: 200),
+                                        height: size.height * 0.045,
+                                        width: size.height * 0.045,
+                                        decoration: BoxDecoration(
+                                          color: isLast
+                                              ? Colors.blue.withOpacity(.5)
+                                              : Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          isLast
+                                              ? MdiIcons.downloadBox
+                                              : MdiIcons.mapMarker,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: -size.width * 0.155,
+                                        child: AnimatedContainer(
+                                          duration: Duration(milliseconds: 200),
+                                          height: 5,
+                                          width:
+                                              isLast ? 0 : size.width * 0.155,
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.008,
+                                  ),
+                                  if (!isLast)
+                                    Text(
+                                      entrega!.comedorSolidario,
+                                      style: textStyles.small.copyWith(
+                                        height: 1,
+                                        fontSize: size.height * 0.015,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  if (isLast)
+                                    // Icon(
+                                    //   MdiIcons.menuUp,
+                                    //   color: Colors.blue.withOpacity(.8),
+                                    //   size: 24,
+                                    // ),
+                                    SizedBox(
+                                      width: size.height * 0.02,
+                                      height: size.height * 0.02,
+                                      child: AnimateIcon(
+                                        onTap: () {},
+                                        iconType: IconType.continueAnimation,
+                                        animateIcon: AnimateIcons.loading4,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
                           ),
                           if (!isLast)
-                            Text(
-                              entrega!.comedorSolidario,
-                              style: textStyles.small.copyWith(
-                                height: 1,
-                                fontSize: size.height * 0.015,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          if (isLast)
-                            // Icon(
-                            //   MdiIcons.menuUp,
-                            //   color: Colors.blue.withOpacity(.8),
-                            //   size: 24,
-                            // ),
-                            SizedBox(
-                              width: size.height * 0.02,
-                              height: size.height * 0.02,
-                              child: AnimateIcon(
-                                onTap: () {},
-                                iconType: IconType.continueAnimation,
-                                animateIcon: AnimateIcons.loading4,
-                                color: Colors.blue,
+                            Positioned(
+                              top: -size.height * 0.014,
+                              right: -size.width * 0.033,
+                              child: ZoomIn(
+                                duration: Duration(milliseconds: 500),
+                                delay: Duration(microseconds: i * 150),
+                                child: Icon(
+                                  Icons.arrow_right_alt_rounded,
+                                  color: Colors.blue,
+                                  size: 30,
+                                ),
                               ),
                             ),
                         ],
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
               if (!entregasProvider.loadingEntregas)
                 Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20),
@@ -429,73 +653,7 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
                         },
                       ),
               ),
-              Visibility(
-                visible: productosEntregados.isNotEmpty,
-                child: FadeInUp(
-                  duration: Duration(milliseconds: 200),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 10, right: 10, bottom: 5),
-                    child: ShadButton(
-                      enabled: !entregasProvider.creatingEntrega,
-                      onPressed: () async {
-                        if (!formEntrega.currentState!.saveAndValidate()) {
-                          return;
-                        }
-                        final idComedor =
-                            entregasProvider.findIdComedorSolidario(formEntrega
-                                .currentState?.fields['comedor']!.value);
-                        if (idComedor.isEmpty) {
-                          return;
-                        }
-                        await entregasProvider.generateNewEntrega(
-                          {
-                            'idEnvio': widget.idEnvio,
-                            'idComedor': idComedor,
-                            'detalles': List.from(productosEntregados.map((p) {
-                              return {
-                                'productoId': p.productoId,
-                                'cantidadEntregada': p.cantidad,
-                              };
-                            }).toList()),
-                          },
-                          widget.idEnvio,
-                        ).then((value) {
-                          if (!context.mounted) {
-                            return;
-                          }
-                          context.pop();
-                        });
-                      },
-                      width: size.width,
-                      size: ShadButtonSize.lg,
-                      icon: entregasProvider.creatingEntrega
-                          ? SizedBox(
-                              width: size.height * 0.03,
-                              height: size.height * 0.03,
-                              child: AnimateIcon(
-                                animateIcon: AnimateIcons.loading6,
-                                color: Colors.white,
-                                iconType: IconType.continueAnimation,
-                                onTap: () {},
-                              ),
-                            )
-                          : null,
-                      child: entregasProvider.creatingEntrega
-                          ? Text('Creando entrega',
-                              style: textStyles.h4.copyWith(
-                                color: Colors.white,
-                              ))
-                          : Text(
-                              'Ingresar entrega',
-                              style: textStyles.h4.copyWith(
-                                color: Colors.white,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ),
+              SizedBox(height: size.height * 0.14),
             ],
           ),
         ),
