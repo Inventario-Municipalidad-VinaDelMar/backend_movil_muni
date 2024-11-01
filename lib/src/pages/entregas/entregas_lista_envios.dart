@@ -231,9 +231,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   _buildCardHeader(envio, size, textStyles),
                   SizedBox(height: size.height * 0.01),
                   _buildInfoRow(
-                      'Autorizado por: ',
-                      envio.solicitud.administrador?.getFullName() ?? 'N/A',
-                      textStyles),
+                      'Autorizado por: ', envio.autorizante, textStyles),
                   _buildInfoRow('Fecha creación: ',
                       fechaToLargeName(envio.fecha), textStyles),
                   _buildInfoRow(

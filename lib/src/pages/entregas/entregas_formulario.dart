@@ -125,9 +125,103 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 25),
+                child: Text(
+                  'Ruta actual',
+                  style: textStyles.p,
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 5),
+                width: size.width,
+                height: size.height * 0.085,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: envio!.entregas.length + 1,
+                  itemBuilder: (context, i) {
+                    EntregaEnvio? entrega;
+                    bool isLast = i == envio.entregas.length;
+                    if (!isLast) {
+                      entrega = envio.entregas[i];
+                    }
+                    return Container(
+                      width: size.width * 0.2,
+                      margin: EdgeInsets.only(right: size.width * 0.045),
+                      child: Column(
+                        children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.center,
+                            children: [
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                height: size.height * 0.045,
+                                width: size.height * 0.045,
+                                decoration: BoxDecoration(
+                                  color: isLast
+                                      ? Colors.blue.withOpacity(.5)
+                                      : Colors.blue,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isLast
+                                      ? MdiIcons.downloadBox
+                                      : MdiIcons.mapMarker,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Positioned(
+                                right: -size.width * 0.155,
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 200),
+                                  height: 5,
+                                  width: isLast ? 0 : size.width * 0.155,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: size.height * 0.008,
+                          ),
+                          if (!isLast)
+                            Text(
+                              entrega!.comedorSolidario,
+                              style: textStyles.small.copyWith(
+                                height: 1,
+                                fontSize: size.height * 0.015,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          if (isLast)
+                            // Icon(
+                            //   MdiIcons.menuUp,
+                            //   color: Colors.blue.withOpacity(.8),
+                            //   size: 24,
+                            // ),
+                            SizedBox(
+                              width: size.height * 0.02,
+                              height: size.height * 0.02,
+                              child: AnimateIcon(
+                                onTap: () {},
+                                iconType: IconType.continueAnimation,
+                                animateIcon: AnimateIcons.loading4,
+                                color: Colors.blue,
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
               if (!entregasProvider.loadingEntregas)
                 Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+                  padding: const EdgeInsets.only(left: 20, right: 20),
                   child: GenericSelectInput<ComedorSolidarioModel>(
                     padding: 40,
                     errorText: 'Por favor, selecciona un comedor solidario',

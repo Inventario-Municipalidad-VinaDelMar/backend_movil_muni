@@ -24,9 +24,40 @@ class ProductoEnvio {
   }
 }
 
+class EntregaEnvio {
+  String fecha;
+  String hora;
+  String? urlActaLegal;
+  String comedorSolidario;
+  String realizador;
+  String realizadorId;
+
+  EntregaEnvio({
+    required this.fecha,
+    required this.hora,
+    this.urlActaLegal,
+    required this.comedorSolidario,
+    required this.realizador,
+    required this.realizadorId,
+  });
+
+  factory EntregaEnvio.fromJson(Map<String, dynamic> json) {
+    return EntregaEnvio(
+      fecha: json['fecha'],
+      hora: json['hora'],
+      urlActaLegal: json['url_acta_legal'],
+      comedorSolidario: json['comedorSolidario'],
+      realizador: json['realizador'],
+      realizadorId: json['realizadorId'],
+    );
+  }
+}
+
 class EnvioLogisticoModel extends EnvioModel {
-  SolicitudEnvioModel solicitud;
+  String autorizante;
+  String solicitante;
   List<ProductoEnvio> productos;
+  List<EntregaEnvio> entregas;
 
   EnvioLogisticoModel({
     required super.id,
@@ -34,8 +65,10 @@ class EnvioLogisticoModel extends EnvioModel {
     required super.horaInicio,
     required super.status,
     super.horaFinalizacion,
-    required this.solicitud,
+    required this.autorizante,
+    required this.solicitante,
     required this.productos,
+    required this.entregas,
   });
 
   factory EnvioLogisticoModel.fromApi(Map<String, dynamic> envio) {
@@ -45,9 +78,14 @@ class EnvioLogisticoModel extends EnvioModel {
       horaInicio: envio['horaInicio'],
       status: EnvioStatusExtension.fromString(envio['status']),
       horaFinalizacion: envio['horaFinalizacion'],
-      solicitud: SolicitudEnvioModel.fromApi(envio['solicitud']),
+      autorizante: envio['autorizante'],
+      solicitante: envio['solicitante'],
+      // solicitud: SolicitudEnvioModel.fromApi(envio['solicitud']),
       productos: (envio['productos'] as List)
           .map((p) => ProductoEnvio.fromJson(p as Map<String, dynamic>))
+          .toList(),
+      entregas: (envio['entregas'] as List)
+          .map((p) => EntregaEnvio.fromJson(p as Map<String, dynamic>))
           .toList(),
     );
   }
