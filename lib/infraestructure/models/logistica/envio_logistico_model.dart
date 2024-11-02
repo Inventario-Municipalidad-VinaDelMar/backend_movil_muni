@@ -29,6 +29,8 @@ class EntregaEnvio {
   String hora;
   String? urlActaLegal;
   String comedorSolidario;
+  String comedorDireccion;
+  int productosEntregados;
   String realizador;
   String realizadorId;
 
@@ -39,6 +41,8 @@ class EntregaEnvio {
     required this.comedorSolidario,
     required this.realizador,
     required this.realizadorId,
+    required this.comedorDireccion,
+    required this.productosEntregados,
   });
 
   factory EntregaEnvio.fromJson(Map<String, dynamic> json) {
@@ -49,7 +53,14 @@ class EntregaEnvio {
       comedorSolidario: json['comedorSolidario'],
       realizador: json['realizador'],
       realizadorId: json['realizadorId'],
+      productosEntregados: json['productosEntregados'],
+      comedorDireccion: json['comedorDireccion'],
     );
+  }
+
+  String getMedioDia() {
+    final numero = int.parse(hora.split(':')[0]);
+    return numero < 12 ? 'AM' : 'PM';
   }
 }
 

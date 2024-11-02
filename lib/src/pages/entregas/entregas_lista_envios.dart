@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
+import 'package:frontend_movil_muni/src/pages/entregas/widgets/empty_full_screen.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
@@ -70,37 +71,8 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
 
   Widget _buildEmptyState(
       BuildContext context, Size size, ShadTextTheme textStyles) {
-    return ZoomIn(
-      duration: const Duration(milliseconds: 200),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: size.height * 0.25,
-              child: Image.asset(
-                'assets/logos/empty.png', // Cambié la imagen a una versión más estilizada
-                color: Colors.grey[400],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'No se han realizado envíos el día de hoy',
-              style: textStyles.p.copyWith(color: Colors.grey[500]),
-            ),
-            const SizedBox(height: 20),
-            ShadButton(
-              size: ShadButtonSize.lg,
-              onPressed: () => context.pop(),
-              child: Text(
-                'Volver a atrás',
-              ),
-            ),
-            SizedBox(height: size.height * 0.16),
-          ],
-        ),
-      ),
-    );
+    return EmptyFullScreen(
+        emptyMessage: 'No se han realizado envíos el día de hoy');
   }
 
   Widget _buildEnviosList(
