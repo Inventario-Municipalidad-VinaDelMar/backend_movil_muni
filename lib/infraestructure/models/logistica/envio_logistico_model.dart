@@ -26,7 +26,9 @@ class ProductoEnvio {
 class EntregaEnvio {
   String id;
   String fecha;
-  String hora;
+  String horaCreacion;
+  String? horaInicioEnvio;
+  String ultimaActualizacion;
   String? urlActaLegal;
   String comedorSolidario;
   String comedorDireccion;
@@ -37,7 +39,9 @@ class EntregaEnvio {
   EntregaEnvio({
     required this.id,
     required this.fecha,
-    required this.hora,
+    required this.horaCreacion,
+    this.horaInicioEnvio,
+    required this.ultimaActualizacion,
     this.urlActaLegal,
     required this.comedorSolidario,
     required this.realizador,
@@ -50,7 +54,9 @@ class EntregaEnvio {
     return EntregaEnvio(
       id: json['id'],
       fecha: json['fecha'],
-      hora: json['hora'],
+      horaCreacion: json['horaCreacion'],
+      horaInicioEnvio: json['horaInicioEnvio'],
+      ultimaActualizacion: json['ultimaActualizacion'],
       urlActaLegal: json['url_acta_legal'],
       comedorSolidario: json['comedorSolidario'],
       realizador: json['realizador'],
@@ -61,7 +67,7 @@ class EntregaEnvio {
   }
 
   String getMedioDia() {
-    final numero = int.parse(hora.split(':')[0]);
+    final numero = int.parse(horaCreacion.split(':')[0]);
     return numero < 12 ? 'AM' : 'PM';
   }
 }

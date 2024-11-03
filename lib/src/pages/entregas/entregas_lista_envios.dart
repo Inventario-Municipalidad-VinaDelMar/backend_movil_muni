@@ -233,21 +233,67 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildCardHeader(dynamic envio, Size size, ShadTextTheme textStyles) {
+  Widget _buildCardHeader(
+      EnvioLogisticoModel envio, Size size, ShadTextTheme textStyles) {
+    // Método auxiliar para obtener el color y el ícono según el estado
+    Map<String, dynamic> _getStatusStyle(EnvioStatus status) {
+      switch (status) {
+        case EnvioStatus.sinCargar:
+          return {
+            'color': Colors.grey[300],
+            'icon': Icons.hourglass_empty,
+            'textColor': Colors.grey[700],
+            'label': envio.statusToString(),
+          };
+        case EnvioStatus.cargando:
+          return {
+            'color': Colors.yellow[100],
+            'icon': Icons.local_shipping,
+            'textColor': Colors.yellow[800],
+            'label': envio.statusToString(),
+          };
+        case EnvioStatus.enEnvio:
+          return {
+            'color': Colors.blue[100],
+            'icon': Icons.directions_car,
+            'textColor': Colors.blue[800],
+            'label': envio.statusToString(),
+          };
+        case EnvioStatus.finalizado:
+          return {
+            'color': Colors.green[100],
+            'icon': Icons.check_circle,
+            'textColor': Colors.green[800],
+            'label': envio.statusToString(),
+          };
+      }
+    }
+
+    final statusStyle = _getStatusStyle(envio.status);
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.blue[100],
+            color: statusStyle['color'],
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(
-            envio.statusToString(),
-            style: textStyles.p.copyWith(
-              color: Colors.blue[800],
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            children: [
+              Icon(
+                statusStyle['icon'],
+                color: statusStyle['textColor'],
+                size: 18,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                statusStyle['label'],
+                style: TextStyle(
+                  color: statusStyle['textColor'],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
         const Spacer(),
