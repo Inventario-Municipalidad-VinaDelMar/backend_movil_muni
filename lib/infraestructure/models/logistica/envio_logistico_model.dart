@@ -107,7 +107,12 @@ class EnvioLogisticoModel extends EnvioModel {
     );
   }
 
-  String getHoraFormatted() {
+  String getHoraCreacionFormatted() {
+    final numero = int.parse(horaCreacion.split(':')[0]);
+    return '${horaCreacion.split(':')[0]}:${horaCreacion.split(':')[1]} ${numero < 12 ? 'AM' : 'PM'}';
+  }
+
+  String getUltimaActualizacionFormatted() {
     final numero = int.parse(horaCreacion.split(':')[0]);
     return '${horaCreacion.split(':')[0]}:${horaCreacion.split(':')[1]} ${numero < 12 ? 'AM' : 'PM'}';
   }
