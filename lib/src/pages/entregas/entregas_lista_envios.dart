@@ -207,7 +207,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   _buildInfoRow('Fecha creación: ',
                       fechaToLargeName(envio.fecha), textStyles),
                   _buildInfoRow(
-                      'Hora de inicio: ', envio.getHoraFormatted(), textStyles),
+                      'Hora creacion: ', envio.getHoraFormatted(), textStyles),
                   const SizedBox(height: 10),
                   _buildEndHourRow(envio, textStyles),
                   const Divider(),

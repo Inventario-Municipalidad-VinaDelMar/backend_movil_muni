@@ -158,7 +158,7 @@ class EntregasLista extends StatelessWidget {
                                               Row(
                                                 children: [
                                                   Text(
-                                                    '${entrega.horaCreacion.split(':')[0]}:${entrega.horaCreacion.split(':')[1]} ${entrega.getMedioDia()}',
+                                                    '${entrega.hora.split(':')[0]}:${entrega.hora.split(':')[1]} ${entrega.getMedioDia()}',
                                                     style: textStyles.h4,
                                                   ),
                                                   Spacer(),

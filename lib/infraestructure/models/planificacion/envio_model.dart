@@ -39,14 +39,18 @@ extension EnvioStatusExtension on EnvioStatus {
 class EnvioModel {
   String id;
   String fecha;
-  String horaInicio;
+  String horaCreacion;
+  String? horaInicioEnvio;
+  String ultimaActualizacion;
   String? horaFinalizacion;
   EnvioStatus status;
 
   EnvioModel({
     required this.id,
     required this.fecha,
-    required this.horaInicio,
+    required this.horaCreacion,
+    this.horaInicioEnvio,
+    required this.ultimaActualizacion,
     this.horaFinalizacion,
     required this.status,
   });
@@ -55,7 +59,9 @@ class EnvioModel {
     return EnvioModel(
       id: envio['id'],
       fecha: envio['fecha'],
-      horaInicio: envio['horaInicio'],
+      horaCreacion: envio['horaCreacion'],
+      horaInicioEnvio: envio['horaInicioEnvio'],
+      ultimaActualizacion: envio['ultimaActualizacion'],
       horaFinalizacion: envio['horaFinalizacion'], // Puede ser null
       // Convertimos el string recibido en un valor de EnvioStatus
       status: EnvioStatusExtension.fromString(envio['status']),

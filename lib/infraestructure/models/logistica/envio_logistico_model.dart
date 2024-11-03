@@ -26,9 +26,7 @@ class ProductoEnvio {
 class EntregaEnvio {
   String id;
   String fecha;
-  String horaCreacion;
-  String? horaInicioEnvio;
-  String ultimaActualizacion;
+  String hora;
   String? urlActaLegal;
   String comedorSolidario;
   String comedorDireccion;
@@ -39,9 +37,7 @@ class EntregaEnvio {
   EntregaEnvio({
     required this.id,
     required this.fecha,
-    required this.horaCreacion,
-    this.horaInicioEnvio,
-    required this.ultimaActualizacion,
+    required this.hora,
     this.urlActaLegal,
     required this.comedorSolidario,
     required this.realizador,
@@ -54,9 +50,7 @@ class EntregaEnvio {
     return EntregaEnvio(
       id: json['id'],
       fecha: json['fecha'],
-      horaCreacion: json['horaCreacion'],
-      horaInicioEnvio: json['horaInicioEnvio'],
-      ultimaActualizacion: json['ultimaActualizacion'],
+      hora: json['hora'],
       urlActaLegal: json['url_acta_legal'],
       comedorSolidario: json['comedorSolidario'],
       realizador: json['realizador'],
@@ -67,7 +61,7 @@ class EntregaEnvio {
   }
 
   String getMedioDia() {
-    final numero = int.parse(horaCreacion.split(':')[0]);
+    final numero = int.parse(hora.split(':')[0]);
     return numero < 12 ? 'AM' : 'PM';
   }
 }
@@ -81,7 +75,9 @@ class EnvioLogisticoModel extends EnvioModel {
   EnvioLogisticoModel({
     required super.id,
     required super.fecha,
-    required super.horaInicio,
+    required super.horaCreacion,
+    required super.horaInicioEnvio,
+    required super.ultimaActualizacion,
     required super.status,
     super.horaFinalizacion,
     required this.autorizante,
@@ -94,7 +90,9 @@ class EnvioLogisticoModel extends EnvioModel {
     return EnvioLogisticoModel(
       id: envio['id'],
       fecha: envio['fecha'],
-      horaInicio: envio['horaInicio'],
+      horaCreacion: envio['horaCreacion'],
+      horaInicioEnvio: envio['horaInicioEnvio'],
+      ultimaActualizacion: envio['ultimaActualizacion'],
       status: EnvioStatusExtension.fromString(envio['status']),
       horaFinalizacion: envio['horaFinalizacion'],
       autorizante: envio['autorizante'],
@@ -110,7 +108,7 @@ class EnvioLogisticoModel extends EnvioModel {
   }
 
   String getHoraFormatted() {
-    final numero = int.parse(horaInicio.split(':')[0]);
-    return '${horaInicio.split(':')[0]}:${horaInicio.split(':')[1]} ${numero < 12 ? 'AM' : 'PM'}';
+    final numero = int.parse(horaCreacion.split(':')[0]);
+    return '${horaCreacion.split(':')[0]}:${horaCreacion.split(':')[1]} ${numero < 12 ? 'AM' : 'PM'}';
   }
 }
