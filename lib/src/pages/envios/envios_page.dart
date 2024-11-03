@@ -13,6 +13,7 @@ import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class EnviosPage extends StatefulWidget {
   const EnviosPage({super.key});
@@ -62,10 +63,23 @@ class _EnviosPageState extends State<EnviosPage> {
     //final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
     final planificacionProvider = context.watch<PlanificacionProvider>();
+    final player = AudioPlayer();
+
+    // Método para reproducir el sonido
+    void playSound() async {
+      await player.play(AssetSource('sounds/notification.wav'));
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                playSound();
+              },
+              child: Text('ola'))
+        ],
         iconTheme: IconThemeData(
           color: Colors.white,
         ),

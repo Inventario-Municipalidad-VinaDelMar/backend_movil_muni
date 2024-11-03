@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
+import 'package:http_parser/http_parser.dart';
 
 class LogisticaRepository {
   late Dio dio;
@@ -38,7 +39,46 @@ class LogisticaRepository {
 
   Future<void> uploadDocument(Map<String, dynamic> dataEntrega) async {
     try {
-      await dio.post('/entregas/upload', data: dataEntrega);
+      final String extension = dataEntrega['fileName']
+          .split('.')
+          .last
+          .toLowerCase(); // Obtener la extensión del archivo
+
+      MediaType mediaType;
+      switch (extension) {
+        case 'jpg':
+          mediaType = MediaType('image', 'jpeg');
+          break;
+        case 'jpeg':
+          mediaType = MediaType('image', 'jpeg');
+          break;
+        case 'png':
+          mediaType = MediaType('image', 'png');
+          break;
+        case 'pdf':
+          mediaType = MediaType('application', 'pdf');
+          break;
+        default:
+          throw Exception('Tipo de archivo no soportado: $extension');
+      }
+      final file = await MultipartFile.fromFile(
+        dataEntrega['path'],
+        filename: dataEntrega['fileName'],
+        contentType: mediaType,
+      );
+
+      final formData = FormData.fromMap({
+        "file": file, // archivo que vas a subir
+        "idEntrega": dataEntrega['idEntrega'] // el id que requiere el endpoint
+      });
+
+      final response = await dio.post(
+        "/entregas/upload", // URL del endpoint
+        data: formData,
+        options: Options(headers: {"Content-Type": "multipart/form-data"}),
+      );
+      print("Respuesta del servidor: ${response.data}");
+      //# await dio.post('/entregas/upload', data: dataEntrega);
     } on DioException catch (error) {
       print(error.message);
       print(error.response?.data);

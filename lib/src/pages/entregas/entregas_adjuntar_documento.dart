@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:convert';
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -11,12 +11,13 @@ import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provide
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:file_picker/file_picker.dart';
 
 //?Mini modelo para representar al archivo temporal
 class FileInfo {
   double peso;
   String nombreOriginal;
-  File? file;
+  PlatformFile? file;
 
   FileInfo({
     required this.peso,
@@ -85,23 +86,34 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
               fileLoaded,
               entrega!,
               //TODO: Funcion para cargar el archivo
-              () {
+              () async {
                 //1. Abrir administrador de files
-
-                //2. Validar los formatos permitidos, si falla mostrar popup
-
-                //3. Crear la entidad FileInfo con el file elegido
-                final file = FileInfo(
-                  peso: 1.9,
-                  nombreOriginal: 'archivo.png',
-                  //TODO: Aqui debe ir el archivo como tal
-                  file: null,
+                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                  allowMultiple: false,
+                  type: FileType.custom,
+                  allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
                 );
+                //2. Validar los formatos permitidos, si falla mostrar popup
+                print("nombre: " + result!.names[0].toString());
+                int limite = 2097152;
+                double pesoFile = result.files[0].size.toDouble();
 
-                //4. Setear el archivo
-                setState(() {
-                  fileLoaded = file;
-                });
+                if (pesoFile >= limite) {
+                  print('error peso archivo');
+                  //TODO mostrar toaster con error
+                } else {
+                  //3. Crear la entidad FileInfo con el file elegido
+                  final file = FileInfo(
+                    peso: pesoFile,
+                    nombreOriginal: result.names[0] as String,
+                    file: result.files[0],
+                  );
+
+                  //4. Setear el archivo
+                  setState(() {
+                    fileLoaded = file;
+                  });
+                }
               },
             ),
             SizedBox(height: size.height * 0.02),
@@ -126,9 +138,15 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                   if (fileLoaded == null) {
                     return;
                   }
+                  // final filetoConvert = File(fileLoaded!.file!.path!);
+                  // List<int> imageBytes = filetoConvert.readAsBytesSync();
+                  // String base64File = base64Encode(imageBytes);
+
                   final Map<String, dynamic> entregaData = {
                     'idEntrega': widget.idEntrega,
-                    'file': fileLoaded!.file
+                    'file': fileLoaded,
+                    'path': fileLoaded!.file!.path!,
+                    'fileName': fileLoaded!.nombreOriginal
                   };
 
                   try {
