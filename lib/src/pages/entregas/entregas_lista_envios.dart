@@ -7,6 +7,7 @@ import 'package:frontend_movil_muni/src/pages/entregas/widgets/empty_full_screen
 import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
+import 'package:frontend_movil_muni/src/widgets/time_since.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -189,27 +190,42 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                 clipper: CurvedClipper(),
                 child: Container(
                   width: size.width * 0.78,
-                  height: size.height * 0.6,
+                  height: size.height * 0.65,
                   color:
                       Colors.blue[700], // Azul para mantener el estilo actual
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildCardHeader(envio, size, textStyles),
-                  SizedBox(height: size.height * 0.01),
+                  // SizedBox(height: size.height * 0.01),
                   _buildInfoRow(
-                      'Autorizado por: ', envio.autorizante, textStyles),
+                      'Autorizado por: ', envio.autorizante, textStyles.p),
                   _buildInfoRow('Fecha creación: ',
-                      fechaToLargeName(envio.fecha), textStyles),
+                      fechaToLargeName(envio.fecha), textStyles.p),
+
+                  _buildInfoRow('Hora creacion: ',
+                      envio.getHoraCreacionFormatted(), textStyles.p),
+                  _buildInfoRowCustom('Tiempo en envío: ',
+                      envio.horaInicioEnvio!, textStyles.p),
                   _buildInfoRow(
-                      'Hora creacion: ', envio.getHoraFormatted(), textStyles),
-                  const SizedBox(height: 10),
+                    'Ultima entrega en: ',
+                    envio.entregas.isEmpty
+                        ? '-'
+                        : envio.entregas.first.comedorSolidario,
+                    textStyles.p,
+                  ),
+                  SizedBox(height: size.height * 0.02),
                   _buildEndHourRow(envio, textStyles),
+                  _buildInfoRow(
+                    'Entregas realizadas: ',
+                    '${envio.entregas.length}',
+                    textStyles.p.copyWith(color: Colors.black),
+                  ),
                   const Divider(),
                   _buildProductsList(envio, size, textStyles),
                   // const Divider(),
@@ -306,20 +322,37 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, ShadTextTheme textStyles) {
+  Widget _buildInfoRowCustom(String label, String value, TextStyle textStyle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 0),
       child: Row(
         children: [
           Text(
             label,
-            style: textStyles.p
-                .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
+            style: textStyle.copyWith(
+                fontWeight: FontWeight.w600, color: Colors.grey[800]),
+          ),
+          const Spacer(),
+          TimeSinceWidget(hora: value)
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, TextStyle textStyle) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 0),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: textStyle.copyWith(
+                fontWeight: FontWeight.w600, color: Colors.grey[800]),
           ),
           const Spacer(),
           Text(
             value,
-            style: textStyles.small.copyWith(color: Colors.white),
+            style: textStyle.copyWith(color: Colors.white),
           ),
         ],
       ),
@@ -337,15 +370,20 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         const Spacer(),
         if (envio.horaFinalizacion == null)
           AnimateIcon(
+            height: 20,
             width: 20,
             animateIcon: AnimateIcons.loading3,
             onTap: () {},
             color: Colors.blue[500]!,
             iconType: IconType.continueAnimation,
           )
+        // Text(
+        //   '',
+        //   style: textStyles.small.copyWith(color: Colors.grey[600]),
+        // )
         else
           Text(
-            envio.getHoraFormatted(),
+            envio.getHoraCreacionFormatted(),
             style: textStyles.p.copyWith(color: Colors.grey[600]),
           ),
       ],
@@ -401,8 +439,8 @@ class CurvedClipper extends CustomClipper<Path> {
 
     // Curva hacia abajo
     path.quadraticBezierTo(
-      0, size.height * 0.58, // Primer punto de control
-      size.width * 0.5, size.height * 0.5, // Primer punto de destino
+      0, size.height * 0.56, // Primer punto de control
+      size.width * 0.52, size.height * 0.5, // Primer punto de destino
     );
 
     // Segunda curva hacia arriba
