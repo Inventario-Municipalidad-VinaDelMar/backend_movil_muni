@@ -48,7 +48,6 @@ class UserProvider extends ChangeNotifier {
         _handleRenewUserFailure();
         return;
       }
-
       // Update user data with new token
       await setUser(response);
     } catch (error) {

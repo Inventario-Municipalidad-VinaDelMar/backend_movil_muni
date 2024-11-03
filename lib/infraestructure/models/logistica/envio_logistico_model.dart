@@ -1,5 +1,4 @@
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
-import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
 
 class ProductoEnvio {
   String producto;
@@ -25,6 +24,7 @@ class ProductoEnvio {
 }
 
 class EntregaEnvio {
+  String id;
   String fecha;
   String hora;
   String? urlActaLegal;
@@ -35,6 +35,7 @@ class EntregaEnvio {
   String realizadorId;
 
   EntregaEnvio({
+    required this.id,
     required this.fecha,
     required this.hora,
     this.urlActaLegal,
@@ -47,6 +48,7 @@ class EntregaEnvio {
 
   factory EntregaEnvio.fromJson(Map<String, dynamic> json) {
     return EntregaEnvio(
+      id: json['id'],
       fecha: json['fecha'],
       hora: json['hora'],
       urlActaLegal: json['url_acta_legal'],

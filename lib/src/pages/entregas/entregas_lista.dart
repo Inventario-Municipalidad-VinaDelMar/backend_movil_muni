@@ -1,8 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:frontend_movil_muni/config/router/main_router.dart';
 import 'package:frontend_movil_muni/src/pages/entregas/widgets/empty_full_screen.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -25,7 +27,7 @@ class EntregasLista extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.blue[600],
         title: Text(
-          'Entregadas realizadas',
+          'Seleccione una entrega',
           style: textStyles.h4.copyWith(
             fontWeight: FontWeight.normal,
             color: Colors.white,
@@ -41,24 +43,24 @@ class EntregasLista extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (envio!.entregas.isNotEmpty)
-              Row(
-                children: [
-                  Icon(MdiIcons.fileArrowUpDownOutline),
-                  SizedBox(width: size.width * 0.03),
-                  Text(
-                    'Adjunte acta legal',
-                    style: textStyles.p.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
+            // if (envio!.entregas.isNotEmpty)
+            //   Row(
+            //     children: [
+            //       Icon(MdiIcons.fileArrowUpDownOutline),
+            //       SizedBox(width: size.width * 0.03),
+            //       Text(
+            //         'Adjunte acta legal',
+            //         style: textStyles.p.copyWith(
+            //           fontWeight: FontWeight.w500,
+            //           color: Colors.black87,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
             // SizedBox(height: size.height * 0.013),
             // ShadBadge(child: Text(envio!.)),
             // SizedBox(height: size.height * 0.05),
-            SizedBox(height: size.height * 0.03),
+            SizedBox(height: size.height * 0.01),
             Expanded(
               child: SizedBox(
                 child: envio!.entregas.isEmpty
@@ -243,18 +245,20 @@ class EntregasLista extends StatelessWidget {
                                                 ],
                                               ),
                                               ShadButton(
+                                                onPressed: () => context.push(
+                                                    '/entregas/$idEnvio/list-entregas/${entrega.id}'),
                                                 height: size.height * 0.035,
                                                 width: double.infinity,
                                                 size: ShadButtonSize.sm,
                                                 icon: Text(
-                                                  'Actualizar',
+                                                  'Adjuntar',
                                                   style:
                                                       textStyles.small.copyWith(
                                                     color: Colors.white,
                                                   ),
                                                 ),
                                                 child: Icon(
-                                                  MdiIcons.arrowRightThick,
+                                                  MdiIcons.cloudUpload,
                                                   color: Colors.white,
                                                 ),
                                               ),

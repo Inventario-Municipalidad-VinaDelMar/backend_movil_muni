@@ -20,4 +20,14 @@ class EnvioProvider
     var result = enviosLogisticos.where(findById);
     return result.isNotEmpty ? result.first : null;
   }
+
+  EntregaEnvio? findEntregaById(String idEnvio, String idEntrega) {
+    final envio = findEnvioById(idEnvio);
+    if (envio == null) {
+      return null;
+    }
+    findById(obj) => obj.id == idEntrega;
+    var result = envio.entregas.where(findById);
+    return result.isNotEmpty ? result.first : null;
+  }
 }

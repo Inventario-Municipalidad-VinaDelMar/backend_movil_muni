@@ -1,3 +1,5 @@
+export 'package:frontend_movil_muni/src/pages/entregas/entregas_adjuntar_documento.dart';
+
 export 'package:frontend_movil_muni/src/pages/entregas/entregas_fomulario_incidente.dart';
 export 'package:frontend_movil_muni/src/pages/entregas/entregas_formulario.dart';
 

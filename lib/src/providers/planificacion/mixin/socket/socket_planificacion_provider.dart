@@ -178,6 +178,8 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
     for (var event in events) {
       switch (event) {
         case PlanificacionEvent.loadSolicitudEnvio:
+          solicitudEnCurso = null;
+          notifyListeners();
           socket?.off(SocketEvents.loadSolicitud);
           break;
         case PlanificacionEvent.planificacionActual:

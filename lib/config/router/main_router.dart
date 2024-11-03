@@ -37,6 +37,19 @@ final mainRouter = GoRouter(
               idEnvio: idEnvio,
             );
           },
+          routes: [
+            GoRoute(
+              path: ':idEntrega',
+              builder: (context, state) {
+                final idEnvio = state.pathParameters['id'] ?? '';
+                final idEntrega = state.pathParameters['idEntrega'] ?? '';
+                return EntregasAdjuntarDocumento(
+                  idEntrega: idEntrega,
+                  idEnvio: idEnvio,
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: ':id/add-entrega',

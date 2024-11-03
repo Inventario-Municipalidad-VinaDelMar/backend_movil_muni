@@ -7,6 +7,7 @@ UserProvider _userProvider = UserProvider();
 mixin RestEntregaProvider on ChangeNotifier {
   late LogisticaRepository _logisticaRepository;
   bool creatingEntrega = false;
+  bool uploadingFile = false;
   // bool completingEnvio = false;
 
   void initRest() {
@@ -23,9 +24,24 @@ mixin RestEntregaProvider on ChangeNotifier {
 
       await _logisticaRepository.addNewEntrega(entregaData);
     } catch (error) {
-      print('Error crear movimiento: $error');
+      print('Error al crear la entrega: $error');
     } finally {
       creatingEntrega = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> uploadFile(Map<String, dynamic> entregaData) async {
+    uploadingFile = true;
+    notifyListeners();
+
+    try {
+      await _logisticaRepository.uploadDocument(entregaData);
+    } catch (error) {
+      print('Error subir archivo: $error');
+      rethrow;
+    } finally {
+      uploadingFile = false;
       notifyListeners();
     }
   }

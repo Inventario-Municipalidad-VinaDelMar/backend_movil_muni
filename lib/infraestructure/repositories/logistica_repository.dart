@@ -35,4 +35,18 @@ class LogisticaRepository {
       throw Exception('Unknown error');
     }
   }
+
+  Future<void> uploadDocument(Map<String, dynamic> dataEntrega) async {
+    try {
+      await dio.post('/entregas/upload', data: dataEntrega);
+    } on DioException catch (error) {
+      print(error.message);
+      print(error.response?.data);
+      print(error.type);
+      throw Exception(error.response?.data['message'] ?? 'Unknown error');
+    } catch (error) {
+      print('Error desconocido: $error');
+      throw Exception('Unknown error');
+    }
+  }
 }
