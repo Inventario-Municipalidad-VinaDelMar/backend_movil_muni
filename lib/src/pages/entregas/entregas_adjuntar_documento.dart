@@ -43,6 +43,7 @@ class EntregasAdjuntarDocumento extends StatefulWidget {
 class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
   //?Variable para manejar el archivo
   FileInfo? fileLoaded;
+  bool loadingPickFile = false;
 
   @override
   Widget build(BuildContext context) {
@@ -83,18 +84,29 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
             SizedBox(height: size.height * 0.02),
             ..._buildBoxFileUpload(
               context,
+              loadingPickFile,
               fileLoaded,
               entrega!,
               //TODO: Funcion para cargar el archivo
               () async {
                 //1. Abrir administrador de files
+                setState(() {
+                  loadingPickFile = true;
+                });
                 FilePickerResult? result = await FilePicker.platform.pickFiles(
                   allowMultiple: false,
                   type: FileType.custom,
                   allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
-                );
+                ).then((value) {
+                  setState(() {
+                    loadingPickFile = false;
+                  });
+                });
                 //2. Validar los formatos permitidos, si falla mostrar popup
-                print("nombre: " + result!.names[0].toString());
+                if (result == null) {
+                  return; //El usuario cancelo la busqueda de file
+                }
+                print("nombre: " + result.names[0].toString());
                 int limite = 2097152;
                 double pesoFile = result.files[0].size.toDouble();
 
@@ -310,6 +322,7 @@ List<Widget> _buildHeaderInfo(BuildContext context) {
 
 List<Widget> _buildBoxFileUpload(
   BuildContext context,
+  bool pickingFile,
   FileInfo? file,
   EntregaEnvio entrega,
   void Function() onSetFile,
@@ -341,21 +354,38 @@ List<Widget> _buildBoxFileUpload(
                 height: size.height * 0.01,
               ),
               ShadButton.outline(
+                backgroundColor: Colors.transparent,
+                width: size.width * 0.5,
+                enabled: !pickingFile,
                 onPressed: () => onSetFile(),
                 decoration: ShadDecoration(
                   border: ShadBorder.all(
                     color: Colors.blue[700]!,
                   ),
                 ),
-                size: ShadButtonSize.sm,
+                // size: ShadButtonSize.sm,
+                icon: pickingFile
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: AnimateIcon(
+                          onTap: () {},
+                          // color: Colors.blue[500]!,
+                          iconType: IconType.continueAnimation,
+                          animateIcon: AnimateIcons.loading4,
+                        ),
+                      )
+                    : null,
                 child: Text(
-                  entrega.urlActaLegal != null
-                      ? file == null
-                          ? 'Resubir archivo'
-                          : 'Cambiar archivo resubido'
-                      : file == null
-                          ? 'Seleccione archivo'
-                          : 'Cambiar archivo',
+                  pickingFile
+                      ? 'Buscando...'
+                      : entrega.urlActaLegal != null
+                          ? file == null
+                              ? 'Resubir archivo'
+                              : 'Cambiar archivo resubido'
+                          : file == null
+                              ? 'Seleccione archivo'
+                              : 'Cambiar archivo',
                   style: textStyles.small.copyWith(
                     color: Colors.blue[700],
                   ),
