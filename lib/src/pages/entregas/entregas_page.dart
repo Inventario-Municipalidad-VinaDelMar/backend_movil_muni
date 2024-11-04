@@ -1,7 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
+import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class EntregaOption {
@@ -39,11 +42,15 @@ class _EntregasPageState extends State<EntregasPage> {
   late PageController _pageController;
   late int _pageSelected;
 
+  late EnvioProvider _envioProvider;
+
   List<EntregaOption> options = [];
 
   @override
   void initState() {
     super.initState();
+    _envioProvider = context.read<EnvioProvider>();
+    _envioProvider.connect([EnvioEvent.enviosByFecha]);
     _pageSelected = 0;
     _pageController = PageController(initialPage: 0);
   }
@@ -51,6 +58,7 @@ class _EntregasPageState extends State<EntregasPage> {
   @override
   void dispose() {
     _pageController.dispose();
+    _envioProvider.disconnect([EnvioEvent.enviosByFecha]);
     super.dispose();
   }
 
