@@ -204,27 +204,29 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   _buildCardHeader(envio, size, textStyles),
                   // SizedBox(height: size.height * 0.01),
                   _buildInfoRow(
-                      'Autorizado por: ', envio.autorizante, textStyles.p),
+                      'Autorizado por: ', envio.autorizante, textStyles),
                   _buildInfoRow('Fecha creación: ',
-                      fechaToLargeName(envio.fecha), textStyles.p),
+                      fechaToLargeName(envio.fecha), textStyles),
 
                   _buildInfoRow('Hora creacion: ',
-                      envio.getHoraCreacionFormatted(), textStyles.p),
-                  _buildInfoRowCustom('Tiempo en envío: ',
-                      envio.horaInicioEnvio!, textStyles.p),
+                      envio.getHoraCreacionFormatted(), textStyles),
+                  envio.horaInicioEnvio == null
+                      ? _buildInfoRow('Tiempo en envío: ', '-', textStyles)
+                      : _buildInfoRowCustom('Tiempo en envío: ',
+                          envio.horaInicioEnvio!, textStyles),
                   _buildInfoRow(
                     'Ultima entrega en: ',
                     envio.entregas.isEmpty
                         ? '-'
                         : envio.entregas.first.comedorSolidario,
-                    textStyles.p,
+                    textStyles,
                   ),
                   SizedBox(height: size.height * 0.02),
                   _buildEndHourRow(envio, textStyles),
                   _buildInfoRow(
                     'Entregas realizadas: ',
                     '${envio.entregas.length}',
-                    textStyles.p.copyWith(color: Colors.black),
+                    textStyles,
                   ),
                   const Divider(),
                   _buildProductsList(envio, size, textStyles),
@@ -322,15 +324,16 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildInfoRowCustom(String label, String value, TextStyle textStyle) {
+  Widget _buildInfoRowCustom(
+      String label, String value, ShadTextTheme textStyles) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: Row(
         children: [
           Text(
             label,
-            style: textStyle.copyWith(
-                fontWeight: FontWeight.w600, color: Colors.grey[800]),
+            style: textStyles.p
+                .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
           ),
           const Spacer(),
           TimeSinceWidget(hora: value)
@@ -339,20 +342,20 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, TextStyle textStyle) {
+  Widget _buildInfoRow(String label, String value, ShadTextTheme textStyles) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: Row(
         children: [
           Text(
             label,
-            style: textStyle.copyWith(
-                fontWeight: FontWeight.w600, color: Colors.grey[800]),
+            style: textStyles.p
+                .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
           ),
           const Spacer(),
           Text(
             value,
-            style: textStyle.copyWith(color: Colors.white),
+            style: textStyles.small.copyWith(color: Colors.white),
           ),
         ],
       ),
