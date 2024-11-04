@@ -63,7 +63,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   @override
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
-
+    Size size = MediaQuery.of(context).size;
     // Descomponemos la duración en horas, minutos y segundos
     final hours = difference.inHours;
     final minutes = difference.inMinutes % 60;
@@ -77,11 +77,17 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
           AnimatedDigitWidget(
             duration: Duration(milliseconds: 800),
             value: hours,
-            textStyle: textStyles.small.copyWith(color: Colors.white),
+            textStyle: textStyles.small.copyWith(
+              color: Colors.white,
+              fontSize: size.height * 0.018,
+            ),
           ),
           Text(
             hours == 1 ? " hora " : " horas ",
-            style: textStyles.small.copyWith(color: Colors.white),
+            style: textStyles.small.copyWith(
+              color: Colors.white,
+              fontSize: size.height * 0.018,
+            ),
           ),
         ],
 
@@ -90,11 +96,17 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
           AnimatedDigitWidget(
             duration: Duration(milliseconds: 800),
             value: minutes,
-            textStyle: textStyles.small.copyWith(color: Colors.white),
+            textStyle: textStyles.small.copyWith(
+              color: Colors.white,
+              fontSize: size.height * 0.018,
+            ),
           ),
           Text(
             minutes == 1 ? " minuto " : " minutos ",
-            style: textStyles.small.copyWith(color: Colors.white),
+            style: textStyles.small.copyWith(
+              color: Colors.white,
+              fontSize: size.height * 0.018,
+            ),
           ),
         ],
 
@@ -103,11 +115,17 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
           AnimatedDigitWidget(
             duration: Duration(milliseconds: 800),
             value: seconds,
-            textStyle: textStyles.small.copyWith(color: Colors.white),
+            textStyle: textStyles.small.copyWith(
+              color: Colors.white,
+              fontSize: size.height * 0.018,
+            ),
           ),
           Text(
             seconds == 1 ? " segundo" : " segundos",
-            style: textStyles.small.copyWith(color: Colors.white),
+            style: textStyles.small.copyWith(
+              color: Colors.white,
+              fontSize: size.height * 0.018,
+            ),
           ),
         ],
       ],

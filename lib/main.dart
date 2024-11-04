@@ -1,3 +1,4 @@
+import 'package:color_mesh/color_mesh.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/config/router/main_router.dart';
@@ -8,6 +9,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'src/providers/provider.dart';
 
 void main() async {
+  await MeshGradient.precacheShader();
   await Environment.initEnvironment();
   runApp(const MyApp());
 }
@@ -32,12 +34,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
             create: (_) => InventarioProvider()..initialize()),
       ],
-      child: ShadApp.router(
-        theme: AppTheme.getShadTheme(size),
-        themeMode: ThemeMode.light,
-        darkTheme: AppTheme.getDarkShadTheme(size),
-        routerConfig: mainRouter,
-        debugShowCheckedModeBanner: false,
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(1.0),
+        ),
+        child: ShadApp.router(
+          theme: AppTheme.getShadTheme(size),
+          themeMode: ThemeMode.light,
+          darkTheme: AppTheme.getDarkShadTheme(size),
+          routerConfig: mainRouter,
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

@@ -547,6 +547,7 @@ class __MovimientosListState extends State<_MovimientosList> {
                                 ),
                                 SizedBox(width: 10),
                                 Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
@@ -554,7 +555,9 @@ class __MovimientosListState extends State<_MovimientosList> {
                                       style: textStyles.p.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: size.height * 0.02,
                                       ),
+                                      // textScaler: TextScaler.linear(.7),
                                     ),
                                     Row(
                                       children: [
@@ -564,16 +567,21 @@ class __MovimientosListState extends State<_MovimientosList> {
                                             'Retiró ${movimiento.cantidadRetirada} de',
                                             style: textStyles.small.copyWith(
                                               color: Colors.grey[300],
+                                              fontSize: size.height * 0.017,
                                             ),
                                           ),
                                         ),
                                         // SizedBox(width: 10),
                                         ShadBadge(
                                           padding: EdgeInsets.symmetric(
-                                              vertical: 0, horizontal: 10),
+                                              vertical: size.height * 0.0025,
+                                              horizontal: 10),
                                           child: Text(
                                             movimiento.producto,
-                                            // style: textStyles.small.co,
+                                            style: textStyles.small.copyWith(
+                                              fontSize: size.height * 0.017,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         )
                                       ],

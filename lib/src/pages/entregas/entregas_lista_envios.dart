@@ -238,7 +238,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                     label: 'Ultima entrega en: ',
                     value: envio.entregas.isEmpty
                         ? '-'
-                        : envio.entregas.first.comedorSolidario,
+                        : envio.entregas.last.comedorSolidario,
                     textStyles: textStyles,
                     activateEllipsis: envio.entregas.isNotEmpty,
                   ),
@@ -349,14 +349,18 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
 
   Widget _buildInfoRowCustom(
       String label, String value, ShadTextTheme textStyles) {
+    Size size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: Row(
         children: [
           Text(
             label,
-            style: textStyles.p
-                .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
+            style: textStyles.p.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[800],
+              fontSize: size.height * 0.021,
+            ),
           ),
           const Spacer(),
           TimeSinceWidget(hora: value)
@@ -379,16 +383,21 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         children: [
           Text(
             label,
-            style: textStyles.p
-                .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
+            style: textStyles.p.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[800],
+              fontSize: size.height * 0.021,
+            ),
           ),
           const Spacer(),
           SizedBox(
             width: activateEllipsis ? size.width * 0.35 : null,
             child: Text(
               value,
-              style: textStyles.small
-                  .copyWith(color: keepBlack ? Colors.black : Colors.white),
+              style: textStyles.small.copyWith(
+                color: keepBlack ? Colors.black : Colors.white,
+                fontSize: size.height * 0.018,
+              ),
               overflow: activateEllipsis ? TextOverflow.ellipsis : null,
             ),
           ),
@@ -398,12 +407,16 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   }
 
   Widget _buildEndHourRow(EnvioLogisticoModel envio, ShadTextTheme textStyles) {
+    Size size = MediaQuery.of(context).size;
     return Row(
       children: [
         Text(
           'Hora de termino: ',
-          style: textStyles.p
-              .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
+          style: textStyles.p.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[800],
+            fontSize: size.height * 0.021,
+          ),
         ),
         const Spacer(),
         if (envio.horaFinalizacion == null)
@@ -422,7 +435,10 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         else
           Text(
             envio.getHoraCreacionFormatted(),
-            style: textStyles.p.copyWith(color: Colors.grey[600]),
+            style: textStyles.p.copyWith(
+              color: Colors.grey[600],
+              fontSize: size.height * 0.018,
+            ),
           ),
       ],
     );

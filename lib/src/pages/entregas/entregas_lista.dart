@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:color_mesh/color_mesh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/config/router/main_router.dart';
@@ -82,70 +83,109 @@ class EntregasLista extends StatelessWidget {
                                     bottom: size.height * 0.02,
                                   ),
                                   width: double.infinity,
-                                  height: size.height * 0.22,
+                                  height: size.height * 0.24,
                                   child: Row(
                                     children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.blue[700]!
-                                                  .withOpacity(0.25),
-                                              offset: Offset(2, 4),
-                                              blurRadius: 15,
-                                              spreadRadius: -3,
-                                            ),
-                                          ],
-                                          gradient: LinearGradient(
-                                            begin: Alignment.bottomLeft,
-                                            end: Alignment.centerRight,
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: AnimatedMeshGradientContainer(
+                                          gradient: MeshGradient(
                                             colors: [
-                                              Colors.blue[700]!,
-                                              Colors.blue[400]!,
+                                              Colors.blue[500]!,
+                                              Colors.blueAccent,
+                                              Colors.blueAccent[700]!,
+                                              Colors.blue,
+                                            ],
+                                            offsets: const [
+                                              Offset(0, 0), // topLeft
+                                              Offset(0, 1), // topRight
+                                              Offset(1, 0), // bottomLeft
+                                              Offset(1, 1), // bottomRight
                                             ],
                                           ),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        height: double.infinity,
-                                        width: size.width * 0.25,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(.3),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                              padding: EdgeInsets.all(8),
-                                              child: Icon(
-                                                entrega.urlActaLegal == null
-                                                    ? MdiIcons.folderAlert
-                                                    : MdiIcons.folderCheck,
-                                                color: entrega.urlActaLegal ==
-                                                        null
-                                                    ? Colors.orange[200]
-                                                    : Colors
-                                                        .lightGreenAccent[700],
-                                                size: 28,
-                                              ),
+                                          // decoration: BoxDecoration(
+                                          //   boxShadow: [
+                                          //     BoxShadow(
+                                          //       color: Colors.blue[700]!
+                                          //           .withOpacity(0.25),
+                                          //       offset: Offset(2, 4),
+                                          //       blurRadius: 15,
+                                          //       spreadRadius: -3,
+                                          //     ),
+                                          //   ],
+                                          // gradient: MeshGradient(
+                                          //   colors: [
+                                          //     Colors.blue[500]!,
+                                          //     Colors.blueAccent,
+                                          //     Colors.blue[700]!,
+                                          //     Colors.blue,
+                                          //   ],
+                                          //   offsets: const [
+                                          //     Offset(0, 0), // topLeft
+                                          //     Offset(0, 1), // topRight
+                                          //     Offset(1, 0), // bottomLeft
+                                          //     Offset(1, 1), // bottomRight
+                                          //   ],
+                                          // ),
+                                          // gradient: LinearGradient(
+                                          //   begin: Alignment.bottomLeft,
+                                          //   end: Alignment.centerRight,
+                                          //   colors: [
+                                          //     Colors.blue[700]!,
+                                          //     Colors.blue[400]!,
+                                          //   ],
+                                          // ),
+                                          //   borderRadius:
+                                          //       BorderRadius.circular(20),
+                                          // ),
+                                          // height: double.infinity,
+                                          // width: size.width * 0.25,
+                                          duration:
+                                              Duration(milliseconds: 2000),
+                                          child: SizedBox(
+                                            height: double.infinity,
+                                            width: size.width * 0.25,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(.3),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15)),
+                                                  padding: EdgeInsets.all(8),
+                                                  child: Icon(
+                                                    entrega.urlActaLegal == null
+                                                        ? MdiIcons.folderAlert
+                                                        : MdiIcons.folderCheck,
+                                                    color: entrega
+                                                                .urlActaLegal ==
+                                                            null
+                                                        ? Colors
+                                                            .deepOrangeAccent
+                                                        : Colors.lime,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    height: size.height * 0.01),
+                                                Text(
+                                                  entrega.urlActaLegal == null
+                                                      ? 'Acta legal vacía'
+                                                      : 'Acta legal cargada',
+                                                  textAlign: TextAlign.center,
+                                                  style:
+                                                      textStyles.small.copyWith(
+                                                    color: Colors.white
+                                                        .withOpacity(.85),
+                                                  ),
+                                                )
+                                              ],
                                             ),
-                                            SizedBox(
-                                                height: size.height * 0.01),
-                                            Text(
-                                              entrega.urlActaLegal == null
-                                                  ? 'Acta legal vacía'
-                                                  : 'Acta legal cargada',
-                                              textAlign: TextAlign.center,
-                                              style: textStyles.small.copyWith(
-                                                color: Colors.white
-                                                    .withOpacity(.85),
-                                              ),
-                                            )
-                                          ],
+                                          ),
                                         ),
                                       ),
                                       SizedBox(width: size.height * 0.03),
@@ -189,11 +229,17 @@ class EntregasLista extends StatelessWidget {
                                                     MdiIcons.mapMarker,
                                                     color: Colors.black45,
                                                   ),
-                                                  Text(
-                                                    entrega.comedorSolidario,
-                                                    style:
-                                                        textStyles.p.copyWith(
-                                                      color: Colors.black45,
+                                                  Flexible(
+                                                    child: Text(
+                                                      entrega.comedorSolidario,
+                                                      style:
+                                                          textStyles.p.copyWith(
+                                                        color: Colors.black45,
+                                                        fontSize:
+                                                            size.height * 0.02,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   )
                                                 ],
@@ -208,7 +254,11 @@ class EntregasLista extends StatelessWidget {
                                                   style:
                                                       textStyles.small.copyWith(
                                                     color: Colors.black45,
+                                                    fontSize:
+                                                        size.height * 0.015,
                                                   ),
+                                                  // overflow:
+                                                  //     TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               Spacer(),
@@ -239,6 +289,8 @@ class EntregasLista extends StatelessWidget {
                                                           .copyWith(
                                                         color: Colors.blue
                                                             .withOpacity(.9),
+                                                        fontSize:
+                                                            size.height * 0.017,
                                                       ),
                                                     ),
                                                   ),
@@ -247,7 +299,7 @@ class EntregasLista extends StatelessWidget {
                                               ShadButton(
                                                 onPressed: () => context.push(
                                                     '/entregas/$idEnvio/list-entregas/${entrega.id}'),
-                                                height: size.height * 0.035,
+                                                height: size.height * 0.03,
                                                 width: double.infinity,
                                                 size: ShadButtonSize.sm,
                                                 icon: Text(

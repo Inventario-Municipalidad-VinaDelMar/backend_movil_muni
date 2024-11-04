@@ -106,7 +106,7 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                 if (result == null) {
                   return; //El usuario cancelo la busqueda de file
                 }
-                print("nombre: " + result.names[0].toString());
+                print("nombre: " + result!.names[0].toString());
                 int limite = 2097152;
                 double pesoFile = result.files[0].size.toDouble();
 

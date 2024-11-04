@@ -370,7 +370,10 @@ class _CardAction extends StatelessWidget {
           duration: Duration(milliseconds: 200),
           delay: Duration(milliseconds: delay),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            padding: EdgeInsets.symmetric(
+              horizontal: size.width * 0.03,
+              vertical: size.height * 0.02,
+            ),
             height: double.infinity,
             width: (size.width - 30) * 0.48,
             decoration: BoxDecoration(
@@ -419,6 +422,7 @@ class _CardAction extends StatelessWidget {
                       style: textStyles.small.copyWith(
                         color: selected ? Colors.white : Colors.grey[400],
                         fontWeight: FontWeight.bold,
+                        fontSize: size.height * 0.018,
                       ),
                     ),
                     SizedBox(height: size.height * 0.015),
@@ -426,6 +430,7 @@ class _CardAction extends StatelessWidget {
                       description,
                       style: textStyles.small.copyWith(
                         color: selected ? Colors.white : Colors.grey[400],
+                        fontSize: size.height * 0.0175,
                       ),
                     ),
                   ],
