@@ -165,6 +165,9 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         route = '/entregas/${envio.id}/list-entregas';
         break;
     }
+    double top = MediaQuery.of(context).viewPadding.top;
+    double bottom = MediaQuery.of(context).viewPadding.bottom;
+    double perfectH = (size.height) - (top + bottom);
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -190,48 +193,67 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                 clipper: CurvedClipper(),
                 child: Container(
                   width: size.width * 0.78,
-                  height: size.height * 0.65,
+                  height: perfectH * 0.65,
                   color:
                       Colors.blue[700], // Azul para mantener el estilo actual
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                bottom: perfectH * 0.02,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildCardHeader(envio, size, textStyles),
                   // SizedBox(height: size.height * 0.01),
                   _buildInfoRow(
-                      'Autorizado por: ', envio.autorizante, textStyles),
-                  _buildInfoRow('Fecha creación: ',
-                      fechaToLargeName(envio.fecha), textStyles),
+                    label: 'Autorizado por: ',
+                    value: envio.autorizante,
+                    textStyles: textStyles,
+                  ),
+                  _buildInfoRow(
+                    label: 'Fecha creación: ',
+                    value: fechaToLargeName(envio.fecha),
+                    textStyles: textStyles,
+                  ),
 
-                  _buildInfoRow('Hora creacion: ',
-                      envio.getHoraCreacionFormatted(), textStyles),
+                  _buildInfoRow(
+                    label: 'Hora creacion: ',
+                    value: envio.getHoraCreacionFormatted(),
+                    textStyles: textStyles,
+                  ),
                   envio.horaInicioEnvio == null
-                      ? _buildInfoRow('Tiempo en envío: ', '-', textStyles)
+                      ? _buildInfoRow(
+                          label: 'Tiempo en envío: ',
+                          value: '-',
+                          textStyles: textStyles,
+                        )
                       : _buildInfoRowCustom('Tiempo en envío: ',
                           envio.horaInicioEnvio!, textStyles),
                   _buildInfoRow(
-                    'Ultima entrega en: ',
-                    envio.entregas.isEmpty
+                    label: 'Ultima entrega en: ',
+                    value: envio.entregas.isEmpty
                         ? '-'
                         : envio.entregas.first.comedorSolidario,
-                    textStyles,
+                    textStyles: textStyles,
+                    activateEllipsis: envio.entregas.isNotEmpty,
                   ),
-                  SizedBox(height: size.height * 0.02),
+                  SizedBox(height: size.height * 0.03),
                   _buildEndHourRow(envio, textStyles),
                   _buildInfoRow(
-                    'Entregas realizadas: ',
-                    '${envio.entregas.length}',
-                    textStyles,
+                    label: 'Entregas realizadas: ',
+                    value: '${envio.entregas.length}',
+                    textStyles: textStyles,
+                    keepBlack: true,
                   ),
                   const Divider(),
                   _buildProductsList(envio, size, textStyles),
                   // const Divider(),
-                  SizedBox(height: 5),
+                  SizedBox(height: size.height * 0.01),
                   ShadButton(
                     enabled: envio.productos.isNotEmpty &&
                         envio.status != EnvioStatus.cargando &&
@@ -288,6 +310,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     }
 
     final statusStyle = _getStatusStyle(envio.status);
+    Size size = MediaQuery.of(context).size;
     return Row(
       children: [
         Container(
@@ -301,7 +324,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
               Icon(
                 statusStyle['icon'],
                 color: statusStyle['textColor'],
-                size: 18,
+                size: size.height * 0.03,
               ),
               const SizedBox(width: 6),
               Text(
@@ -342,7 +365,14 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, ShadTextTheme textStyles) {
+  Widget _buildInfoRow({
+    required String label,
+    required String value,
+    required ShadTextTheme textStyles,
+    bool keepBlack = false,
+    bool activateEllipsis = false,
+  }) {
+    Size size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: Row(
@@ -353,9 +383,14 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                 .copyWith(fontWeight: FontWeight.w600, color: Colors.grey[800]),
           ),
           const Spacer(),
-          Text(
-            value,
-            style: textStyles.small.copyWith(color: Colors.white),
+          SizedBox(
+            width: activateEllipsis ? size.width * 0.35 : null,
+            child: Text(
+              value,
+              style: textStyles.small
+                  .copyWith(color: keepBlack ? Colors.black : Colors.white),
+              overflow: activateEllipsis ? TextOverflow.ellipsis : null,
+            ),
           ),
         ],
       ),
@@ -438,12 +473,12 @@ class CurvedClipper extends CustomClipper<Path> {
     Path path = Path();
 
     // Empezamos desde la parte superior izquierda
-    path.lineTo(size.width * 0.3, 0); // Primer punto (izquierda)
+    path.lineTo(size.width * 0.26, 0); // Primer punto (izquierda)
 
     // Curva hacia abajo
     path.quadraticBezierTo(
       0, size.height * 0.56, // Primer punto de control
-      size.width * 0.52, size.height * 0.5, // Primer punto de destino
+      size.width * 0.55, size.height * 0.5, // Primer punto de destino
     );
 
     // Segunda curva hacia arriba
