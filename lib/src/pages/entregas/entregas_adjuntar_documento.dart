@@ -101,6 +101,7 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                   setState(() {
                     loadingPickFile = false;
                   });
+                  return value;
                 });
                 //2. Validar los formatos permitidos, si falla mostrar popup
                 if (result == null) {
@@ -115,8 +116,10 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                   //TODO mostrar toaster con error
                 } else {
                   //3. Crear la entidad FileInfo con el file elegido
+                  double pesoEnMB =
+                      double.parse((pesoFile / 1000000).toStringAsFixed(3));
                   final file = FileInfo(
-                    peso: pesoFile,
+                    peso: pesoEnMB,
                     nombreOriginal: result.names[0] as String,
                     file: result.files[0],
                   );
@@ -262,10 +265,14 @@ List<Widget> _buildFileLoaded(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  file.nombreOriginal,
-                  style: textStyles.small.copyWith(
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: size.width * 0.5,
+                  child: Text(
+                    file.nombreOriginal,
+                    style: textStyles.small.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(
