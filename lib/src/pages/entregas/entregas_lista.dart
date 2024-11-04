@@ -142,48 +142,55 @@ class EntregasLista extends StatelessWidget {
                                           // width: size.width * 0.25,
                                           duration:
                                               Duration(milliseconds: 2000),
-                                          child: SizedBox(
-                                            height: double.infinity,
-                                            width: size.width * 0.25,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white
-                                                          .withOpacity(.3),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15)),
-                                                  padding: EdgeInsets.all(8),
-                                                  child: Icon(
+                                          child: FadeIn(
+                                            duration:
+                                                Duration(milliseconds: 400),
+                                            child: SizedBox(
+                                              height: double.infinity,
+                                              width: size.width * 0.25,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(.3),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15)),
+                                                    padding: EdgeInsets.all(8),
+                                                    child: Icon(
+                                                      entrega.urlActaLegal ==
+                                                              null
+                                                          ? MdiIcons.folderAlert
+                                                          : MdiIcons
+                                                              .folderCheck,
+                                                      color: entrega
+                                                                  .urlActaLegal ==
+                                                              null
+                                                          ? Colors
+                                                              .deepOrangeAccent
+                                                          : Colors.lime,
+                                                      size: 28,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                      height:
+                                                          size.height * 0.01),
+                                                  Text(
                                                     entrega.urlActaLegal == null
-                                                        ? MdiIcons.folderAlert
-                                                        : MdiIcons.folderCheck,
-                                                    color: entrega
-                                                                .urlActaLegal ==
-                                                            null
-                                                        ? Colors
-                                                            .deepOrangeAccent
-                                                        : Colors.lime,
-                                                    size: 28,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                    height: size.height * 0.01),
-                                                Text(
-                                                  entrega.urlActaLegal == null
-                                                      ? 'Acta legal vacía'
-                                                      : 'Acta legal cargada',
-                                                  textAlign: TextAlign.center,
-                                                  style:
-                                                      textStyles.small.copyWith(
-                                                    color: Colors.white
-                                                        .withOpacity(.85),
-                                                  ),
-                                                )
-                                              ],
+                                                        ? 'Acta legal vacía'
+                                                        : 'Acta legal cargada',
+                                                    textAlign: TextAlign.center,
+                                                    style: textStyles.small
+                                                        .copyWith(
+                                                      color: Colors.white
+                                                          .withOpacity(.85),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),

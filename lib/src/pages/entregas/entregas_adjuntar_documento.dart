@@ -362,7 +362,7 @@ List<Widget> _buildBoxFileUpload(
               ),
               ShadButton.outline(
                 backgroundColor: Colors.transparent,
-                width: size.width * 0.5,
+                width: size.width * 0.56,
                 enabled: !pickingFile,
                 onPressed: () => onSetFile(),
                 decoration: ShadDecoration(
