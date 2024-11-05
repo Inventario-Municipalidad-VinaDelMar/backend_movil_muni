@@ -5,16 +5,16 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 
 class TimeSinceWidget extends StatefulWidget {
   final String hora;
-
-  const TimeSinceWidget({Key? key, required this.hora}) : super(key: key);
+  const TimeSinceWidget({super.key, required this.hora});
 
   @override
-  _TimeSinceWidgetState createState() => _TimeSinceWidgetState();
+  State<TimeSinceWidget> createState() => _TimeSinceWidgetState();
 }
 
 class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   late DateTime targetTime;
   late Duration difference;
+  bool disposed = false;
 
   @override
   void initState() {
@@ -31,9 +31,11 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   }
 
   void _updateDifference() {
-    setState(() {
-      difference = DateTime.now().difference(targetTime);
-    });
+    if (mounted && !disposed) {
+      setState(() {
+        difference = DateTime.now().difference(targetTime);
+      });
+    }
   }
 
   void _scheduleFirstUpdate() {
@@ -42,8 +44,10 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
     final initialDelay = Duration(seconds: secondsToNextMinute);
 
     Future.delayed(initialDelay, () {
-      _updateDifference();
-      _scheduleRegularUpdates();
+      if (!disposed) {
+        _updateDifference();
+        _scheduleRegularUpdates();
+      }
     });
   }
 
@@ -53,11 +57,17 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
         : const Duration(minutes: 1);
 
     Future.delayed(refreshInterval, () {
-      if (mounted) {
+      if (mounted && !disposed) {
         _updateDifference();
         _scheduleRegularUpdates();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    disposed = true;
+    super.dispose();
   }
 
   @override

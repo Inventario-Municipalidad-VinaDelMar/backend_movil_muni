@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:animated_digit/animated_digit.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -826,7 +827,14 @@ class _InfoEnvioPreview extends StatelessWidget {
                               ),
                               Spacer(),
                               ShadBadge(
-                                child: Text('${carga.cantidad}'),
+                                child: AnimatedDigitWidget(
+                                  duration: Duration(milliseconds: 400),
+                                  value: carga.cantidad,
+                                  textStyle: textStyles.small.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               )
                             ],
                           ),

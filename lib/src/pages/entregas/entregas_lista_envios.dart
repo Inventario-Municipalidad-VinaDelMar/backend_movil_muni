@@ -111,26 +111,31 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   Widget _buildShadBadge(ShadTextTheme textStyles) {
     String text;
     IconData icon;
+    Color color;
 
     // Configuramos el texto y el icono en función del valor de widget.finalidad
     switch (widget.finalidad) {
       case EntregasFinalidad.incidente:
         text = 'Para registrar un INCIDENTE';
         icon = MdiIcons.truckAlertOutline;
+        color = Colors.orange[600]!;
         break;
       case EntregasFinalidad.registro:
         text = 'Para registrar una NUEVA ENTREGA';
         icon = MdiIcons.packageCheck;
+        color = Colors.green[600]!;
         break;
       case EntregasFinalidad.actualizacion:
         text = 'Para adjuntar ACTA LEGAL de entrega';
         icon = MdiIcons.folderArrowUp;
+        color = Colors.purple[400]!;
         break;
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue[600],
+        color: color,
+        // color: Colors.blue[600],
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

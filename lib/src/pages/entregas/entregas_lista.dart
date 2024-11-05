@@ -70,24 +70,38 @@ class EntregasLista extends StatelessWidget {
                             'Aun no se registran entregas en este envio')
                     : ListView.builder(
                         physics: BouncingScrollPhysics(),
-                        itemCount: envio!.entregas.length,
+                        itemCount: envio.entregas.length,
                         itemBuilder: (context, i) {
                           final entrega = envio.entregas[i];
                           return FadeInRight(
                             duration: Duration(milliseconds: 200),
-                            delay: Duration(milliseconds: (i * 50) + 100),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.only(
-                                    bottom: size.height * 0.02,
+                            delay: Duration(milliseconds: (i * 150) + 100),
+                            child: Container(
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
                                   ),
-                                  width: double.infinity,
-                                  height: size.height * 0.24,
-                                  child: Row(
+                                ],
+                              ),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      // Sección del Icono de Acta Legal
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(12),
+                                          bottomLeft: Radius.circular(12),
+                                        ),
                                         child: AnimatedMeshGradientContainer(
                                           gradient: MeshGradient(
                                             colors: [
@@ -103,50 +117,13 @@ class EntregasLista extends StatelessWidget {
                                               Offset(1, 1), // bottomRight
                                             ],
                                           ),
-                                          // decoration: BoxDecoration(
-                                          //   boxShadow: [
-                                          //     BoxShadow(
-                                          //       color: Colors.blue[700]!
-                                          //           .withOpacity(0.25),
-                                          //       offset: Offset(2, 4),
-                                          //       blurRadius: 15,
-                                          //       spreadRadius: -3,
-                                          //     ),
-                                          //   ],
-                                          // gradient: MeshGradient(
-                                          //   colors: [
-                                          //     Colors.blue[500]!,
-                                          //     Colors.blueAccent,
-                                          //     Colors.blue[700]!,
-                                          //     Colors.blue,
-                                          //   ],
-                                          //   offsets: const [
-                                          //     Offset(0, 0), // topLeft
-                                          //     Offset(0, 1), // topRight
-                                          //     Offset(1, 0), // bottomLeft
-                                          //     Offset(1, 1), // bottomRight
-                                          //   ],
-                                          // ),
-                                          // gradient: LinearGradient(
-                                          //   begin: Alignment.bottomLeft,
-                                          //   end: Alignment.centerRight,
-                                          //   colors: [
-                                          //     Colors.blue[700]!,
-                                          //     Colors.blue[400]!,
-                                          //   ],
-                                          // ),
-                                          //   borderRadius:
-                                          //       BorderRadius.circular(20),
-                                          // ),
-                                          // height: double.infinity,
-                                          // width: size.width * 0.25,
                                           duration:
                                               Duration(milliseconds: 2000),
                                           child: FadeIn(
                                             duration:
                                                 Duration(milliseconds: 400),
                                             child: SizedBox(
-                                              height: double.infinity,
+                                              height: size.height * 0.185,
                                               width: size.width * 0.25,
                                               child: Column(
                                                 mainAxisAlignment:
@@ -195,147 +172,133 @@ class EntregasLista extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: size.height * 0.03),
+                                      SizedBox(width: 12),
+
+                                      // Información principal
                                       Expanded(
-                                        child: SizedBox(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            top: size.height * 0.01,
+                                          ),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    '${entrega.hora.split(':')[0]}:${entrega.hora.split(':')[1]} ${entrega.getMedioDia()}',
-                                                    style: textStyles.h4,
-                                                  ),
-                                                  Spacer(),
-                                                  Container(
-                                                    width: size.height * 0.01,
-                                                    height: size.height * 0.01,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.blue
-                                                          .withOpacity(.3),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: size.width * 0.01,
-                                                  ),
-                                                  Text(
-                                                    '${entrega.productosEntregados} productos',
-                                                    style: textStyles.small
-                                                        .copyWith(
-                                                      color: Colors.black45,
-                                                    ),
-                                                  )
-                                                ],
+                                              SizedBox(
+                                                width: double.infinity,
+                                                height: size.height * 0.033,
+                                                child: Text(
+                                                  '${entrega.hora.split(':')[0]}:${entrega.hora.split(':')[1]} ${entrega.getMedioDia()}',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                               ),
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    MdiIcons.mapMarker,
-                                                    color: Colors.black45,
-                                                  ),
-                                                  Flexible(
-                                                    child: Text(
-                                                      entrega.comedorSolidario,
-                                                      style:
-                                                          textStyles.p.copyWith(
-                                                        color: Colors.black45,
-                                                        fontSize:
-                                                            size.height * 0.02,
+                                              SizedBox(height: 4),
+                                              Text(
+                                                '${entrega.productosEntregados} productos',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black54),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Container(
+                                                padding: EdgeInsets.only(
+                                                  right: size.width * 0.15,
+                                                ),
+                                                width: double.infinity,
+                                                height: size.height * 0.11,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Icon(MdiIcons.mapMarker,
+                                                            size: 16,
+                                                            color: Colors.blue),
+                                                        SizedBox(width: 0),
+                                                        Flexible(
+                                                          child: Text(
+                                                            entrega
+                                                                .comedorSolidario,
+                                                            style: TextStyle(
+                                                                fontSize: 14,
+                                                                color: Colors
+                                                                    .black87),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Text(
+                                                      entrega.comedorDireccion,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black54,
                                                       ),
+                                                      maxLines: 3,
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                     ),
-                                                  )
-                                                ],
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                  left: size.width * 0.07,
-                                                  top: size.height * 0.006,
+                                                    SizedBox(height: 8),
+                                                  ],
                                                 ),
-                                                child: Text(
-                                                  entrega.comedorDireccion,
-                                                  style:
-                                                      textStyles.small.copyWith(
-                                                    color: Colors.black45,
-                                                    fontSize:
-                                                        size.height * 0.015,
-                                                  ),
-                                                  // overflow:
-                                                  //     TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              Spacer(),
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    MdiIcons.accountCircle,
-                                                    color: Colors.blue
-                                                        .withOpacity(.4),
-                                                    size: 30,
-                                                  ),
-                                                  SizedBox(
-                                                      width: size.width * 0.03),
-                                                  Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 15,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(25),
-                                                        color: Colors.blue
-                                                            .withOpacity(.2)),
-                                                    child: Text(
-                                                      entrega.realizador,
-                                                      style: textStyles.small
-                                                          .copyWith(
-                                                        color: Colors.blue
-                                                            .withOpacity(.9),
-                                                        fontSize:
-                                                            size.height * 0.017,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              ShadButton(
-                                                onPressed: () => context.push(
-                                                    '/entregas/$idEnvio/list-entregas/${entrega.id}'),
-                                                height: size.height * 0.03,
-                                                width: double.infinity,
-                                                size: ShadButtonSize.sm,
-                                                icon: Text(
-                                                  'Adjuntar',
-                                                  style:
-                                                      textStyles.small.copyWith(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                child: Icon(
-                                                  MdiIcons.cloudUpload,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
+                                              )
+                                              // Sección del Realizador
                                             ],
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: size.height * 0.02),
-                                  child: Divider(
-                                    color: Colors.black12,
+                                  Positioned(
+                                    top: size.height * 0.005,
+                                    right: size.width * 0.015,
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        entrega.realizador,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.blue[900],
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Positioned(
+                                    right: size.width * 0.025,
+                                    bottom: size.height * 0.03,
+                                    child: Container(
+                                      width: size.width * 0.1,
+                                      height: size.width * 0.1,
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue[500],
+                                        borderRadius: BorderRadius.circular(5),
+                                        // shape: BoxShape.circle,
+                                      ),
+                                      child: IconButton(
+                                        icon: Icon(
+                                          MdiIcons.cloudUpload,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                        onPressed: () => context.push(
+                                          '/entregas/$idEnvio/list-entregas/${entrega.id}',
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           );
                         },
