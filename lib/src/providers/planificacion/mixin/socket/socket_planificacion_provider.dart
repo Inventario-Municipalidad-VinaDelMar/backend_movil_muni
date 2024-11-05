@@ -43,14 +43,18 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
     //Añadir mas si creas mas evento
   };
 
-  void connect(List<PlanificacionEvent> events,
-      {String? idDetalle,
-      void Function(SolicitudEnvioModel)? onSolicitudReceived}) {
+  void connect(
+    List<PlanificacionEvent> events, {
+    String? idDetalle,
+    void Function(SolicitudEnvioModel)? onSolicitudReceived,
+    void Function()? playSound,
+  }) {
     _clearListeners(events);
     _registerListeners(
       events,
       idDetalle: idDetalle,
       onSolicitudReceived: onSolicitudReceived,
+      playSound: playSound,
     );
   }
 
@@ -105,6 +109,7 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
     List<PlanificacionEvent> events, {
     String? idDetalle,
     void Function(SolicitudEnvioModel)? onSolicitudReceived,
+    void Function()? playSound,
   }) {
     if (socket == null) return;
     for (var event in events) {
@@ -137,6 +142,7 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
               },
               extraAction: (fromApi, entity) {
                 late bool envioPrevio;
+                bool completeOne = false;
                 if (planificacionActual != null &&
                     entity.envioIniciado == null) {
                   envioPrevio = planificacionActual?.envioIniciado != null;
@@ -146,6 +152,19 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
                 if (envioPrevio) {
                   initWaitingTime();
                 }
+                planificacionActual?.detalles.forEach((e) {
+                  for (var ed in entity.detalles) {
+                    if (e.id == ed.id) {
+                      if (!e.isComplete && ed.isComplete) {
+                        completeOne = true;
+                        break; // Sale del bucle
+                      }
+                    }
+                  }
+                });
+
+                if (playSound == null || !completeOne) return;
+                playSound();
               });
           break;
         case PlanificacionEvent.detallesTakenLoad:

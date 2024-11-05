@@ -24,6 +24,8 @@ class EnviosPage extends StatefulWidget {
 
 class _EnviosPageState extends State<EnviosPage> {
   late PlanificacionProvider _planificacionProvider;
+  final player = AudioPlayer();
+
   @override
   void initState() {
     _planificacionProvider = context.read<PlanificacionProvider>();
@@ -34,6 +36,7 @@ class _EnviosPageState extends State<EnviosPage> {
         PlanificacionEvent.detallesTakenLoad,
       ],
       onSolicitudReceived: showToastOnSolicitudReceived,
+      playSound: playSound,
     );
     super.initState();
   }
@@ -47,6 +50,10 @@ class _EnviosPageState extends State<EnviosPage> {
     ]);
 
     super.dispose();
+  }
+
+  void playSound() async {
+    await player.play(AssetSource('sounds/notification.wav'));
   }
 
   void showToastOnSolicitudReceived(SolicitudEnvioModel solicitud) {
@@ -63,23 +70,10 @@ class _EnviosPageState extends State<EnviosPage> {
     //final colors = ShadTheme.of(context).colorScheme;
     final textStyles = ShadTheme.of(context).textTheme;
     final planificacionProvider = context.watch<PlanificacionProvider>();
-    final player = AudioPlayer();
-
-    // Método para reproducir el sonido
-    void playSound() async {
-      await player.play(AssetSource('sounds/notification.wav'));
-    }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        actions: [
-          ElevatedButton(
-              onPressed: () {
-                playSound();
-              },
-              child: Text('ola'))
-        ],
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
