@@ -70,6 +70,10 @@ flutter:
     - assets/logos/
     - .env
     - assets/sounds/notification.wav
+    - assets/sounds/negative.wav
+    - assets/sounds/negative2.wav
+    - assets/sounds/positive.wav
+    - assets/sounds/uploadfile.wav
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see

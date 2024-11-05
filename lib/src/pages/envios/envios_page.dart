@@ -52,8 +52,8 @@ class _EnviosPageState extends State<EnviosPage> {
     super.dispose();
   }
 
-  void playSound() async {
-    await player.play(AssetSource('sounds/notification.wav'));
+  void playSound(String sound) async {
+    await player.play(AssetSource('sounds/$sound'));
   }
 
   void showToastOnSolicitudReceived(SolicitudEnvioModel solicitud) {

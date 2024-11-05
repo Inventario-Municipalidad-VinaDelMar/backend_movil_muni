@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
@@ -7,6 +8,11 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 void handleToastSolicitud(SolicitudEnvioModel solicitud, BuildContext context) {
   //*Este provider es un singleton, cada instancia se refiere a la misma
   UserProvider userProvider = UserProvider();
+  final player = AudioPlayer();
+  String sound = 'positive.wav';
+  void playSound(String sound) async {
+    await player.play(AssetSource('sounds/$sound'));
+  }
 
   late String message;
   late IconData icono;
@@ -21,12 +27,14 @@ void handleToastSolicitud(SolicitudEnvioModel solicitud, BuildContext context) {
     case SolicitudStatus.rechaza:
       color = Colors.red[500]!;
       icono = MdiIcons.closeCircle;
+      sound = 'negative2.wav';
       message =
           '${userProvider.user!.id == solicitud.solicitante.id ? 'TÚ' : 'La'} solicitud fue rechazada';
       break;
     case SolicitudStatus.expirada:
       icono = Icons.info_rounded;
       color = Colors.orange[500]!;
+      sound = 'negative.wav';
       message =
           '${userProvider.user!.id == solicitud.solicitante.id ? 'TÚ' : 'La'} solicitud ha expirado';
       break;
@@ -35,6 +43,7 @@ void handleToastSolicitud(SolicitudEnvioModel solicitud, BuildContext context) {
   Size size = MediaQuery.of(context).size;
   final textStyles = ShadTheme.of(context).textTheme;
   final colors = ShadTheme.of(context).colorScheme;
+  playSound(sound);
   showShadDialog(
     context: context,
     builder: (context) => ShadDialog.alert(

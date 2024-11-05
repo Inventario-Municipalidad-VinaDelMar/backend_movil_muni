@@ -47,7 +47,7 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
     List<PlanificacionEvent> events, {
     String? idDetalle,
     void Function(SolicitudEnvioModel)? onSolicitudReceived,
-    void Function()? playSound,
+    void Function(String)? playSound,
   }) {
     _clearListeners(events);
     _registerListeners(
@@ -109,7 +109,7 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
     List<PlanificacionEvent> events, {
     String? idDetalle,
     void Function(SolicitudEnvioModel)? onSolicitudReceived,
-    void Function()? playSound,
+    void Function(String)? playSound,
   }) {
     if (socket == null) return;
     for (var event in events) {
@@ -164,7 +164,7 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
                 });
 
                 if (playSound == null || !completeOne) return;
-                playSound();
+                playSound('notification.wav');
               });
           break;
         case PlanificacionEvent.detallesTakenLoad:
