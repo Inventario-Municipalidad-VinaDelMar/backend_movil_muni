@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
-import 'package:frontend_movil_muni/src/pages/entregas/widgets/empty_full_screen.dart';
+import 'package:frontend_movil_muni/src/pages/entregas/widgets/common/empty_full_screen.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';

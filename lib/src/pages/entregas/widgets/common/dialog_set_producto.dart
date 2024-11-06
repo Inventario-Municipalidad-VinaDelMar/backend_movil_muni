@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/entregas/entrega_provider.dart';
+import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class DialogSetProducto extends StatelessWidget {
+  final bool isDelivey;
   final GlobalKey<ShadFormState> formKey;
   final ProductoEnvio cargaSelected;
   final List<ProductoEnvio> productos;
@@ -21,6 +23,7 @@ class DialogSetProducto extends StatelessWidget {
     required this.idEnvio,
     required this.onTap,
     required this.productos,
+    required this.isDelivey,
   });
 
   @override
@@ -28,6 +31,7 @@ class DialogSetProducto extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
     final entregaProvider = context.watch<EntregaProvider>();
+    final envioProvider = context.watch<EnvioProvider>();
     return ShadDialog.alert(
       backgroundColor: Colors.grey[100],
       removeBorderRadiusWhenTiny: false,
@@ -95,9 +99,10 @@ class DialogSetProducto extends StatelessWidget {
               ),
               if (cargaSelected.cantidad > 0)
                 GenericTextInput(
-                  labelText: 'Cantidad entregada',
+                  labelText:
+                      isDelivey ? 'Cantidad entregada' : 'Cantidad afectada',
                   placeHolder: 'Total disponible ${cargaSelected.cantidad}',
-                  id: 'cantidadEntregada',
+                  id: 'cantidad',
                   inputType: TextInputType.number,
                   // error: (p0) {},
                   validator: (v) {
@@ -146,16 +151,19 @@ class DialogSetProducto extends StatelessWidget {
             if (!formKey.currentState!.saveAndValidate()) {
               return;
             }
-            entregaProvider.addOneProduct(
-              idEnvio,
-              ProductoEnvio(
-                producto: cargaSelected.producto,
-                productoId: cargaSelected.productoId,
-                urlImagen: cargaSelected.urlImagen,
-                cantidad: int.parse(
-                    formKey.currentState?.fields['cantidadEntregada']?.value),
-              ),
+            final producto = ProductoEnvio(
+              producto: cargaSelected.producto,
+              productoId: cargaSelected.productoId,
+              urlImagen: cargaSelected.urlImagen,
+              cantidad:
+                  int.parse(formKey.currentState?.fields['cantidad']?.value),
             );
+            if (isDelivey) {
+              entregaProvider.addOneProduct(idEnvio, producto);
+            } else {
+              envioProvider.addOneProduct(idEnvio, producto);
+            }
+
             context.pop();
           },
         ),

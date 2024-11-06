@@ -2,8 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:color_mesh/color_mesh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:frontend_movil_muni/config/router/main_router.dart';
-import 'package:frontend_movil_muni/src/pages/entregas/widgets/empty_full_screen.dart';
+import 'package:frontend_movil_muni/src/pages/entregas/widgets/common/empty_full_screen.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -44,23 +43,6 @@ class EntregasLista extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // if (envio!.entregas.isNotEmpty)
-            //   Row(
-            //     children: [
-            //       Icon(MdiIcons.fileArrowUpDownOutline),
-            //       SizedBox(width: size.width * 0.03),
-            //       Text(
-            //         'Adjunte acta legal',
-            //         style: textStyles.p.copyWith(
-            //           fontWeight: FontWeight.w500,
-            //           color: Colors.black87,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // SizedBox(height: size.height * 0.013),
-            // ShadBadge(child: Text(envio!.)),
-            // SizedBox(height: size.height * 0.05),
             SizedBox(height: size.height * 0.01),
             Expanded(
               child: SizedBox(

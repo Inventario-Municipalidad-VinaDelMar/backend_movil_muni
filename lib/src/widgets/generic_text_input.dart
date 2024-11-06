@@ -14,6 +14,9 @@ class GenericTextInput extends StatelessWidget {
   final TextInputType inputType;
   final TextEditingController? controller;
   final List<TextInputFormatter>? inputFormatters;
+
+  final int maxLines;
+  final int? maxLength;
   const GenericTextInput({
     super.key,
     required this.labelText,
@@ -25,6 +28,8 @@ class GenericTextInput extends StatelessWidget {
     this.error,
     this.onPressed,
     this.inputFormatters,
+    this.maxLength,
+    this.maxLines = 1,
     required this.id,
   });
 
@@ -49,6 +54,8 @@ class GenericTextInput extends StatelessWidget {
               minWidth: size.width * 0.9,
             ),
             child: ShadInputFormField(
+              maxLines: maxLines,
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
               id: id,
               decoration: ShadDecoration(
                 errorLabelStyle: textStyles.p,
@@ -63,13 +70,32 @@ class GenericTextInput extends StatelessWidget {
                     );
                   },
               controller: controller,
-              inputFormatters: inputFormatters,
+              inputFormatters: [
+                if (inputFormatters != null) ...inputFormatters!,
+                if (maxLength != null)
+                  LengthLimitingTextInputFormatter(maxLength),
+              ],
               onPressed: onPressed,
               placeholder: Text(placeHolder),
               keyboardType: inputType,
               onChanged: onChanged,
             ),
           ),
+          if (maxLength !=
+              null) // Solo muestra el contador si maxLength no es null
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller ?? TextEditingController(),
+              builder: (context, value, child) {
+                final currentLength = value.text.length;
+                return Padding(
+                  padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                  child: Text(
+                    '$currentLength/$maxLength',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );

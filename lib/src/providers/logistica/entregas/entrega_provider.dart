@@ -20,7 +20,7 @@ class EntregaProvider
         SocketProviderBase,
         RestEntregaProvider,
         SocketEntregaProvider {
-  Map<String, List<ProductoEnvio>> productosPorEnvio = {};
+  Map<String, List<ProductoEnvio>> productosPorEnvioEntrega = {};
 
   void initialize() {
     initRest();
@@ -28,10 +28,10 @@ class EntregaProvider
   }
 
   void addOneProduct(String idEnvio, ProductoEnvio prodEntregado) {
-    if (!productosPorEnvio.containsKey(idEnvio)) {
-      productosPorEnvio[idEnvio] = [];
+    if (!productosPorEnvioEntrega.containsKey(idEnvio)) {
+      productosPorEnvioEntrega[idEnvio] = [];
     }
-    productosPorEnvio[idEnvio]!.add(prodEntregado);
+    productosPorEnvioEntrega[idEnvio]!.add(prodEntregado);
     notifyListeners();
   }
 
@@ -39,7 +39,7 @@ class EntregaProvider
       Map<String, dynamic> entregaData, String idEnvio) async {
     //Esta funcion es heredada
     await addNewEntrega(entregaData).then((value) {
-      productosPorEnvio.remove(idEnvio);
+      productosPorEnvioEntrega.remove(idEnvio);
       notifyListeners();
     });
   }
@@ -56,13 +56,13 @@ class EntregaProvider
 
   void removeOneProduct(String idEnvio, ProductoEnvio prodEntregado) {
     // Verifica si el idEnvio existe en el mapa
-    if (productosPorEnvio.containsKey(idEnvio)) {
+    if (productosPorEnvioEntrega.containsKey(idEnvio)) {
       // Remueve el producto de la lista si existe
-      productosPorEnvio[idEnvio]!.remove(prodEntregado);
+      productosPorEnvioEntrega[idEnvio]!.remove(prodEntregado);
 
       // Si la lista queda vacía, puedes optar por eliminar la entrada del mapa
-      if (productosPorEnvio[idEnvio]!.isEmpty) {
-        productosPorEnvio.remove(idEnvio);
+      if (productosPorEnvioEntrega[idEnvio]!.isEmpty) {
+        productosPorEnvioEntrega.remove(idEnvio);
       }
 
       // Notifica a los oyentes sobre el cambio
@@ -70,9 +70,9 @@ class EntregaProvider
     }
   }
 
-  List<ProductoEnvio> getProductosPorEnvio(String idEnvio) {
-    return productosPorEnvio[idEnvio] == null
+  List<ProductoEnvio> getProductosPorEnvioEntrega(String idEnvio) {
+    return productosPorEnvioEntrega[idEnvio] == null
         ? []
-        : productosPorEnvio[idEnvio]!;
+        : productosPorEnvioEntrega[idEnvio]!;
   }
 }

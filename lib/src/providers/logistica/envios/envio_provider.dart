@@ -10,9 +10,40 @@ class EnvioProvider
         SocketProviderBase,
         RestEnvioProvider,
         SocketEnvioProvider {
+  Map<String, List<ProductoEnvio>> productosPorEnvioIncidente = {};
   void initialize() {
     initRest();
     initSocket();
+  }
+
+  void addOneProduct(String idEnvio, ProductoEnvio prodAfectado) {
+    if (!productosPorEnvioIncidente.containsKey(idEnvio)) {
+      productosPorEnvioIncidente[idEnvio] = [];
+    }
+    productosPorEnvioIncidente[idEnvio]!.add(prodAfectado);
+    notifyListeners();
+  }
+
+  void removeOneProduct(String idEnvio, ProductoEnvio prodAfectado) {
+    // Verifica si el idEnvio existe en el mapa
+    if (productosPorEnvioIncidente.containsKey(idEnvio)) {
+      // Remueve el producto de la lista si existe
+      productosPorEnvioIncidente[idEnvio]!.remove(prodAfectado);
+
+      // Si la lista queda vacía, puedes optar por eliminar la entrada del mapa
+      if (productosPorEnvioIncidente[idEnvio]!.isEmpty) {
+        productosPorEnvioIncidente.remove(idEnvio);
+      }
+
+      // Notifica a los oyentes sobre el cambio
+      notifyListeners();
+    }
+  }
+
+  List<ProductoEnvio> getProductosPorEnvioIncidente(String idEnvio) {
+    return productosPorEnvioIncidente[idEnvio] == null
+        ? []
+        : productosPorEnvioIncidente[idEnvio]!;
   }
 
   EnvioLogisticoModel? findEnvioById(String idEnvio) {
@@ -29,5 +60,19 @@ class EnvioProvider
     findById(obj) => obj.id == idEntrega;
     var result = envio.entregas.where(findById);
     return result.isNotEmpty ? result.first : null;
+  }
+
+  //No se llama directamente de "envio_rest", porque se debe limpiar los productos
+  Future<void> generateNewIncidente(
+      Map<String, dynamic> entregaData, String idEnvio) async {
+    //Esta funcion es heredada
+    try {
+      await addNewIncidente(entregaData).then((value) {
+        productosPorEnvioIncidente.remove(idEnvio);
+        notifyListeners();
+      });
+    } catch (e) {
+      rethrow;
+    }
   }
 }

@@ -19,9 +19,6 @@ mixin RestEntregaProvider on ChangeNotifier {
     notifyListeners();
 
     try {
-      //TODO: Eliminar delay en production
-      await Future.delayed(const Duration(seconds: 1));
-
       await _logisticaRepository.addNewEntrega(entregaData);
     } catch (error) {
       print('Error al crear la entrega: $error');

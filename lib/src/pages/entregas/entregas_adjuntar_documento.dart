@@ -9,6 +9,7 @@ import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logis
 import 'package:frontend_movil_muni/src/providers/logistica/entregas/entrega_provider.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:file_picker/file_picker.dart';
@@ -18,11 +19,13 @@ class FileInfo {
   double peso;
   String nombreOriginal;
   PlatformFile? file;
+  XFile? imageFile;
 
   FileInfo({
     required this.peso,
     required this.nombreOriginal,
-    required this.file,
+    this.file,
+    this.imageFile,
   });
 }
 
@@ -168,13 +171,17 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                     await entregaProvider.uploadFile(entregaData);
                     if (context.mounted) {
                       //TODO: Mostrar popup de éxito
-                      _throwToastSuccess(context);
+                      throwToastSuccess(context, 'Carga exitoso',
+                          'El documento se ha subido correctamente');
                       context.pop();
                     }
                   } catch (error) {
                     if (context.mounted) {
                       //TODO: Mostrar popup de fallo
-                      _throwToastError(context);
+                      throwToastError(
+                        context,
+                        'Hubo un fallo al subir el documento',
+                      );
                       // No llamas a `context.pop()` aquí
                     }
                   }
@@ -339,7 +346,7 @@ List<Widget> _buildBoxFileUpload(
 
   return [
     DottedBorder(
-      color: Colors.blue[700]!,
+      color: Colors.blue[700]!.withOpacity(pickingFile ? .4 : 1),
       dashPattern: const [6, 6, 6, 6],
       borderType: BorderType.RRect,
       radius: Radius.circular(12),
@@ -352,10 +359,13 @@ List<Widget> _buildBoxFileUpload(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: size.height * 0.08,
-                height: size.height * 0.08,
-                child: Image.asset('assets/logos/file.png'),
+              Opacity(
+                opacity: pickingFile ? .4 : 1,
+                child: SizedBox(
+                  width: size.height * 0.08,
+                  height: size.height * 0.08,
+                  child: Image.asset('assets/logos/file.png'),
+                ),
               ),
               SizedBox(
                 height: size.height * 0.01,
@@ -435,7 +445,7 @@ List<Widget> _buildBoxFileUpload(
   ];
 }
 
-void _throwToastError(BuildContext context) {
+void throwToastError(BuildContext context, String descripcion) {
   final textStyles = ShadTheme.of(context).textTheme;
   Size size = MediaQuery.of(context).size;
   ShadToaster.of(context).show(
@@ -458,12 +468,12 @@ void _throwToastError(BuildContext context) {
           ),
         ],
       ),
-      description: const Text('Hubo un fallo al subir el documento'),
+      description: Text(descripcion),
     ),
   );
 }
 
-void _throwToastSuccess(BuildContext context) {
+void throwToastSuccess(BuildContext context, String title, String descripcion) {
   final textStyles = ShadTheme.of(context).textTheme;
   Size size = MediaQuery.of(context).size;
   ShadToaster.of(context).show(
@@ -479,7 +489,7 @@ void _throwToastSuccess(BuildContext context) {
           ),
           SizedBox(width: size.width * 0.01),
           Text(
-            'Carga exitosa',
+            title,
             style: textStyles.p.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -488,7 +498,7 @@ void _throwToastSuccess(BuildContext context) {
         ],
       ),
       description: Text(
-        'El documento se ha subido correctamente',
+        descripcion,
         style: textStyles.small.copyWith(
           color: Colors.white,
         ),

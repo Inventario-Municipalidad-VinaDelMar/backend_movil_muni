@@ -37,6 +37,65 @@ class LogisticaRepository {
     }
   }
 
+  Future<void> addNewIncidente(Map<String, dynamic> dataIncidente) async {
+    try {
+      MultipartFile? file;
+
+      //Cargar una imagen, no es obligatorio, por ende file puede ser null
+      if (dataIncidente['fileName'] != null) {
+        final String extension =
+            dataIncidente['fileName'].split('.').last.toLowerCase();
+
+        MediaType mediaType;
+        switch (extension) {
+          case 'jpg':
+            mediaType = MediaType('image', 'jpeg');
+            break;
+          case 'jpeg':
+            mediaType = MediaType('image', 'jpeg');
+            break;
+          case 'png':
+            mediaType = MediaType('image', 'png');
+            break;
+          default:
+            throw Exception('Tipo de archivo no soportado: $extension');
+        }
+        file = await MultipartFile.fromFile(
+          dataIncidente['path'],
+          filename: dataIncidente['fileName'],
+          contentType: mediaType,
+        );
+      }
+      final formData = FormData.fromMap({
+        if (file != null)
+          'evidenciaFotografica': file, // Solo se añade si file no es null
+        'descripcion': dataIncidente['descripcion'],
+        'idEnvio': dataIncidente['idEnvio'],
+        'type': dataIncidente['type'],
+        'productosAfectados':
+            dataIncidente['productosAfectados'] as List<dynamic>,
+        'closeEnvio': dataIncidente['finishEnvio'] as bool,
+      });
+      await dio.post(
+        '/envios/newIncidente',
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+    } on DioException catch (error) {
+      print(error.message);
+      print(error.response?.data);
+      print(error.type);
+      throw Exception(error.response?.data['message'] ?? 'Unknown error');
+    } catch (error) {
+      print('Error desconocido: $error');
+      throw Exception('Unknown error');
+    }
+  }
+
   Future<void> uploadDocument(Map<String, dynamic> dataEntrega) async {
     try {
       final String extension = dataEntrega['fileName']
@@ -68,17 +127,19 @@ class LogisticaRepository {
       );
 
       final formData = FormData.fromMap({
-        "file": file, // archivo que vas a subir
-        "idEntrega": dataEntrega['idEntrega'] // el id que requiere el endpoint
+        'file': file, // archivo que vas a subir
+        'idEntrega': dataEntrega['idEntrega'] // el id que requiere el endpoint
       });
 
-      final response = await dio.post(
-        "/entregas/upload", // URL del endpoint
+      await dio.post(
+        '/entregas/upload', // URL del endpoint
         data: formData,
-        options: Options(headers: {"Content-Type": "multipart/form-data"}),
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
       );
-      print("Respuesta del servidor: ${response.data}");
-      //# await dio.post('/entregas/upload', data: dataEntrega);
     } on DioException catch (error) {
       print(error.message);
       print(error.response?.data);
