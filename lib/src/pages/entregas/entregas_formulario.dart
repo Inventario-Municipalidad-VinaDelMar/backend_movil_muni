@@ -629,13 +629,16 @@ class _InfoEnvioPreview extends StatelessWidget {
                                 ),
                               ),
                               Spacer(),
-                              ShadBadge(
-                                child: AnimatedDigitWidget(
-                                  duration: Duration(milliseconds: 400),
-                                  value: carga.cantidad,
-                                  textStyle: textStyles.small.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                              Opacity(
+                                opacity: carga.cantidad == 0 ? 0.3 : 1.0,
+                                child: ShadBadge(
+                                  child: AnimatedDigitWidget(
+                                    duration: Duration(milliseconds: 400),
+                                    value: carga.cantidad,
+                                    textStyle: textStyles.small.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               )
