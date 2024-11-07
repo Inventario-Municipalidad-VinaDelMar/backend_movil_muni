@@ -44,8 +44,10 @@ class EntregaProvider
     });
   }
 
-  String findIdComedorSolidario(String name) {
-    String id = '';
+  int findIdComedorSolidario(String name) {
+    // String findIdComedorSolidario(String name) {
+    int id = 0;
+    // String id = '';
     comedores.forEach((m) {
       if (name == m.nombre) {
         id = m.id;

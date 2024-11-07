@@ -430,7 +430,8 @@ class _SubmitEntregaButton extends StatelessWidget {
             }
             final idComedor = entregasProvider.findIdComedorSolidario(
                 formEntrega.currentState?.fields['comedor']!.value);
-            if (idComedor.isEmpty) {
+            if (idComedor == 0) {
+              // if (idComedor.isEmpty) {
               return;
             }
             await entregasProvider.generateNewEntrega(

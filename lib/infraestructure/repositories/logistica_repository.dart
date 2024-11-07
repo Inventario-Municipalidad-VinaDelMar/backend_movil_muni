@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:frontend_movil_muni/config/environment/environment.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
@@ -18,6 +20,36 @@ class LogisticaRepository {
         headers: {
           'Authorization':
               'Bearer ${userProvider.userListener.value?.jwtToken}',
+        },
+        responseType: ResponseType.plain, // Recibe el contenido en texto plano
+      ),
+    );
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (Response response, ResponseInterceptorHandler handler) {
+          // Intenta decodificar el texto plano como JSON
+          try {
+            var decodedData = json.decode(response.data); // Decodifica el JSON
+            handler.next(
+              Response(
+                requestOptions: response.requestOptions,
+                data: decodedData, // Envía el JSON decodificado
+                statusCode: response.statusCode,
+                statusMessage: response.statusMessage,
+              ),
+            );
+          } catch (e) {
+            // Si no puede decodificar, pasa el texto tal cual para debuggear
+            handler.next(
+              Response(
+                requestOptions: response.requestOptions,
+                data: response.data, // Pasa los datos crudos
+                statusCode: response.statusCode,
+                statusMessage: response.statusMessage,
+              ),
+            );
+          }
         },
       ),
     );

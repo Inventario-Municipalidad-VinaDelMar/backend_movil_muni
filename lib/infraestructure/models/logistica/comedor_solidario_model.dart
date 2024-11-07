@@ -1,5 +1,6 @@
 class ComedorSolidarioModel {
-  String id;
+  int id;
+  // String id;
   String nombre;
   String direccion;
 
