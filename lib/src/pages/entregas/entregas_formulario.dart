@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_digit/animated_digit.dart';
 import 'package:animated_icon/animated_icon.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/comedor_solidario_model.dart';
@@ -8,7 +9,9 @@ import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logis
 import 'package:frontend_movil_muni/src/pages/entregas/widgets/common/manage_product_list.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/entregas/socket/socket_entrega_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
+import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_select_input.dart';
+import 'package:frontend_movil_muni/src/widgets/toaster.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -396,7 +399,7 @@ class _EmptyRutaActual extends StatelessWidget {
 }
 
 class _SubmitEntregaButton extends StatelessWidget {
-  const _SubmitEntregaButton({
+  _SubmitEntregaButton({
     required this.productosEntregados,
     required this.entregasProvider,
     required this.formEntrega,
@@ -407,6 +410,11 @@ class _SubmitEntregaButton extends StatelessWidget {
   final EntregaProvider entregasProvider;
   final GlobalKey<ShadFormState> formEntrega;
   final EntregasFormulario widget;
+  final player = AudioPlayer();
+
+  void playSound(String sound) async {
+    await player.play(AssetSource('sounds/$sound'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -434,24 +442,31 @@ class _SubmitEntregaButton extends StatelessWidget {
               // if (idComedor.isEmpty) {
               return;
             }
-            await entregasProvider.generateNewEntrega(
-              {
-                'idEnvio': widget.idEnvio,
-                'idComedor': idComedor,
-                'detalles': List.from(productosEntregados.map((p) {
-                  return {
-                    'productoId': p.productoId,
-                    'cantidadEntregada': p.cantidad,
-                  };
-                }).toList()),
-              },
-              widget.idEnvio,
-            ).then((value) {
-              if (!context.mounted) {
-                return;
-              }
-              context.pop();
-            });
+            showAlertDialog(context, "Estás seguro de completar esta entrega?",
+                () async {
+              Navigator.pop(context);
+              await entregasProvider.generateNewEntrega(
+                {
+                  'idEnvio': widget.idEnvio,
+                  'idComedor': idComedor,
+                  'detalles': List.from(productosEntregados.map((p) {
+                    return {
+                      'productoId': p.productoId,
+                      'cantidadEntregada': p.cantidad,
+                    };
+                  }).toList()),
+                },
+                widget.idEnvio,
+              ).then((value) {
+                if (!context.mounted) {
+                  return;
+                }
+                playSound('positive.wav');
+                showToaster(context, "Entrega ingresada.",
+                    "La entrega ha sido ingresada con éxito !");
+                context.pop();
+              });
+            }).then(() {});
           },
           width: size.width,
           size: ShadButtonSize.lg,

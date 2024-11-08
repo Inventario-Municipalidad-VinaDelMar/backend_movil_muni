@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,8 @@ import 'package:frontend_movil_muni/src/pages/envios/widgets/handle_toast_solici
 import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
+import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
+import 'package:frontend_movil_muni/src/widgets/toaster.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -162,7 +166,18 @@ class _EnviosPageState extends State<EnviosPage> {
                         }
                         if (planificacionProvider.planificacionActual!
                             .areAllDetailsComplete()) {
-                          await planificacionProvider.completeCurrentEnvio();
+                          showAlertDialog(
+                              context, "Estás seguro de completar este envío?",
+                              () async {
+                            Navigator.pop(context);
+                            await planificacionProvider.completeCurrentEnvio();
+                            Timer(const Duration(seconds: 5), () {
+                              playSound('positive.wav');
+                              showToaster(context, "Envío creado.",
+                                  "El envió ha sido creado con éxito !");
+                            });
+                          });
+
                           return;
                         }
 
