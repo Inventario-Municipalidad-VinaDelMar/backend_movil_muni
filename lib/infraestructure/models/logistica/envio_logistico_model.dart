@@ -158,12 +158,38 @@ class EnvioLogisticoModel extends EnvioModel {
   }
 
   String getHoraCreacionFormatted() {
-    final numero = int.parse(horaCreacion.split(':')[0]);
-    return '${horaCreacion.split(':')[0]}:${horaCreacion.split(':')[1]} ${numero < 12 ? 'AM' : 'PM'}';
+    final dateTime = DateTime.parse(horaCreacion)
+        .toLocal(); // Convierte a la zona horaria local
+    final hour = dateTime.hour
+        .toString()
+        .padLeft(2, '0'); // Mantén el formato de 24 horas
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final period = dateTime.hour < 12 ? 'AM' : 'PM';
+    return '$hour:$minute $period';
+  }
+
+  String getHoraFinalizacionFormatted() {
+    if (horaFinalizacion == null) {
+      return '-';
+    }
+    final dateTime = DateTime.parse(horaFinalizacion!)
+        .toLocal(); // Convierte a la zona horaria local
+    final hour = dateTime.hour
+        .toString()
+        .padLeft(2, '0'); // Mantén el formato de 24 horas
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final period = dateTime.hour < 12 ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 
   String getUltimaActualizacionFormatted() {
-    final numero = int.parse(horaCreacion.split(':')[0]);
-    return '${horaCreacion.split(':')[0]}:${horaCreacion.split(':')[1]} ${numero < 12 ? 'AM' : 'PM'}';
+    final dateTime = DateTime.parse(horaCreacion)
+        .toLocal(); // Convierte a la zona horaria local
+    final hour = dateTime.hour
+        .toString()
+        .padLeft(2, '0'); // Mantén el formato de 24 horas
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final period = dateTime.hour < 12 ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 }

@@ -239,8 +239,8 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                           value: '-',
                           textStyles: textStyles,
                         )
-                      : _buildInfoRowCustom('Tiempo en envío: ',
-                          envio.horaInicioEnvio!, textStyles),
+                      : _buildInfoRowCustom(
+                          'Tiempo en envío: ', envio, textStyles),
                   _buildInfoRow(
                     label: 'Ultima entrega en: ',
                     value: envio.entregas.isEmpty
@@ -596,7 +596,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   }
 
   Widget _buildInfoRowCustom(
-      String label, String value, ShadTextTheme textStyles) {
+      String label, EnvioLogisticoModel envio, ShadTextTheme textStyles) {
     Size size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
@@ -611,7 +611,10 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
             ),
           ),
           const Spacer(),
-          TimeSinceWidget(hora: value)
+          TimeSinceWidget(
+            horaInicioEnvio: envio.horaInicioEnvio!,
+            horaFinalizacion: envio.horaFinalizacion,
+          )
         ],
       ),
     );
@@ -683,7 +686,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         // )
         else
           Text(
-            envio.getHoraCreacionFormatted(),
+            envio.getHoraFinalizacionFormatted(),
             style: textStyles.p.copyWith(
               color: Colors.grey[600],
               fontSize: size.height * 0.018,

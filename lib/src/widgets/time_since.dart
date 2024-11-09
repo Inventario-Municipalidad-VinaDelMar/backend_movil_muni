@@ -3,9 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
+import 'package:animated_digit/animated_digit.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
+
 class TimeSinceWidget extends StatefulWidget {
-  final String hora;
-  const TimeSinceWidget({super.key, required this.hora});
+  final String horaInicioEnvio;
+  final String? horaFinalizacion;
+
+  const TimeSinceWidget({
+    super.key,
+    required this.horaInicioEnvio,
+    this.horaFinalizacion,
+  });
 
   @override
   State<TimeSinceWidget> createState() => _TimeSinceWidgetState();
@@ -19,15 +30,17 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   @override
   void initState() {
     super.initState();
-    targetTime = _parseTime(widget.hora);
-    _updateDifference();
-    _scheduleFirstUpdate();
-  }
+    targetTime = DateTime.parse(widget.horaInicioEnvio);
 
-  DateTime _parseTime(String timeString) {
-    final now = DateTime.now();
-    final time = DateFormat('HH:mm').parse(timeString);
-    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    if (widget.horaFinalizacion != null) {
+      // Si `horaFinalizacion` no es null, calcula la diferencia entre `horaInicioEnvio` y `horaFinalizacion`
+      final endTime = DateTime.parse(widget.horaFinalizacion!);
+      difference = endTime.difference(targetTime);
+    } else {
+      // Si `horaFinalizacion` es null, calcula la diferencia con el tiempo actual
+      _updateDifference();
+      _scheduleFirstUpdate();
+    }
   }
 
   void _updateDifference() {
@@ -74,6 +87,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   Widget build(BuildContext context) {
     final textStyles = ShadTheme.of(context).textTheme;
     Size size = MediaQuery.of(context).size;
+
     // Descomponemos la duración en horas, minutos y segundos
     final hours = difference.inHours;
     final minutes = difference.inMinutes % 60;
