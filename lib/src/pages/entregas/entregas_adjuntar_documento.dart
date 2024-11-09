@@ -2,12 +2,14 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/entregas/entrega_provider.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
+import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +61,12 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
     if (entrega == null) {
       context.pop();
     }
+    final player = AudioPlayer();
+
+    void playSound(String sound) async {
+      await player.play(AssetSource('sounds/$sound'));
+    }
+
     return Scaffold(
       backgroundColor:
           Colors.grey[200], // Cambiamos el fondo a un color más suave
@@ -153,38 +161,41 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                 entrega,
                 //TODO: Funcion para subir el archivo al server
                 () async {
-                  if (fileLoaded == null) {
-                    return;
-                  }
-                  // final filetoConvert = File(fileLoaded!.file!.path!);
-                  // List<int> imageBytes = filetoConvert.readAsBytesSync();
-                  // String base64File = base64Encode(imageBytes);
-
-                  final Map<String, dynamic> entregaData = {
-                    'idEntrega': widget.idEntrega,
-                    'file': fileLoaded,
-                    'path': fileLoaded!.file!.path!,
-                    'fileName': fileLoaded!.nombreOriginal
-                  };
-
-                  try {
-                    await entregaProvider.uploadFile(entregaData);
-                    if (context.mounted) {
-                      //TODO: Mostrar popup de éxito
-                      throwToastSuccess(context, 'Carga exitoso',
-                          'El documento se ha subido correctamente');
-                      context.pop();
+                  showAlertDialog(
+                      context, "Estás seguro de actualizar esta acta legal?",
+                      () async {
+                    Navigator.pop(context);
+                    if (fileLoaded == null) {
+                      return;
                     }
-                  } catch (error) {
-                    if (context.mounted) {
-                      //TODO: Mostrar popup de fallo
-                      throwToastError(
-                        context,
-                        'Hubo un fallo al subir el documento',
-                      );
-                      // No llamas a `context.pop()` aquí
+
+                    final Map<String, dynamic> entregaData = {
+                      'idEntrega': widget.idEntrega,
+                      'file': fileLoaded,
+                      'path': fileLoaded!.file!.path!,
+                      'fileName': fileLoaded!.nombreOriginal
+                    };
+
+                    try {
+                      await entregaProvider.uploadFile(entregaData);
+                      if (context.mounted) {
+                        //TODO: Mostrar popup de éxito
+                        playSound('positive.wav');
+                        throwToastSuccess(context, 'Carga exitoso',
+                            'El documento se ha subido correctamente');
+                        context.pop();
+                      }
+                    } catch (error) {
+                      if (context.mounted) {
+                        //TODO: Mostrar popup de fallo
+                        throwToastError(
+                          context,
+                          'Hubo un fallo al subir el documento',
+                        );
+                        // No llamas a `context.pop()` aquí
+                      }
                     }
-                  }
+                  });
                 },
               ),
           ],

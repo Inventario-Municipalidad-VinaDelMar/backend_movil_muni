@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:frontend_movil_muni/infraestructure/models/inventario/bodegas_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/inventario/producto_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/inventario/ubicaciones_model.dart';
+import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_select_input.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
@@ -374,6 +376,12 @@ class _AddButtonTanda extends StatefulWidget {
 }
 
 class _AddButtonTandaState extends State<_AddButtonTanda> {
+  final player = AudioPlayer();
+
+  void playSound(String sound) async {
+    await player.play(AssetSource('sounds/$sound'));
+  }
+
   @override
   Widget build(BuildContext context) {
     final inventarioProvider = context.watch<InventarioProvider>();
@@ -397,78 +405,67 @@ class _AddButtonTandaState extends State<_AddButtonTanda> {
                   ),
                 ),
           onPressed: () async {
-            // setState(() {
-            //   selectedProductId = 'Cuchara de Mesa';
-            // });
-
-            // WidgetsBinding.instance.addPostFrameCallback((_) {
-            //   formKey.currentState?.fields['producto']?.reset();
-            // });
-
-            // formKey.currentState!.saveAndValidate();
-            // print(inventarioProvider.formularioTandaData);
-            if (!widget.formKey.currentState!.saveAndValidate()) {
-              return;
-            }
-
-            // WidgetsBinding.instance.addPostFrameCallback((_) {
-            //   context.push('/tandas/add');
-            // });
-
-            // widget.formKey.currentState?.fields['bodega']?.reset();
-
-            await inventarioProvider
-                .addTanda(inventarioProvider.formularioTandaData);
-            String productName = '';
-
-            for (final producto in inventarioProvider.productosSelection) {
-              if (inventarioProvider.formularioTandaData['idProducto'] ==
-                  producto.id) {
-                productName = producto.nombre;
-                break;
+            showAlertDialog(context, "Estás seguro de añadir esta tanda?",
+                () async {
+              Navigator.pop(context);
+              if (!widget.formKey.currentState!.saveAndValidate()) {
+                return;
               }
-            }
-            if (!context.mounted) {
-              return;
-            }
-            ShadToaster.of(context).show(
-              ShadToast(
-                // padding: EdgeInsets.only(bottom: size.height * 0.1),
-                offset: Offset(size.width * 0.05, size.height * 0.1),
+              await inventarioProvider
+                  .addTanda(inventarioProvider.formularioTandaData);
+              String productName = '';
 
-                backgroundColor: Colors.green[400],
-                alignment: Alignment.bottomRight,
-                title: Text(
-                  'Tanda creada',
-                  style: textStyles.p.copyWith(
-                    color: Colors.white,
+              for (final producto in inventarioProvider.productosSelection) {
+                if (inventarioProvider.formularioTandaData['idProducto'] ==
+                    producto.id) {
+                  productName = producto.nombre;
+                  break;
+                }
+              }
+              if (!context.mounted) {
+                return;
+              }
+              playSound('positive.wav');
+
+              ShadToaster.of(context).show(
+                ShadToast(
+                  // padding: EdgeInsets.only(bottom: size.height * 0.1),
+                  offset: Offset(size.width * 0.05, size.height * 0.1),
+
+                  backgroundColor: Colors.green[400],
+                  alignment: Alignment.bottomRight,
+                  title: Text(
+                    'Tanda creada',
+                    style: textStyles.p.copyWith(
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                description: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.centerRight,
-                  children: [
-                    Positioned(
-                      top: -size.height * 0.042,
-                      right: -size.width * 0.3,
-                      child: Icon(
-                        MdiIcons.checkCircle,
-                        color: Colors.white,
-                        size: size.width * 0.15,
+                  description: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.centerRight,
+                    children: [
+                      Positioned(
+                        top: -size.height * 0.042,
+                        right: -size.width * 0.3,
+                        child: Icon(
+                          MdiIcons.checkCircle,
+                          color: Colors.white,
+                          size: size.width * 0.15,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Se ha creado tanda de $productName',
-                      style: textStyles.small.copyWith(
-                        color: Colors.white,
+                      Text(
+                        'Se ha creado tanda de $productName',
+                        style: textStyles.small.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  duration: Duration(seconds: 4),
                 ),
-                duration: Duration(seconds: 4),
-              ),
-            );
-            context.pop(true);
+              );
+              context.pop(true);
+            });
           },
           child:
               Text(!inventarioProvider.creatingTanda ? 'Añadir' : 'Cargando')),

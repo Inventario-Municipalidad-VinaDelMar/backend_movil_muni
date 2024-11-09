@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/src/pages/entregas/entregas_adjuntar_documento.dart';
 import 'package:frontend_movil_muni/src/pages/entregas/widgets/common/manage_product_list.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
+import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_select_input.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
 import 'package:go_router/go_router.dart';
@@ -60,6 +62,12 @@ class _EntregasFormularioIncidenteState
     }
     final textStyles = ShadTheme.of(context).textTheme;
     Size size = MediaQuery.of(context).size;
+    final player = AudioPlayer();
+
+    void playSound(String sound) async {
+      await player.play(AssetSource('sounds/$sound'));
+    }
+
     return Scaffold(
       backgroundColor:
           Colors.grey[200], // Cambiamos el fondo a un color más suave
@@ -218,21 +226,27 @@ class _EntregasFormularioIncidenteState
                       }).toList()),
                     };
 
-                    try {
-                      await envioProvider.generateNewIncidente(
-                          dataIncidente, widget.idEnvio);
-                      if (context.mounted) {
-                        throwToastSuccess(context, 'Registro exitoso',
-                            'Se ha ingresado correctamente el incidente');
-                        context.pop();
+                    showAlertDialog(
+                        context, "Estás seguro de registrar este incidente?",
+                        () async {
+                      Navigator.pop(context);
+                      try {
+                        await envioProvider.generateNewIncidente(
+                            dataIncidente, widget.idEnvio);
+                        if (context.mounted) {
+                          playSound('positive.wav');
+                          throwToastSuccess(context, 'Registro exitoso',
+                              'Se ha ingresado correctamente el incidente');
+                          context.pop();
+                        }
+                      } catch (error) {
+                        if (context.mounted) {
+                          throwToastError(context,
+                              'No se ha podido registrar el incidente.');
+                          // No llamas a `context.pop()` aquí
+                        }
                       }
-                    } catch (error) {
-                      if (context.mounted) {
-                        throwToastError(
-                            context, 'No se ha podido registrar el incidente.');
-                        // No llamas a `context.pop()` aquí
-                      }
-                    }
+                    });
                   },
                 ),
                 SizedBox(height: size.height * 0.02),

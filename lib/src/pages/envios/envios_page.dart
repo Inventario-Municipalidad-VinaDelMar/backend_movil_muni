@@ -171,11 +171,11 @@ class _EnviosPageState extends State<EnviosPage> {
                               () async {
                             Navigator.pop(context);
                             await planificacionProvider.completeCurrentEnvio();
-                            Timer(const Duration(seconds: 5), () {
-                              playSound('positive.wav');
-                              showToaster(context, "Envío creado.",
-                                  "El envió ha sido creado con éxito !");
-                            });
+                            // Timer(const Duration(seconds: 5), () {
+                            playSound('positive.wav');
+                            showToaster(context, "Envío creado.",
+                                "El envió ha sido creado con éxito !");
+                            // });
                           });
 
                           return;
