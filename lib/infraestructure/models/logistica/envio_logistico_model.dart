@@ -1,5 +1,50 @@
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 
+class IncidenteEnvio {
+  String id;
+  String fecha;
+  String hora;
+  String descripcion;
+  String type;
+  bool causeCloseEnvio;
+  String? evidenciaFotograficaUrl;
+  List<ProductoEnvio> productosAfectados;
+
+  IncidenteEnvio({
+    required this.id,
+    required this.fecha,
+    required this.hora,
+    required this.descripcion,
+    required this.type,
+    required this.causeCloseEnvio,
+    required this.evidenciaFotograficaUrl,
+    required this.productosAfectados,
+  });
+
+  factory IncidenteEnvio.fromJson(Map<String, dynamic> json) {
+    return IncidenteEnvio(
+      id: json['id'],
+      fecha: json['fecha'],
+      hora: json['hora'],
+      descripcion: json['descripcion'],
+      type: json['type'],
+      causeCloseEnvio: json['causeCloseEnvio'] as bool,
+      evidenciaFotograficaUrl: json['evidenciaFotograficaUrl'],
+      productosAfectados: (json['productosAfectados'] as List)
+          .map((p) => ProductoEnvio.fromJson(p as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  String get horaFormatted {
+    return '${hora.split(':')[0]}:${hora.split(':')[1]} ${int.parse(hora.split(':')[0]) >= 12 ? 'PM' : 'AM'}';
+  }
+
+  String get fechaFormatted {
+    return '${fecha.split('-')[2]}/${fecha.split('-')[1]}/${fecha.split('-')[0]}';
+  }
+}
+
 class ProductoEnvio {
   String producto;
   String productoId;
@@ -71,6 +116,7 @@ class EnvioLogisticoModel extends EnvioModel {
   String solicitante;
   List<ProductoEnvio> productos;
   List<EntregaEnvio> entregas;
+  List<IncidenteEnvio> incidentes;
 
   EnvioLogisticoModel({
     required super.id,
@@ -84,6 +130,7 @@ class EnvioLogisticoModel extends EnvioModel {
     required this.solicitante,
     required this.productos,
     required this.entregas,
+    required this.incidentes,
   });
 
   factory EnvioLogisticoModel.fromApi(Map<String, dynamic> envio) {
@@ -103,6 +150,9 @@ class EnvioLogisticoModel extends EnvioModel {
           .toList(),
       entregas: (envio['entregas'] as List)
           .map((p) => EntregaEnvio.fromJson(p as Map<String, dynamic>))
+          .toList(),
+      incidentes: (envio['incidentes'] as List)
+          .map((p) => IncidenteEnvio.fromJson(p as Map<String, dynamic>))
           .toList(),
     );
   }

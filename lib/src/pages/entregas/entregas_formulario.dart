@@ -427,7 +427,7 @@ class _SubmitEntregaButton extends StatelessWidget {
         duration: Duration(milliseconds: 200),
         child: ShadButton(
           padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-          enabled: !entregasProvider.creatingEntrega ||
+          enabled: !entregasProvider.creatingEntrega &&
               productosEntregados.isNotEmpty,
           onPressed: () async {
             if (!formEntrega.currentState!.saveAndValidate()) {
@@ -436,37 +436,48 @@ class _SubmitEntregaButton extends StatelessWidget {
             if (productosEntregados.isEmpty) {
               return;
             }
+            if (entregasProvider.creatingEntrega) {
+              return;
+            }
             final idComedor = entregasProvider.findIdComedorSolidario(
                 formEntrega.currentState?.fields['comedor']!.value);
             if (idComedor == 0) {
               // if (idComedor.isEmpty) {
               return;
             }
-            showAlertDialog(context, "Estás seguro de completar esta entrega?",
-                () async {
-              Navigator.pop(context);
-              await entregasProvider.generateNewEntrega(
-                {
-                  'idEnvio': widget.idEnvio,
-                  'idComedor': idComedor,
-                  'detalles': List.from(productosEntregados.map((p) {
-                    return {
-                      'productoId': p.productoId,
-                      'cantidadEntregada': p.cantidad,
-                    };
-                  }).toList()),
-                },
-                widget.idEnvio,
-              ).then((value) {
-                if (!context.mounted) {
-                  return;
-                }
-                playSound('positive.wav');
-                showToaster(context, "Entrega ingresada.",
-                    "La entrega ha sido ingresada con éxito !");
-                context.pop();
-              });
-            }).then(() {});
+            await showAlertDialog(
+              context: context,
+              description:
+                  'Esta accion creará una entrega con los datos indicados.',
+              continueFunction: () async {
+                await entregasProvider.generateNewEntrega(
+                  {
+                    'idEnvio': widget.idEnvio,
+                    'idComedor': idComedor,
+                    'detalles': List.from(productosEntregados.map((p) {
+                      return {
+                        'productoId': p.productoId,
+                        'cantidadEntregada': p.cantidad,
+                      };
+                    }).toList()),
+                  },
+                  widget.idEnvio,
+                ).then((value) {
+                  if (!context.mounted) {
+                    return;
+                  }
+                  playSound('positive.wav');
+                  showToaster(context, 'Entrega ingresada.',
+                      'La entrega ha sido ingresada con éxito !');
+                  context.pop();
+                });
+              },
+            ).then((value) {
+              if (!context.mounted) {
+                return;
+              }
+              FocusScope.of(context).unfocus();
+            });
           },
           width: size.width,
           size: ShadButtonSize.lg,

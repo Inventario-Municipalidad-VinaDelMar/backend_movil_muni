@@ -161,40 +161,50 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                 entrega,
                 //TODO: Funcion para subir el archivo al server
                 () async {
-                  showAlertDialog(
-                      context, "Estás seguro de actualizar esta acta legal?",
-                      () async {
-                    Navigator.pop(context);
-                    if (fileLoaded == null) {
+                  if (entregaProvider.uploadingFile) {
+                    return;
+                  }
+
+                  await showAlertDialog(
+                      context: context,
+                      description:
+                          'Esta accion subirá el acta legal al sistema.',
+                      continueFunction: () async {
+                        if (fileLoaded == null) {
+                          return;
+                        }
+
+                        final Map<String, dynamic> entregaData = {
+                          'idEntrega': widget.idEntrega,
+                          'file': fileLoaded,
+                          'path': fileLoaded!.file!.path!,
+                          'fileName': fileLoaded!.nombreOriginal
+                        };
+
+                        try {
+                          await entregaProvider.uploadFile(entregaData);
+                          if (context.mounted) {
+                            //TODO: Mostrar popup de éxito
+                            playSound('positive.wav');
+                            throwToastSuccess(context, 'Carga exitoso',
+                                'El documento se ha subido correctamente');
+                            context.pop();
+                          }
+                        } catch (error) {
+                          if (context.mounted) {
+                            //TODO: Mostrar popup de fallo
+                            throwToastError(
+                              context,
+                              'Hubo un fallo al subir el documento',
+                            );
+                            // No llamas a `context.pop()` aquí
+                          }
+                        }
+                      }).then((value) {
+                    if (!context.mounted) {
                       return;
                     }
-
-                    final Map<String, dynamic> entregaData = {
-                      'idEntrega': widget.idEntrega,
-                      'file': fileLoaded,
-                      'path': fileLoaded!.file!.path!,
-                      'fileName': fileLoaded!.nombreOriginal
-                    };
-
-                    try {
-                      await entregaProvider.uploadFile(entregaData);
-                      if (context.mounted) {
-                        //TODO: Mostrar popup de éxito
-                        playSound('positive.wav');
-                        throwToastSuccess(context, 'Carga exitoso',
-                            'El documento se ha subido correctamente');
-                        context.pop();
-                      }
-                    } catch (error) {
-                      if (context.mounted) {
-                        //TODO: Mostrar popup de fallo
-                        throwToastError(
-                          context,
-                          'Hubo un fallo al subir el documento',
-                        );
-                        // No llamas a `context.pop()` aquí
-                      }
-                    }
+                    FocusScope.of(context).unfocus();
                   });
                 },
               ),

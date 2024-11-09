@@ -54,6 +54,7 @@ class GenericTextInput extends StatelessWidget {
               minWidth: size.width * 0.9,
             ),
             child: ShadInputFormField(
+              autofocus: false,
               maxLines: maxLines,
               maxLengthEnforcement: MaxLengthEnforcement.enforced,
               id: id,

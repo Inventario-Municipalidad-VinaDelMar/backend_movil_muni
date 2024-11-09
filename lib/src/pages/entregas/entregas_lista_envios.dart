@@ -88,6 +88,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         ),
         Expanded(
           child: ListView.builder(
+            physics: BouncingScrollPhysics(),
             padding: const EdgeInsets.only(
               left: 16,
               right: 16,
@@ -173,7 +174,8 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
     double top = MediaQuery.of(context).viewPadding.top;
     double bottom = MediaQuery.of(context).viewPadding.bottom;
     double perfectH = (size.height) - (top + bottom);
-    return Container(
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.grey[100],
@@ -259,22 +261,203 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   _buildProductsList(envio, size, textStyles),
                   // const Divider(),
                   SizedBox(height: size.height * 0.01),
-                  ShadButton(
-                    enabled: envio.productos.isNotEmpty &&
-                        envio.status != EnvioStatus.cargando &&
-                        envio.status != EnvioStatus.sinCargar,
-                    onPressed: () => context.push(route),
-                    size: ShadButtonSize.sm,
-                    width: double.infinity,
-                    icon: Icon(MdiIcons.chevronTripleRight),
-                    child: Text('Seleccionar'),
-                  ),
+                  if (envio.status == EnvioStatus.enEnvio)
+                    ShadButton(
+                      enabled: envio.productos.isNotEmpty &&
+                          envio.status != EnvioStatus.cargando &&
+                          envio.status != EnvioStatus.sinCargar,
+                      onPressed: () => context.push(route),
+                      size: ShadButtonSize.sm,
+                      width: double.infinity,
+                      icon: Icon(MdiIcons.chevronTripleRight),
+                      child: Text('Seleccionar'),
+                    ),
+                  if (envio.incidentes.isNotEmpty)
+                    _buildListIncidentes(envio, size, textStyles),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildListIncidentes(
+      EnvioLogisticoModel envio, Size size, ShadTextTheme textStyles) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        Text(
+          'Incidentes*',
+          style: textStyles.p.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Colors.red[800],
+            fontSize: size.height * 0.021,
+          ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          height: size.height * 0.08,
+          child: ListView.builder(
+            padding: EdgeInsets.only(left: size.width * 0.03),
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemCount: envio.incidentes.length,
+            itemBuilder: (context, i) {
+              final incidente = envio.incidentes[i];
+              return InkResponse(
+                onTap: () => showIncidenteDialog(context, incidente),
+                radius: 100,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(right: size.width * 0.08),
+                      width: size.height * 0.08,
+                      height: size.height * 0.08,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: incidente.evidenciaFotograficaUrl == null ||
+                                incidente.evidenciaFotograficaUrl!.isEmpty
+                            ? Colors.red
+                            : null,
+                        image: incidente.evidenciaFotograficaUrl != null &&
+                                incidente.evidenciaFotograficaUrl!.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(
+                                    incidente.evidenciaFotograficaUrl!),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: incidente.evidenciaFotograficaUrl == null
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  MdiIcons.truckAlert,
+                                  color: Colors.white,
+                                ),
+                                Text(
+                                  incidente.type,
+                                  style: textStyles.small.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ],
+                            )
+                          : null,
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: -size.width * 0.04,
+                      child: Icon(
+                        MdiIcons.exclamationThick,
+                        color: Colors.red,
+                      ),
+                    )
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void showIncidenteDialog(
+    BuildContext context,
+    IncidenteEnvio incidente,
+  ) {
+    Size size = MediaQuery.of(context).size;
+    final textStyles = ShadTheme.of(context).textTheme;
+    final dialog = ShadDialog.alert(
+      constraints: BoxConstraints(
+        maxWidth: size.width * 0.9,
+      ),
+      removeBorderRadiusWhenTiny: false,
+      radius: BorderRadius.circular(15),
+      title: const Text('Detalles incidente'),
+      description: Padding(
+          padding: EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('Motivo'),
+                  Spacer(),
+                  Text(incidente.type),
+                ],
+              ),
+              Row(
+                children: [
+                  Text('Fecha'),
+                  Spacer(),
+                  Text(incidente.fechaFormatted),
+                ],
+              ),
+              Row(
+                children: [
+                  Text('Hora'),
+                  Spacer(),
+                  Text(incidente.horaFormatted),
+                ],
+              ),
+              Text('Comentario:'),
+              SizedBox(height: size.height * 0.003),
+              Text(
+                // 'Ea velit id sit incididunt non excepteur officia. Aliqua est elit ad laboris Lorem proident sint in labore Lorem officia Lorem sit. Eu dolore laborum elit quis anim velit consequat cillum elit anim voluptate deserunt non. Consectetur labore proident mollit incididunt in laborum dolor mollit irure laboris laboris. Laborum commodo occaecat incididunt velit aliqua irure adipisicing fugiat duis laboris consequat exercitation ea laboris.',
+                '"${incidente.descripcion}"',
+                style: textStyles.small.copyWith(
+                  color: Colors.black45,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              SizedBox(height: size.height * 0.006),
+              Text('Evidencia fotografica:'),
+              SizedBox(height: size.height * 0.006),
+              if (incidente.evidenciaFotograficaUrl == null)
+                Center(
+                  child: Text(
+                    'No se adjunto evidencia fotografica...',
+                    style: textStyles.small.copyWith(
+                      color: Colors.black45,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              if (incidente.evidenciaFotograficaUrl != null)
+                Center(
+                  child: Container(
+                    margin: EdgeInsets.only(right: size.width * 0.08),
+                    width: size.height * 0.25,
+                    height: size.height * 0.25,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      image: DecorationImage(
+                        image: NetworkImage(incidente.evidenciaFotograficaUrl!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                )
+            ],
+          )),
+      actions: [
+        ShadButton(
+          child: const Text('Cerrar'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+
+    showShadDialog(
+      context: context,
+      builder: (context) => dialog,
     );
   }
 
@@ -289,6 +472,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
             'icon': Icons.hourglass_empty,
             'textColor': Colors.grey[700],
             'label': envio.statusToString(),
+            'asset': 'assets/logos/cargar.gif',
           };
         case EnvioStatus.cargando:
           return {
@@ -296,57 +480,116 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
             'icon': Icons.local_shipping,
             'textColor': Colors.yellow[800],
             'label': envio.statusToString(),
+            'asset': 'assets/logos/cargando.gif',
           };
+        case EnvioStatus.cargaCompleta:
+          return {
+            'color': Colors.blue[100],
+            'icon': Icons.inbox,
+            'textColor': Colors.blue[800],
+            'label': envio.statusToString(),
+            'asset': 'assets/logos/completa3.gif',
+          };
+
+        // case EnvioStatus.cargaCompleta:
+        //   return {
+        //     'color': Colors.orange[100],
+        //     'icon': Icons.assignment_turned_in,
+        //     'textColor': Colors.orange[800],
+        //     'label': envio.statusToString(),
+        //   };
         case EnvioStatus.enEnvio:
           return {
             'color': Colors.blue[100],
             'icon': Icons.directions_car,
             'textColor': Colors.blue[800],
             'label': envio.statusToString(),
+            'asset': 'assets/logos/camiones3.gif',
           };
         case EnvioStatus.finalizado:
-          return {
-            'color': Colors.green[100],
-            'icon': Icons.check_circle,
-            'textColor': Colors.green[800],
-            'label': envio.statusToString(),
-          };
+          bool incidenteCloseEnvio = false;
+          envio.incidentes.forEach((i) {
+            if (i.causeCloseEnvio) {
+              incidenteCloseEnvio = true;
+            }
+          });
+
+          return incidenteCloseEnvio
+              ? {
+                  'color': Colors.red[100],
+                  'icon': Icons.check_circle,
+                  'textColor': Colors.red[400],
+                  'label': envio.statusToString(),
+                  'asset': 'assets/logos/fail.gif',
+                }
+              : {
+                  'color': Colors.green[100],
+                  'icon': Icons.check_circle,
+                  'textColor': Colors.green[800],
+                  'label': envio.statusToString(),
+                  'asset': 'assets/logos/finalizado.gif',
+                };
       }
     }
 
     final statusStyle = _getStatusStyle(envio.status);
     Size size = MediaQuery.of(context).size;
-    return Row(
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: statusStyle['color'],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                statusStyle['icon'],
-                color: statusStyle['textColor'],
-                size: size.height * 0.03,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                statusStyle['label'],
-                style: TextStyle(
-                  color: statusStyle['textColor'],
-                  fontWeight: FontWeight.bold,
+        Positioned(
+          top: size.height * 0.015,
+          left: -size.width * 0.04,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: statusStyle['color'],
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: (statusStyle['textColor'] as Color).withOpacity(.2),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                  offset: Offset(4, 2),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  statusStyle['icon'],
+                  color: statusStyle['textColor'],
+                  size: size.height * 0.03,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  statusStyle['label'],
+                  style: TextStyle(
+                    color: statusStyle['textColor'],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        const Spacer(),
-        CircleAvatar(
-          backgroundColor: Colors.transparent,
-          radius: size.height * 0.04,
-          backgroundImage: const AssetImage('assets/logos/camiones3.gif'),
+        Row(
+          children: [
+            const Spacer(),
+            Container(
+              // backgroundColor: Colors.transparent,
+              width: size.height * 0.075,
+              height: size.height * 0.075,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(statusStyle['asset']),
+                  fit: BoxFit
+                      .cover, // Puedes cambiar esto según cómo quieres que se ajuste la imagen
+                ),
+              ),
+              // backgroundImage: AssetImage(statusStyle['asset']),
+            ),
+          ],
         ),
       ],
     );
@@ -495,12 +738,18 @@ class CurvedClipper extends CustomClipper<Path> {
     Path path = Path();
 
     // Empezamos desde la parte superior izquierda
-    path.lineTo(size.width * 0.26, 0); // Primer punto (izquierda)
+    // path.lineTo(size.width * 0.33, 0); // Primer punto (izquierda)
+    path.lineTo(size.width * 0.28, 0); // Primer punto (izquierda)
 
+    // // Curva hacia abajo
+    // path.quadraticBezierTo(
+    //   0, size.height * 0.52, // Primer punto de control
+    //   size.width * 0.55, size.height * 0.46, // Primer punto de destino
+    // );
     // Curva hacia abajo
     path.quadraticBezierTo(
-      0, size.height * 0.56, // Primer punto de control
-      size.width * 0.55, size.height * 0.5, // Primer punto de destino
+      0, size.height * 0.55, // Primer punto de control
+      size.width * 0.55, size.height * 0.49, // Primer punto de destino
     );
 
     // Segunda curva hacia arriba

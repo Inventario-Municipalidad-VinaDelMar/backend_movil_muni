@@ -186,11 +186,15 @@ class _EntregasFormularioIncidenteState
                   productosAfectados: productosAfectados,
                   scrollToTop: scrollToTop,
                   onSubmit: () async {
-                    if (!formKey.currentState!.saveAndValidate()) {
-                      scrollToTop();
+                    if (envioProvider.creatingIncidente) {
                       return;
                     }
 
+                    if (!formKey.currentState!.validate()) {
+                      scrollToTop();
+                      return;
+                    }
+                    FocusScope.of(context).unfocus();
                     // final close =
                     //     formKey.currentState?.fields['finishEnvio']?.value;
                     // print(bool.parse(close));
@@ -226,26 +230,33 @@ class _EntregasFormularioIncidenteState
                       }).toList()),
                     };
 
-                    showAlertDialog(
-                        context, "Estás seguro de registrar este incidente?",
-                        () async {
-                      Navigator.pop(context);
-                      try {
-                        await envioProvider.generateNewIncidente(
-                            dataIncidente, widget.idEnvio);
-                        if (context.mounted) {
-                          playSound('positive.wav');
-                          throwToastSuccess(context, 'Registro exitoso',
-                              'Se ha ingresado correctamente el incidente');
-                          context.pop();
+                    await showAlertDialog(
+                      context: context,
+                      description:
+                          'Esta accion registrará un incidente en este envío.',
+                      continueFunction: () async {
+                        try {
+                          await envioProvider.generateNewIncidente(
+                              dataIncidente, widget.idEnvio);
+                          if (context.mounted) {
+                            playSound('positive.wav');
+                            throwToastSuccess(context, 'Registro exitoso',
+                                'Se ha ingresado correctamente el incidente');
+                            context.pop();
+                          }
+                        } catch (error) {
+                          if (context.mounted) {
+                            throwToastError(context,
+                                'No se ha podido registrar el incidente.');
+                            // No llamas a `context.pop()` aquí
+                          }
                         }
-                      } catch (error) {
-                        if (context.mounted) {
-                          throwToastError(context,
-                              'No se ha podido registrar el incidente.');
-                          // No llamas a `context.pop()` aquí
-                        }
+                      },
+                    ).then((value) {
+                      if (!context.mounted) {
+                        return;
                       }
+                      FocusScope.of(context).unfocus();
                     });
                   },
                 ),

@@ -1,6 +1,7 @@
 enum EnvioStatus {
   sinCargar,
   cargando,
+  cargaCompleta,
   enEnvio,
   finalizado,
 }
@@ -9,9 +10,11 @@ extension EnvioStatusExtension on EnvioStatus {
   String get displayName {
     switch (this) {
       case EnvioStatus.sinCargar:
-        return 'Sin Cargar';
+        return 'Sin cargar';
       case EnvioStatus.cargando:
         return 'Cargando';
+      case EnvioStatus.cargaCompleta:
+        return 'Carga completa';
       case EnvioStatus.enEnvio:
         return 'En envio';
       case EnvioStatus.finalizado:
@@ -22,10 +25,12 @@ extension EnvioStatusExtension on EnvioStatus {
   // Método para convertir un String a EnvioStatus
   static EnvioStatus fromString(String status) {
     switch (status) {
-      case 'Sin Cargar':
+      case 'Sin cargar':
         return EnvioStatus.sinCargar;
       case 'Cargando':
         return EnvioStatus.cargando;
+      case 'Carga completa':
+        return EnvioStatus.cargaCompleta;
       case 'En envio':
         return EnvioStatus.enEnvio;
       case 'Finalizado':
@@ -71,9 +76,11 @@ class EnvioModel {
   String statusToString() {
     switch (status) {
       case EnvioStatus.sinCargar:
-        return 'Sin Cargar';
+        return 'Sin cargar';
       case EnvioStatus.cargando:
         return 'Cargando';
+      case EnvioStatus.cargaCompleta:
+        return 'Carga completa';
       case EnvioStatus.enEnvio:
         return 'En envio';
       case EnvioStatus.finalizado:

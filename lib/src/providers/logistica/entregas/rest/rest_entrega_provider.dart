@@ -20,6 +20,7 @@ mixin RestEntregaProvider on ChangeNotifier {
 
     try {
       await _logisticaRepository.addNewEntrega(entregaData);
+      // await Future.delayed(Duration(milliseconds: 2000));
     } catch (error) {
       print('Error al crear la entrega: $error');
     } finally {

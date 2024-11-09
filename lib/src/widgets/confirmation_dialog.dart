@@ -1,31 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
-showAlertDialog(
-    BuildContext context, String description, Function()? continueFunction) {
-  Widget continueButton = TextButton(
-    child: const Text("Aceptar"),
-    onPressed: continueFunction,
+Future<void> showAlertDialog({
+  required BuildContext context,
+  required String description,
+  required Function()? continueFunction,
+  // required String entityToCreate,
+}) async {
+  Widget continueButton = ShadButton(
+    onPressed: () async {
+      if (continueFunction == null) {
+        return;
+      }
+      continueFunction();
+      context.pop();
+    },
+    child: const Text('Confirmar'),
   );
-
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text("Confirmación"),
-    content: Text(description),
+  Size size = MediaQuery.of(context).size;
+  final dialog = ShadDialog.alert(
+    constraints: BoxConstraints(
+      maxWidth: size.width * 0.9,
+    ),
+    removeBorderRadiusWhenTiny: false,
+    radius: BorderRadius.circular(15),
+    title: const Text('¿Esta seguro de continuar?'),
+    description: Padding(
+      padding: EdgeInsets.only(bottom: 8),
+      child: Text(
+        description,
+      ),
+    ),
     actions: [
-      TextButton(
-        child: Text("Cancelar"),
+      ShadButton.outline(
+        child: const Text('Cancelar'),
         onPressed: () {
-          Navigator.pop(context);
+          Navigator.of(context).pop();
         },
       ),
       continueButton,
     ],
   );
 
-  showDialog(
+  await showShadDialog(
     context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
+    builder: (context) => dialog,
   );
 }

@@ -405,66 +405,74 @@ class _AddButtonTandaState extends State<_AddButtonTanda> {
                   ),
                 ),
           onPressed: () async {
-            showAlertDialog(context, "Estás seguro de añadir esta tanda?",
-                () async {
-              Navigator.pop(context);
-              if (!widget.formKey.currentState!.saveAndValidate()) {
-                return;
-              }
-              await inventarioProvider
-                  .addTanda(inventarioProvider.formularioTandaData);
-              String productName = '';
+            await showAlertDialog(
+                context: context,
+                description:
+                    'Esta acción registrará una nueva tanda de productos al sistema.',
+                continueFunction: () async {
+                  if (!widget.formKey.currentState!.saveAndValidate()) {
+                    return;
+                  }
+                  await inventarioProvider
+                      .addTanda(inventarioProvider.formularioTandaData);
+                  String productName = '';
 
-              for (final producto in inventarioProvider.productosSelection) {
-                if (inventarioProvider.formularioTandaData['idProducto'] ==
-                    producto.id) {
-                  productName = producto.nombre;
-                  break;
-                }
-              }
+                  for (final producto
+                      in inventarioProvider.productosSelection) {
+                    if (inventarioProvider.formularioTandaData['idProducto'] ==
+                        producto.id) {
+                      productName = producto.nombre;
+                      break;
+                    }
+                  }
+                  if (!context.mounted) {
+                    return;
+                  }
+                  playSound('positive.wav');
+
+                  ShadToaster.of(context).show(
+                    ShadToast(
+                      // padding: EdgeInsets.only(bottom: size.height * 0.1),
+                      offset: Offset(size.width * 0.05, size.height * 0.1),
+
+                      backgroundColor: Colors.green[400],
+                      alignment: Alignment.bottomRight,
+                      title: Text(
+                        'Tanda creada',
+                        style: textStyles.p.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                      description: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Positioned(
+                            top: -size.height * 0.042,
+                            right: -size.width * 0.3,
+                            child: Icon(
+                              MdiIcons.checkCircle,
+                              color: Colors.white,
+                              size: size.width * 0.15,
+                            ),
+                          ),
+                          Text(
+                            'Se ha creado tanda de $productName',
+                            style: textStyles.small.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      duration: Duration(seconds: 4),
+                    ),
+                  );
+                  context.pop(true);
+                }).then((value) {
               if (!context.mounted) {
                 return;
               }
-              playSound('positive.wav');
-
-              ShadToaster.of(context).show(
-                ShadToast(
-                  // padding: EdgeInsets.only(bottom: size.height * 0.1),
-                  offset: Offset(size.width * 0.05, size.height * 0.1),
-
-                  backgroundColor: Colors.green[400],
-                  alignment: Alignment.bottomRight,
-                  title: Text(
-                    'Tanda creada',
-                    style: textStyles.p.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                  description: Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.centerRight,
-                    children: [
-                      Positioned(
-                        top: -size.height * 0.042,
-                        right: -size.width * 0.3,
-                        child: Icon(
-                          MdiIcons.checkCircle,
-                          color: Colors.white,
-                          size: size.width * 0.15,
-                        ),
-                      ),
-                      Text(
-                        'Se ha creado tanda de $productName',
-                        style: textStyles.small.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  duration: Duration(seconds: 4),
-                ),
-              );
-              context.pop(true);
+              FocusScope.of(context).unfocus();
             });
           },
           child:

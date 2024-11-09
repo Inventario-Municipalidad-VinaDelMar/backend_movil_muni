@@ -92,177 +92,205 @@ class _EnviosPageState extends State<EnviosPage> {
       ),
       body: planificacionProvider.loadingPlanificacionActual
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                //Planificacion del dia
-                const _TablePlanificacion(),
-                if (planificacionProvider.planificacionActual != null &&
-                    planificacionProvider.planificacionActual?.envioIniciado !=
-                        null)
-                  //Lista de movimiento en el envio actual
-                  _MovimientosList(
-                      idEnvio: planificacionProvider
-                          .planificacionActual!.envioIniciado!.id),
-                const Spacer(),
-                Stack(
-                  clipBehavior: Clip.none,
+          : planificacionProvider.planificacionActual!.detalles.isEmpty
+              ? Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.2),
+                  child: Text(
+                    'No hay productos planificados, hable con un administrador.',
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : Column(
                   children: [
-                    if (!planificacionProvider.processingSolicitud &&
-                        !planificacionProvider.loadingPlanificacionActual &&
-                        planificacionProvider.solicitudEnCurso != null &&
-                        planificacionProvider.solicitudEnCurso?.status ==
-                            SolicitudStatus.pendiente)
-                      Positioned(
-                        top: -(size.height * 0.02),
-                        left: size.width * 0.03,
-                        child: FadeInLeft(
-                          duration: Duration(milliseconds: 200),
+                    //Planificacion del dia
+                    const _TablePlanificacion(),
+                    if (planificacionProvider.planificacionActual != null &&
+                        planificacionProvider
+                                .planificacionActual?.envioIniciado !=
+                            null)
+                      //Lista de movimiento en el envio actual
+                      _MovimientosList(
+                          idEnvio: planificacionProvider
+                              .planificacionActual!.envioIniciado!.id),
+                    const Spacer(),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        if (!planificacionProvider.processingSolicitud &&
+                            !planificacionProvider.loadingPlanificacionActual &&
+                            planificacionProvider.solicitudEnCurso != null &&
+                            planificacionProvider.solicitudEnCurso?.status ==
+                                SolicitudStatus.pendiente)
+                          Positioned(
+                            top: -(size.height * 0.02),
+                            left: size.width * 0.03,
+                            child: FadeInLeft(
+                              duration: Duration(milliseconds: 200),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Esperando autorizacion de un administrador...',
+                                    style: textStyles.small
+                                        .copyWith(color: Colors.black54),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ShadButton(
+                          width: double.infinity,
+                          enabled: planificacionProvider.waitingTimeEnvio
+                              ? false
+                              : planificacionProvider.processingSolicitud
+                                  ? false
+                                  : planificacionProvider.completingEnvio
+                                      ? false
+                                      : planificacionProvider
+                                                      .solicitudEnCurso !=
+                                                  null &&
+                                              planificacionProvider
+                                                      .solicitudEnCurso
+                                                      ?.status ==
+                                                  SolicitudStatus.pendiente
+                                          ? false
+                                          : (planificacionProvider
+                                                      .planificacionActual
+                                                      ?.envioIniciado !=
+                                                  null
+                                              ? planificacionProvider
+                                                          .planificacionActual
+                                                          ?.envioIniciado !=
+                                                      null &&
+                                                  planificacionProvider
+                                                      .planificacionActual!
+                                                      .areAllDetailsComplete()
+                                              : true),
+                          size: ShadButtonSize.lg,
+                          onPressed: () async {
+                            if (planificacionProvider.waitingTimeEnvio) {
+                              return;
+                            }
+                            if (planificacionProvider.solicitudEnCurso !=
+                                    null &&
+                                planificacionProvider
+                                        .solicitudEnCurso?.status ==
+                                    SolicitudStatus.pendiente) {
+                              return;
+                            }
+                            if (planificacionProvider.planificacionActual!
+                                .areAllDetailsComplete()) {
+                              showAlertDialog(
+                                  context: context,
+                                  description:
+                                      'Esta acción marcará el envio actual con carga completa.',
+                                  continueFunction: () async {
+                                    Navigator.pop(context);
+                                    await planificacionProvider
+                                        .completeCurrentEnvio();
+                                    // Timer(const Duration(seconds: 5), () {
+                                    playSound('positive.wav');
+                                    if (!context.mounted) {
+                                      return;
+                                    }
+                                    showToaster(
+                                        context,
+                                        'Envío con carga completa.',
+                                        'El envió se completo con éxito !');
+                                    // });
+                                  });
+
+                              return;
+                            }
+
+                            if (planificacionProvider
+                                        .planificacionActual?.envioIniciado !=
+                                    null &&
+                                planificacionProvider.planificacionActual
+                                        ?.envioIniciado!.status ==
+                                    EnvioStatus.sinCargar) {
+                              return;
+                            }
+                            await planificacionProvider
+                                .sendSolicitudAutorizacion();
+                          },
+                          icon: (planificacionProvider.solicitudEnCurso !=
+                                          null &&
+                                      planificacionProvider
+                                              .solicitudEnCurso?.status ==
+                                          SolicitudStatus.pendiente) ||
+                                  planificacionProvider.completingEnvio ||
+                                  planificacionProvider.processingSolicitud ||
+                                  planificacionProvider.waitingTimeEnvio
+                              ? null
+                              : planificacionProvider
+                                          .planificacionActual?.envioIniciado ==
+                                      null
+                                  ? const Icon(Icons.swipe_up_outlined)
+                                  : const Icon(Icons.fire_truck_outlined),
                           child: Row(
                             children: [
                               Text(
-                                'Esperando autorizacion de un administrador...',
-                                style: textStyles.small
-                                    .copyWith(color: Colors.black54),
+                                planificacionProvider.waitingTimeEnvio
+                                    ? planificacionProvider.countdownText
+                                    : planificacionProvider.processingSolicitud
+                                        ? 'Creando solicitud'
+                                        : planificacionProvider.completingEnvio
+                                            ? 'Completando envio'
+                                            : planificacionProvider
+                                                            .solicitudEnCurso !=
+                                                        null &&
+                                                    planificacionProvider
+                                                            .solicitudEnCurso
+                                                            ?.status ==
+                                                        SolicitudStatus
+                                                            .pendiente
+                                                ? 'Esperando'
+                                                : planificacionProvider
+                                                            .planificacionActual
+                                                            ?.envioIniciado ==
+                                                        null
+                                                    ? 'Iniciar nuevo envío'
+                                                    : 'Completar envío',
+                                style:
+                                    textStyles.h4.copyWith(color: Colors.white),
                               ),
+                              SizedBox(width: 5),
+                              if ((planificacionProvider.solicitudEnCurso !=
+                                          null &&
+                                      planificacionProvider
+                                              .solicitudEnCurso?.status ==
+                                          SolicitudStatus.pendiente) ||
+                                  planificacionProvider.completingEnvio ||
+                                  planificacionProvider.processingSolicitud ||
+                                  planificacionProvider.waitingTimeEnvio)
+                                AnimateIcon(
+                                  color: Colors.white,
+                                  animateIcon: AnimateIcons.loading6,
+                                  width: size.height * 0.027,
+                                  height: size.height * 0.027,
+                                  onTap: () {},
+                                  iconType: IconType.continueAnimation,
+                                ),
+                              if ((planificacionProvider.solicitudEnCurso ==
+                                          null ||
+                                      planificacionProvider
+                                              .solicitudEnCurso?.status !=
+                                          SolicitudStatus.pendiente) &&
+                                  !planificacionProvider.completingEnvio &&
+                                  !planificacionProvider.processingSolicitud &&
+                                  !planificacionProvider.waitingTimeEnvio)
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                )
                             ],
                           ),
                         ),
-                      ),
-                    ShadButton(
-                      width: double.infinity,
-                      enabled: planificacionProvider.waitingTimeEnvio
-                          ? false
-                          : planificacionProvider.processingSolicitud
-                              ? false
-                              : planificacionProvider.completingEnvio
-                                  ? false
-                                  : planificacionProvider.solicitudEnCurso !=
-                                              null &&
-                                          planificacionProvider
-                                                  .solicitudEnCurso?.status ==
-                                              SolicitudStatus.pendiente
-                                      ? false
-                                      : (planificacionProvider
-                                                  .planificacionActual
-                                                  ?.envioIniciado !=
-                                              null
-                                          ? planificacionProvider
-                                                      .planificacionActual
-                                                      ?.envioIniciado !=
-                                                  null &&
-                                              planificacionProvider
-                                                  .planificacionActual!
-                                                  .areAllDetailsComplete()
-                                          : true),
-                      size: ShadButtonSize.lg,
-                      onPressed: () async {
-                        if (planificacionProvider.waitingTimeEnvio) {
-                          return;
-                        }
-                        if (planificacionProvider.solicitudEnCurso != null &&
-                            planificacionProvider.solicitudEnCurso?.status ==
-                                SolicitudStatus.pendiente) {
-                          return;
-                        }
-                        if (planificacionProvider.planificacionActual!
-                            .areAllDetailsComplete()) {
-                          showAlertDialog(
-                              context, "Estás seguro de completar este envío?",
-                              () async {
-                            Navigator.pop(context);
-                            await planificacionProvider.completeCurrentEnvio();
-                            // Timer(const Duration(seconds: 5), () {
-                            playSound('positive.wav');
-                            showToaster(context, "Envío creado.",
-                                "El envió ha sido creado con éxito !");
-                            // });
-                          });
-
-                          return;
-                        }
-
-                        if (planificacionProvider
-                                    .planificacionActual?.envioIniciado !=
-                                null &&
-                            planificacionProvider.planificacionActual
-                                    ?.envioIniciado!.status ==
-                                EnvioStatus.sinCargar) {
-                          return;
-                        }
-                        await planificacionProvider.sendSolicitudAutorizacion();
-                      },
-                      icon: (planificacionProvider.solicitudEnCurso != null &&
-                                  planificacionProvider
-                                          .solicitudEnCurso?.status ==
-                                      SolicitudStatus.pendiente) ||
-                              planificacionProvider.completingEnvio ||
-                              planificacionProvider.processingSolicitud ||
-                              planificacionProvider.waitingTimeEnvio
-                          ? null
-                          : planificacionProvider
-                                      .planificacionActual?.envioIniciado ==
-                                  null
-                              ? const Icon(Icons.swipe_up_outlined)
-                              : const Icon(Icons.fire_truck_outlined),
-                      child: Row(
-                        children: [
-                          Text(
-                            planificacionProvider.waitingTimeEnvio
-                                ? planificacionProvider.countdownText
-                                : planificacionProvider.processingSolicitud
-                                    ? 'Creando solicitud'
-                                    : planificacionProvider.completingEnvio
-                                        ? 'Completando envio'
-                                        : planificacionProvider
-                                                        .solicitudEnCurso !=
-                                                    null &&
-                                                planificacionProvider
-                                                        .solicitudEnCurso
-                                                        ?.status ==
-                                                    SolicitudStatus.pendiente
-                                            ? 'Esperando'
-                                            : planificacionProvider
-                                                        .planificacionActual
-                                                        ?.envioIniciado ==
-                                                    null
-                                                ? 'Iniciar nuevo envío'
-                                                : 'Completar envío',
-                            style: textStyles.h4.copyWith(color: Colors.white),
-                          ),
-                          SizedBox(width: 5),
-                          if ((planificacionProvider.solicitudEnCurso != null &&
-                                  planificacionProvider
-                                          .solicitudEnCurso?.status ==
-                                      SolicitudStatus.pendiente) ||
-                              planificacionProvider.completingEnvio ||
-                              planificacionProvider.processingSolicitud ||
-                              planificacionProvider.waitingTimeEnvio)
-                            AnimateIcon(
-                              color: Colors.white,
-                              animateIcon: AnimateIcons.loading6,
-                              width: size.height * 0.027,
-                              height: size.height * 0.027,
-                              onTap: () {},
-                              iconType: IconType.continueAnimation,
-                            ),
-                          if ((planificacionProvider.solicitudEnCurso == null ||
-                                  planificacionProvider
-                                          .solicitudEnCurso?.status !=
-                                      SolicitudStatus.pendiente) &&
-                              !planificacionProvider.completingEnvio &&
-                              !planificacionProvider.processingSolicitud &&
-                              !planificacionProvider.waitingTimeEnvio)
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                            )
-                        ],
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
     );
   }
 }
