@@ -5,7 +5,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 
 class GenericTextInput extends StatelessWidget {
   final String id;
-  final String labelText;
+  final String? labelText;
   final String placeHolder;
   final void Function(String?)? onChanged;
   final void Function()? onPressed;
@@ -14,12 +14,15 @@ class GenericTextInput extends StatelessWidget {
   final TextInputType inputType;
   final TextEditingController? controller;
   final List<TextInputFormatter>? inputFormatters;
+  final FocusNode? focusNode;
 
   final int maxLines;
   final int? maxLength;
   const GenericTextInput({
     super.key,
-    required this.labelText,
+    this.focusNode,
+    this.labelText,
+    // required this.labelText,
     required this.placeHolder,
     this.onChanged,
     this.inputType = TextInputType.text,
@@ -42,44 +45,52 @@ class GenericTextInput extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Text(
-              labelText,
-              style: textStyles.p,
+          if (labelText != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                labelText!,
+                style: textStyles.p,
+              ),
             ),
-          ),
           ConstrainedBox(
             constraints: BoxConstraints(
               minWidth: size.width * 0.9,
             ),
-            child: ShadInputFormField(
-              autofocus: false,
-              maxLines: maxLines,
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              id: id,
-              decoration: ShadDecoration(
-                errorLabelStyle: textStyles.p,
-                labelStyle: textStyles.p,
+            child: Focus(
+              focusNode: focusNode,
+              child: ShadInputFormField(
+                id: id,
+                autofocus: false,
+                maxLines: maxLines,
+                maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                // placeholderStyle: textStyles.small.copyWith(
+                //   color: Colors.white.withOpacity(.9),
+                //   height: 0,
+                // ),
+                decoration: ShadDecoration(
+                  errorLabelStyle: textStyles.p,
+                  labelStyle: textStyles.p,
+                ),
+                validator: validator,
+                error: error ??
+                    (error) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(error),
+                      );
+                    },
+                controller: controller,
+                inputFormatters: [
+                  if (inputFormatters != null) ...inputFormatters!,
+                  if (maxLength != null)
+                    LengthLimitingTextInputFormatter(maxLength),
+                ],
+                onPressed: onPressed,
+                placeholder: Text(placeHolder),
+                keyboardType: inputType,
+                onChanged: onChanged,
               ),
-              validator: validator,
-              error: error ??
-                  (error) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(error),
-                    );
-                  },
-              controller: controller,
-              inputFormatters: [
-                if (inputFormatters != null) ...inputFormatters!,
-                if (maxLength != null)
-                  LengthLimitingTextInputFormatter(maxLength),
-              ],
-              onPressed: onPressed,
-              placeholder: Text(placeHolder),
-              keyboardType: inputType,
-              onChanged: onChanged,
             ),
           ),
           if (maxLength !=

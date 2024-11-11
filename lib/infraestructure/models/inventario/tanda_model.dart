@@ -37,4 +37,17 @@ class TandaModel {
       productoId: tanda['productoId'],
     );
   }
+  static TandaModel getNull() {
+    return TandaModel(
+      id: '',
+      cantidadIngresada: 0,
+      cantidadActual: 0,
+      fechaLlegada: DateTime.now(),
+      fechaVencimiento: DateTime.now(),
+      bodega: '',
+      producto: '',
+      ubicacion: '',
+      productoId: '',
+    );
+  }
 }

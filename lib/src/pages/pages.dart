@@ -1,3 +1,8 @@
+export 'package:frontend_movil_muni/src/pages/tandas/form_mermas.dart';
+export 'package:frontend_movil_muni/src/pages/tandas/form_reingresos.dart';
+
+export 'package:frontend_movil_muni/src/pages/tandas/choose_action_page.dart';
+
 export 'package:frontend_movil_muni/src/pages/entregas/entregas_adjuntar_documento.dart';
 
 export 'package:frontend_movil_muni/src/pages/entregas/entregas_fomulario_incidente.dart';

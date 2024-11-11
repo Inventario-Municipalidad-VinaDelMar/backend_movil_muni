@@ -192,4 +192,8 @@ class EnvioLogisticoModel extends EnvioModel {
     final period = dateTime.hour < 12 ? 'AM' : 'PM';
     return '$hour:$minute $period';
   }
+
+  String getFechaFormatted() {
+    return '${fecha.split('-')[2]}/${fecha.split('-')[1]}/${fecha.split('-')[0]}';
+  }
 }

@@ -7,6 +7,9 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:frontend_movil_muni/infraestructure/models/inventario/bodegas_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/inventario/producto_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/inventario/ubicaciones_model.dart';
+import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
+import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
+import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_select_input.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
@@ -25,13 +28,15 @@ class AddTandasPage extends StatefulWidget {
 }
 
 class _AddTandasPageState extends State<AddTandasPage> {
+  late InventarioProvider _inventarioProvider;
   final formKey = GlobalKey<ShadFormState>();
   final TextEditingController fechaController = TextEditingController();
   bool isInvalidDate = false;
   String? selectedUbicacion;
   Timer? _disposeTimer;
-
-  late InventarioProvider _inventarioProvider;
+  bool showPickerEnvio = false;
+  EnvioLogisticoModel? envioSelected;
+  bool isKeyboardVisible = false;
   Map<String, SelectionProductModel> mapearListaAProductoMap(
       List<SelectionProductModel> productos) {
     return {for (var producto in productos) producto.id: producto};
@@ -41,8 +46,9 @@ class _AddTandasPageState extends State<AddTandasPage> {
   void initState() {
     super.initState();
     _inventarioProvider = context.read<InventarioProvider>();
-    _inventarioProvider
-        .connect([InventarioEvent.getProductos, InventarioEvent.getAllBodegas]);
+    _inventarioProvider.connect(
+      [InventarioEvent.getProductos, InventarioEvent.getAllBodegas],
+    );
   }
 
   @override
@@ -72,181 +78,191 @@ class _AddTandasPageState extends State<AddTandasPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
     final inventarioProvider = context.watch<InventarioProvider>();
+    // final envioProvider = context.watch<EnvioProvider>();
     final isLoading = inventarioProvider.loadingProductos ||
         inventarioProvider.loadingBodegas;
+    double top = MediaQuery.of(context).viewPadding.top;
+    double bottom = MediaQuery.of(context).viewPadding.bottom;
+    double topPadd = MediaQuery.of(context).padding.top;
+    double appBarHeight = kToolbarHeight;
+    double perfectH = (size.height) - (top + bottom) - topPadd - appBarHeight;
+    isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.blue[500],
         title: Text(
           'Añadir Tanda',
-          style: textStyles.h4.copyWith(
-            fontWeight: FontWeight.normal,
-            color: Colors.white,
-          ),
+          style: textStyles.h4
+              .copyWith(fontWeight: FontWeight.normal, color: Colors.white),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: isKeyboardVisible
+          ? null // Oculta el FAB si el teclado está visible
+          : _AddButtonTanda(
+              formKey: formKey,
+              // showPickerEnvio: showPickerEnvio,
+              // envioModel: envioSelected,
+            ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Stack(
-                children: [
-                  ShadForm(
-                    key: formKey,
-                    child: ListView(
-                      children: [
-                        //?Producto input - select
-                        GenericSelectInput<SelectionProductModel>(
-                          padding: 20,
-                          items: inventarioProvider
-                              .productosSelection, // Usamos directamente la lista de productos
-                          displayField: (producto) => producto
-                              .nombre, // Mostramos el nombre del producto
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              final producto = inventarioProvider
-                                  .productosSelection
-                                  .firstWhere(
-                                (u) => u.nombre == value,
-                                orElse: () => SelectionProductModel
-                                    .getNull(), // Aquí puedes manejar lo que ocurre si no encuentra el producto
-                              );
-
-                              if (producto.id != '') {
-                                inventarioProvider.setFormularioTandaData(
-                                    'idProducto', producto.id);
-                              }
-                            }
-                          },
-
-                          fieldId: 'producto',
-                          labelText: 'Producto',
-                          placeholderText: 'Seleccionar producto...',
-                          searchPlaceholderText: 'Buscar producto',
-                        ),
-
-                        //?Cantidad
-                        GenericTextInput(
-                          id: 'cantidad',
-                          labelText: 'Cantidad',
-                          validator: (v) {
-                            if (v.isEmpty) {
-                              return 'Ingrese una Cantidad';
-                            }
-                            return null;
-                          },
-                          placeHolder: '200...',
-                          inputType: TextInputType.number,
-                          onChanged: (value) {
-                            if (value == '') {
-                              if (inventarioProvider.formularioTandaData[
-                                      'cantidadIngresada'] !=
-                                  null) {
-                                inventarioProvider.setFormularioTandaData(
-                                  'cantidadIngresada',
-                                  null,
-                                );
-                              }
-                              return;
-                            }
-                            inventarioProvider.setFormularioTandaData(
-                              'cantidadIngresada',
-                              int.parse(value!),
-                            );
-                          },
-                        ),
-                        //?Vencimiento
-                        CustomDateInput(
-                          id: 'fecha',
-                          controller: fechaController,
-                          label: 'Fecha de vencimiento',
-                          validator: (String? errorsDate) {
-                            setState(() {
-                              isInvalidDate = errorsDate != null;
-                            });
-                            if (errorsDate != '') {
-                              if (inventarioProvider.formularioTandaData[
-                                      'fechaVencimiento'] !=
-                                  null) {
-                                inventarioProvider.setFormularioTandaData(
-                                  'fechaVencimiento',
-                                  null,
-                                );
-                              }
-                              return;
-                            }
-                            List<String> fechaSplitted =
-                                fechaController.value.text.split('-');
-                            String fecha =
-                                '${fechaSplitted[2]}-${fechaSplitted[1]}-${fechaSplitted[0]}';
-
-                            inventarioProvider.setFormularioTandaData(
-                              'fechaVencimiento',
-                              fecha,
-                            );
-                          },
-                        ),
-                        //?Bodega
-                        SelectListBodega(
-                          labelText: 'Bodega',
-                          lista: inventarioProvider.bodegas,
-                          nombre: 'Bodegas ⤵️',
-                          onBodegaChanged: (String selectedBodegaId) {
-                            // Actualizar formularioTandaData con el ID de la bodega seleccionada
-                            inventarioProvider.setFormularioTandaData(
-                                'idBodega', selectedBodegaId);
-
-                            // Emitir el evento para obtener las ubicaciones
-                            inventarioProvider
-                                .connect([InventarioEvent.getUbicaciones]);
-                          },
-                        ),
-
-                        //?Ubicacion
-                        GenericSelectInput<UbicacionesModel>(
-                          padding: 20,
-                          items: inventarioProvider
-                              .ubicaciones, // Usamos directamente la lista de productos
-                          displayField: (ubicacion) => ubicacion
-                              .descripcion, // Mostramos el nombre del producto
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              final ubicacion =
-                                  inventarioProvider.ubicaciones.firstWhere(
-                                (u) => u.descripcion == value,
-                                orElse: () => UbicacionesModel
-                                    .getNull(), // Aquí puedes manejar lo que ocurre si no encuentra el producto
-                              );
-
-                              if (ubicacion.id != '') {
-                                setState(() {
-                                  selectedUbicacion =
-                                      value; // Guardamos el id seleccionado
-                                });
-                                inventarioProvider.setFormularioTandaData(
-                                    'idUbicacion', ubicacion.id);
-                              }
-                            }
-                          },
-                          initialValue: selectedUbicacion,
-                          fieldId: 'ubicacion',
-                          labelText: 'Ubicacion',
-                          placeholderText: 'Seleccionar ubicacion...',
-                          searchPlaceholderText: 'Buscar ubicacion',
-                        ),
-                      ],
-                    ),
+          : SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: perfectH,
+                  minWidth: size.width, // Altura mínima igual a la pantalla
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Stack(
+                        children: [
+                          ShadForm(
+                            key: formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              // Cambiado de ListView a Column
+                              children: [
+                                GenericSelectInput<SelectionProductModel>(
+                                  padding: 20,
+                                  items: inventarioProvider.productosSelection,
+                                  displayField: (producto) => producto.nombre,
+                                  onChanged: (String? value) {
+                                    if (value != null) {
+                                      final producto = inventarioProvider
+                                          .productosSelection
+                                          .firstWhere(
+                                        (u) => u.nombre == value,
+                                        orElse: () =>
+                                            SelectionProductModel.getNull(),
+                                      );
+                                      if (producto.id != '') {
+                                        inventarioProvider
+                                            .setFormularioTandaData(
+                                                'idProducto', producto.id);
+                                      }
+                                    }
+                                  },
+                                  fieldId: 'producto',
+                                  labelText: 'Producto',
+                                  placeholderText: 'Seleccionar producto...',
+                                  searchPlaceholderText: 'Buscar producto',
+                                ),
+                                //?Cantidad
+                                GenericTextInput(
+                                  id: 'cantidad',
+                                  labelText: 'Cantidad',
+                                  validator: (v) {
+                                    if (v.isEmpty) {
+                                      return 'Ingrese una Cantidad';
+                                    }
+                                    return null;
+                                  },
+                                  placeHolder: '200...',
+                                  inputType: TextInputType.number,
+                                  onChanged: (value) {
+                                    if (value == '') {
+                                      if (inventarioProvider
+                                                  .formularioTandaData[
+                                              'cantidadIngresada'] !=
+                                          null) {
+                                        inventarioProvider
+                                            .setFormularioTandaData(
+                                                'cantidadIngresada', null);
+                                      }
+                                      return;
+                                    }
+                                    inventarioProvider.setFormularioTandaData(
+                                        'cantidadIngresada', int.parse(value!));
+                                  },
+                                ),
+                                //?Vencimiento
+                                CustomDateInput(
+                                  id: 'fecha',
+                                  controller: fechaController,
+                                  label: 'Fecha de vencimiento',
+                                  validator: (String? errorsDate) {
+                                    setState(() {
+                                      isInvalidDate = errorsDate != null;
+                                    });
+                                    if (errorsDate != '') {
+                                      if (inventarioProvider
+                                                  .formularioTandaData[
+                                              'fechaVencimiento'] !=
+                                          null) {
+                                        inventarioProvider
+                                            .setFormularioTandaData(
+                                                'fechaVencimiento', null);
+                                      }
+                                      return;
+                                    }
+                                    List<String> fechaSplitted =
+                                        fechaController.value.text.split('-');
+                                    String fecha =
+                                        '${fechaSplitted[2]}-${fechaSplitted[1]}-${fechaSplitted[0]}';
+                                    inventarioProvider.setFormularioTandaData(
+                                        'fechaVencimiento', fecha);
+                                  },
+                                ),
+                                //?Bodega
+                                SelectListBodega(
+                                  labelText: 'Bodega',
+                                  lista: inventarioProvider.bodegas,
+                                  nombre: 'Bodegas ⤵️',
+                                  onBodegaChanged: (String selectedBodegaId) {
+                                    inventarioProvider.setFormularioTandaData(
+                                        'idBodega', selectedBodegaId);
+                                    inventarioProvider.connect(
+                                        [InventarioEvent.getUbicaciones]);
+                                  },
+                                ),
+                                //?Ubicacion
+                                GenericSelectInput<UbicacionesModel>(
+                                  padding: 20,
+                                  items: inventarioProvider.ubicaciones,
+                                  displayField: (ubicacion) =>
+                                      ubicacion.descripcion,
+                                  onChanged: (String? value) {
+                                    if (value != null) {
+                                      final ubicacion = inventarioProvider
+                                          .ubicaciones
+                                          .firstWhere(
+                                        (u) => u.descripcion == value,
+                                        orElse: () =>
+                                            UbicacionesModel.getNull(),
+                                      );
+                                      if (ubicacion.id != '') {
+                                        setState(() {
+                                          selectedUbicacion = value;
+                                        });
+                                        inventarioProvider
+                                            .setFormularioTandaData(
+                                                'idUbicacion', ubicacion.id);
+                                      }
+                                    }
+                                  },
+                                  initialValue: selectedUbicacion,
+                                  fieldId: 'ubicacion',
+                                  labelText: 'Ubicacion',
+                                  placeholderText: 'Seleccionar ubicacion...',
+                                  searchPlaceholderText: 'Buscar ubicacion',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  _AddButtonTanda(
-                    formKey: formKey,
-                  )
-                ],
+                ),
               ),
             ),
     );
@@ -367,8 +383,12 @@ class _SelectListBodegaState extends State<SelectListBodega> {
 
 class _AddButtonTanda extends StatefulWidget {
   final GlobalKey<ShadFormState> formKey;
+  // final bool showPickerEnvio;
+  // final EnvioModel? envioModel;
   const _AddButtonTanda({
     required this.formKey,
+    // required this.showPickerEnvio,
+    // this.envioModel,
   });
 
   @override
@@ -387,96 +407,92 @@ class _AddButtonTandaState extends State<_AddButtonTanda> {
     final inventarioProvider = context.watch<InventarioProvider>();
     Size size = MediaQuery.of(context).size;
     final textStyles = ShadTheme.of(context).textTheme;
-    return Positioned(
-      bottom: 10.0,
-      left: 5.0,
-      right: 5.0,
-      child: ShadButton(
-          enabled: !inventarioProvider.creatingTanda,
-          icon: !inventarioProvider.creatingTanda
-              ? Container()
-              : Padding(
-                  padding: EdgeInsets.only(right: 8),
-                  child: SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+    return ShadButton(
+        width: double.infinity,
+        enabled: !inventarioProvider.creatingTanda,
+        // &&
+        //     (!widget.showPickerEnvio || widget.envioModel != null),
+        icon: !inventarioProvider.creatingTanda
+            ? Container()
+            : Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: SizedBox.square(
+                  dimension: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
                   ),
                 ),
-          onPressed: () async {
-            await showAlertDialog(
-                context: context,
-                description:
-                    'Esta acción registrará una nueva tanda de productos al sistema.',
-                continueFunction: () async {
-                  if (!widget.formKey.currentState!.saveAndValidate()) {
-                    return;
-                  }
-                  await inventarioProvider
-                      .addTanda(inventarioProvider.formularioTandaData);
-                  String productName = '';
+              ),
+        onPressed: () async {
+          if (!widget.formKey.currentState!.saveAndValidate()) {
+            return;
+          }
+          await showAlertDialog(
+              context: context,
+              description:
+                  'Esta acción registrará una nueva tanda de productos al sistema.',
+              continueFunction: () async {
+                await inventarioProvider
+                    .addTanda(inventarioProvider.formularioTandaData);
+                String productName = '';
 
-                  for (final producto
-                      in inventarioProvider.productosSelection) {
-                    if (inventarioProvider.formularioTandaData['idProducto'] ==
-                        producto.id) {
-                      productName = producto.nombre;
-                      break;
-                    }
+                for (final producto in inventarioProvider.productosSelection) {
+                  if (inventarioProvider.formularioTandaData['idProducto'] ==
+                      producto.id) {
+                    productName = producto.nombre;
+                    break;
                   }
-                  if (!context.mounted) {
-                    return;
-                  }
-                  playSound('positive.wav');
+                }
+                if (!context.mounted) {
+                  return;
+                }
+                playSound('positive.wav');
 
-                  ShadToaster.of(context).show(
-                    ShadToast(
-                      // padding: EdgeInsets.only(bottom: size.height * 0.1),
-                      offset: Offset(size.width * 0.05, size.height * 0.1),
+                ShadToaster.of(context).show(
+                  ShadToast(
+                    // padding: EdgeInsets.only(bottom: size.height * 0.1),
+                    offset: Offset(size.width * 0.05, size.height * 0.1),
 
-                      backgroundColor: Colors.green[400],
-                      alignment: Alignment.bottomRight,
-                      title: Text(
-                        'Tanda creada',
-                        style: textStyles.p.copyWith(
-                          color: Colors.white,
-                        ),
+                    backgroundColor: Colors.green[400],
+                    alignment: Alignment.bottomRight,
+                    title: Text(
+                      'Tanda creada',
+                      style: textStyles.p.copyWith(
+                        color: Colors.white,
                       ),
-                      description: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Positioned(
-                            top: -size.height * 0.042,
-                            right: -size.width * 0.3,
-                            child: Icon(
-                              MdiIcons.checkCircle,
-                              color: Colors.white,
-                              size: size.width * 0.15,
-                            ),
-                          ),
-                          Text(
-                            'Se ha creado tanda de $productName',
-                            style: textStyles.small.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      duration: Duration(seconds: 4),
                     ),
-                  );
-                  context.pop(true);
-                }).then((value) {
-              if (!context.mounted) {
-                return;
-              }
-              FocusScope.of(context).unfocus();
-            });
-          },
-          child:
-              Text(!inventarioProvider.creatingTanda ? 'Añadir' : 'Cargando')),
-    );
+                    description: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.centerRight,
+                      children: [
+                        Positioned(
+                          top: -size.height * 0.042,
+                          right: -size.width * 0.3,
+                          child: Icon(
+                            MdiIcons.checkCircle,
+                            color: Colors.white,
+                            size: size.width * 0.15,
+                          ),
+                        ),
+                        Text(
+                          'Se ha creado tanda de $productName',
+                          style: textStyles.small.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+                context.pop(true);
+              }).then((value) {
+            if (!context.mounted) {
+              return;
+            }
+            FocusScope.of(context).unfocus();
+          });
+        },
+        child: Text(!inventarioProvider.creatingTanda ? 'Añadir' : 'Cargando'));
   }
 }

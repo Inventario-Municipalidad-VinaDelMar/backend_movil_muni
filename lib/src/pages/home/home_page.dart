@@ -29,12 +29,19 @@ class HomePage extends StatelessWidget {
         'route': '/envio'
       },
       {
-        'title': 'Productos',
-        'subtitle': 'Añade tandas de productos.',
+        'title': 'Inventario',
+        'subtitle': 'Gestiona ingresos, mermas y devoluciones de productos.',
         'footer': '',
         'icon': AnimateIcons.paid,
-        'route': '/tandas/add'
+        'route': '/productos'
       },
+      // {
+      //   'title': 'Productos',
+      //   'subtitle': 'Añade tandas de productos.',
+      //   'footer': '',
+      //   'icon': AnimateIcons.paid,
+      //   'route': '/productos'
+      // },
       {
         'title': 'Entregas',
         'subtitle': 'Registra entregas a comedores solidarios.',
@@ -166,22 +173,7 @@ class HomePage extends StatelessWidget {
                     return InkWell(
                       onTap: () async {
                         if (item['route'] == null) return;
-                        // context.push(item['route']);
-                        // Función que navega a la ruta y verifica el resultado
-                        Future<void> navigateAndCheckResult() async {
-                          final result = await context.push(item['route']);
-
-                          // Si el resultado es true, volver a navegar a la misma página
-                          if (result == true && context.mounted) {
-                            // await Future.delayed(Duration(
-                            //     milliseconds:
-                            //         200)); // Un pequeño delay si lo necesitas
-                            navigateAndCheckResult(); // Llamar de nuevo para crear el bucle
-                          }
-                        }
-
-                        // Llamamos la función de navegación inicial
-                        navigateAndCheckResult();
+                        context.push(item['route']);
                       },
                       child: ZoomIn(
                         duration: Duration(milliseconds: 200),

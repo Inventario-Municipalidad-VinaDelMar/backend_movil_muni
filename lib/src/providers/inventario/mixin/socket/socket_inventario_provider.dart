@@ -228,6 +228,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
           _socket?.off(SocketEvents.newProducto);
           break;
         case InventarioEvent.getTandasByProducto:
+          tandaByProducto.clear();
           _socket?.off('$productoId${SocketEvents.loadTandasByProducto}');
           break;
       }

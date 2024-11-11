@@ -4,6 +4,7 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logistico_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/src/pages/entregas/widgets/common/empty_full_screen.dart';
+import 'package:frontend_movil_muni/src/pages/entregas/widgets/common/style_by_status.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/socket/socket_envio_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/utils/dates_utils.dart';
@@ -431,19 +432,22 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   ),
                 ),
               if (incidente.evidenciaFotograficaUrl != null)
-                Center(
-                  child: Container(
-                    margin: EdgeInsets.only(right: size.width * 0.08),
-                    width: size.height * 0.25,
-                    height: size.height * 0.25,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: DecorationImage(
-                        image: NetworkImage(incidente.evidenciaFotograficaUrl!),
-                        fit: BoxFit.cover,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: size.height * 0.25,
+                      height: size.height * 0.25,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        image: DecorationImage(
+                          image:
+                              NetworkImage(incidente.evidenciaFotograficaUrl!),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 )
             ],
           )),
@@ -464,75 +468,8 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
   Widget _buildCardHeader(
       EnvioLogisticoModel envio, Size size, ShadTextTheme textStyles) {
     // Método auxiliar para obtener el color y el ícono según el estado
-    Map<String, dynamic> _getStatusStyle(EnvioStatus status) {
-      switch (status) {
-        case EnvioStatus.sinCargar:
-          return {
-            'color': Colors.grey[300],
-            'icon': Icons.hourglass_empty,
-            'textColor': Colors.grey[700],
-            'label': envio.statusToString(),
-            'asset': 'assets/logos/cargar.gif',
-          };
-        case EnvioStatus.cargando:
-          return {
-            'color': Colors.yellow[100],
-            'icon': Icons.local_shipping,
-            'textColor': Colors.yellow[800],
-            'label': envio.statusToString(),
-            'asset': 'assets/logos/cargando.gif',
-          };
-        case EnvioStatus.cargaCompleta:
-          return {
-            'color': Colors.blue[100],
-            'icon': Icons.inbox,
-            'textColor': Colors.blue[800],
-            'label': envio.statusToString(),
-            'asset': 'assets/logos/completa3.gif',
-          };
 
-        // case EnvioStatus.cargaCompleta:
-        //   return {
-        //     'color': Colors.orange[100],
-        //     'icon': Icons.assignment_turned_in,
-        //     'textColor': Colors.orange[800],
-        //     'label': envio.statusToString(),
-        //   };
-        case EnvioStatus.enEnvio:
-          return {
-            'color': Colors.blue[100],
-            'icon': Icons.directions_car,
-            'textColor': Colors.blue[800],
-            'label': envio.statusToString(),
-            'asset': 'assets/logos/camiones3.gif',
-          };
-        case EnvioStatus.finalizado:
-          bool incidenteCloseEnvio = false;
-          envio.incidentes.forEach((i) {
-            if (i.causeCloseEnvio) {
-              incidenteCloseEnvio = true;
-            }
-          });
-
-          return incidenteCloseEnvio
-              ? {
-                  'color': Colors.red[100],
-                  'icon': Icons.check_circle,
-                  'textColor': Colors.red[400],
-                  'label': envio.statusToString(),
-                  'asset': 'assets/logos/fail.gif',
-                }
-              : {
-                  'color': Colors.green[100],
-                  'icon': Icons.check_circle,
-                  'textColor': Colors.green[800],
-                  'label': envio.statusToString(),
-                  'asset': 'assets/logos/finalizado.gif',
-                };
-      }
-    }
-
-    final statusStyle = _getStatusStyle(envio.status);
+    final statusStyle = getStatusStyle(envio);
     Size size = MediaQuery.of(context).size;
     return Stack(
       clipBehavior: Clip.none,

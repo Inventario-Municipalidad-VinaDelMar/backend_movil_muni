@@ -1,21 +1,17 @@
 import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
-
-import 'package:animated_digit/animated_digit.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class TimeSinceWidget extends StatefulWidget {
   final String horaInicioEnvio;
   final String? horaFinalizacion;
+  final TextStyle? style;
 
   const TimeSinceWidget({
     super.key,
     required this.horaInicioEnvio,
     this.horaFinalizacion,
+    this.style,
   });
 
   @override
@@ -94,24 +90,28 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
     final seconds = difference.inSeconds % 60;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: widget.style == null
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
       children: [
         // Componente de horas
         if (hours > 0) ...[
           AnimatedDigitWidget(
             duration: Duration(milliseconds: 800),
             value: hours,
-            textStyle: textStyles.small.copyWith(
-              color: Colors.white,
-              fontSize: size.height * 0.018,
-            ),
+            textStyle: widget.style ??
+                textStyles.small.copyWith(
+                  color: Colors.white,
+                  fontSize: size.height * 0.018,
+                ),
           ),
           Text(
             hours == 1 ? " hora " : " horas ",
-            style: textStyles.small.copyWith(
-              color: Colors.white,
-              fontSize: size.height * 0.018,
-            ),
+            style: widget.style ??
+                textStyles.small.copyWith(
+                  color: Colors.white,
+                  fontSize: size.height * 0.018,
+                ),
           ),
         ],
 
@@ -120,17 +120,19 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
           AnimatedDigitWidget(
             duration: Duration(milliseconds: 800),
             value: minutes,
-            textStyle: textStyles.small.copyWith(
-              color: Colors.white,
-              fontSize: size.height * 0.018,
-            ),
+            textStyle: widget.style ??
+                textStyles.small.copyWith(
+                  color: Colors.white,
+                  fontSize: size.height * 0.018,
+                ),
           ),
           Text(
             minutes == 1 ? " minuto " : " minutos ",
-            style: textStyles.small.copyWith(
-              color: Colors.white,
-              fontSize: size.height * 0.018,
-            ),
+            style: widget.style ??
+                textStyles.small.copyWith(
+                  color: Colors.white,
+                  fontSize: size.height * 0.018,
+                ),
           ),
         ],
 
@@ -139,17 +141,19 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
           AnimatedDigitWidget(
             duration: Duration(milliseconds: 800),
             value: seconds,
-            textStyle: textStyles.small.copyWith(
-              color: Colors.white,
-              fontSize: size.height * 0.018,
-            ),
+            textStyle: widget.style ??
+                textStyles.small.copyWith(
+                  color: Colors.white,
+                  fontSize: size.height * 0.018,
+                ),
           ),
           Text(
             seconds == 1 ? " segundo" : " segundos",
-            style: textStyles.small.copyWith(
-              color: Colors.white,
-              fontSize: size.height * 0.018,
-            ),
+            style: widget.style ??
+                textStyles.small.copyWith(
+                  color: Colors.white,
+                  fontSize: size.height * 0.018,
+                ),
           ),
         ],
       ],

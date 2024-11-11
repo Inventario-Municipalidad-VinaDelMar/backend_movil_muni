@@ -85,8 +85,22 @@ final mainRouter = GoRouter(
       ],
     ),
     GoRoute(
-      path: '/tandas/add',
-      builder: (context, state) => const AddTandasPage(),
+      path: '/productos',
+      builder: (context, state) => const ChooseActionPage(),
+      routes: [
+        GoRoute(
+          path: 'tandas/add',
+          builder: (context, state) => const AddTandasPage(),
+        ),
+        GoRoute(
+          path: 'mermas/add',
+          builder: (context, state) => const FormMermas(),
+        ),
+        GoRoute(
+          path: 'reingresos/add',
+          builder: (context, state) => const FormReingresos(),
+        ),
+      ],
     ),
   ],
   redirect: (context, state) {
