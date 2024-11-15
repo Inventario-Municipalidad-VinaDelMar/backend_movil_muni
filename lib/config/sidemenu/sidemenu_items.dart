@@ -24,7 +24,7 @@ const List<MenuItem> sidemenuItems = [
   MenuItem(
     title: 'Productos',
     subTitle: 'Añade productos.',
-    link: '/tandas/add',
+    link: '/productos',
     icon: AnimateIcons.paid,
   ),
   MenuItem(
