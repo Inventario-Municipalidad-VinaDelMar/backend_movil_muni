@@ -80,13 +80,13 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
         ShadButton(
           enabled:
               (_controller.value.text != '' && _controller.value.text != '0') &&
-                  !movimientoProvider.creatingMovimiento,
+                  !movimientoProvider.creatingRetiro,
           size: ShadButtonSize.sm,
           onPressed: () async {
             if (!_formKey.currentState!.validate()) {
               return;
             }
-            await movimientoProvider.addNewMovimiento({
+            await movimientoProvider.addNewRetiro({
               'cantidadRetirada': int.parse(_controller.value.text),
               'idTanda': widget.tandaId,
               'idEnvioProducto': detalle!.id,
@@ -98,7 +98,7 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
               }
             });
           },
-          icon: !movimientoProvider.creatingMovimiento
+          icon: !movimientoProvider.creatingRetiro
               ? FaIcon(
                   FontAwesomeIcons.check,
                   size: size.height * 0.025,
@@ -139,7 +139,7 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
 
               return null; // Si pasa la validación, no se retorna ningún error
             },
-            enabled: !movimientoProvider.creatingMovimiento,
+            enabled: !movimientoProvider.creatingRetiro,
             controller: _controller,
             onChanged: (p0) => setState(() {}),
             label: Padding(

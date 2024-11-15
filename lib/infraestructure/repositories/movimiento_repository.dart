@@ -23,9 +23,26 @@ class MovimientoRepository {
     )..interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
   }
 
-  Future<void> newMovimiento(Map<String, dynamic> movimientoData) async {
+  Future<void> newMovimientoRetiro(Map<String, dynamic> movimientoData) async {
     try {
       final response = await dio.post('/movimientos', data: movimientoData);
+      print(response);
+      // return response;
+    } on DioException catch (error) {
+      print(error.message);
+      print(error.response?.data);
+      print(error.type);
+      throw Exception(error.response?.data['message'] ?? 'Unknown error');
+    } catch (error) {
+      print('Error desconocido: $error');
+      throw Exception('Unknown error');
+    }
+  }
+
+  Future<void> newMovimientoMerma(Map<String, dynamic> movimientoData) async {
+    try {
+      final response =
+          await dio.post('/movimientos/merma', data: movimientoData);
       print(response);
       // return response;
     } on DioException catch (error) {

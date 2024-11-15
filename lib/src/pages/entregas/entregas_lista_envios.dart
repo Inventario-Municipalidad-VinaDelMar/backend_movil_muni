@@ -262,7 +262,9 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
                   _buildProductsList(envio, size, textStyles),
                   // const Divider(),
                   SizedBox(height: size.height * 0.01),
-                  if (envio.status == EnvioStatus.enEnvio)
+                  if (envio.status == EnvioStatus.enEnvio ||
+                      (envio.status == EnvioStatus.finalizado &&
+                          widget.finalidad == EntregasFinalidad.actualizacion))
                     ShadButton(
                       enabled: envio.productos.isNotEmpty &&
                           envio.status != EnvioStatus.cargando &&
@@ -291,7 +293,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
       children: [
         const Divider(),
         Text(
-          'Incidentes*',
+          'Incidentes informados',
           style: textStyles.p.copyWith(
             fontWeight: FontWeight.w600,
             color: Colors.red[800],
@@ -302,64 +304,78 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
           width: double.infinity,
           height: size.height * 0.08,
           child: ListView.builder(
-            padding: EdgeInsets.only(left: size.width * 0.03),
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemCount: envio.incidentes.length,
             itemBuilder: (context, i) {
               final incidente = envio.incidentes[i];
+              final imageUrl = incidente.evidenciaFotograficaUrl;
+
               return InkResponse(
                 onTap: () => showIncidenteDialog(context, incidente),
                 radius: 100,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(right: size.width * 0.08),
-                      width: size.height * 0.08,
-                      height: size.height * 0.08,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: incidente.evidenciaFotograficaUrl == null ||
-                                incidente.evidenciaFotograficaUrl!.isEmpty
-                            ? Colors.red
-                            : null,
-                        image: incidente.evidenciaFotograficaUrl != null &&
-                                incidente.evidenciaFotograficaUrl!.isNotEmpty
-                            ? DecorationImage(
-                                image: NetworkImage(
-                                    incidente.evidenciaFotograficaUrl!),
-                                fit: BoxFit.cover,
+                child: FutureBuilder(
+                  future: _loadImage(imageUrl, context),
+                  builder: (context, snapshot) {
+                    // Si aún está cargando, mostramos el loader
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        padding: EdgeInsets.all(23),
+                        margin: EdgeInsets.only(right: size.width * 0.02),
+                        width: size.height * 0.08,
+                        height: size.height * 0.08,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.grey[200], // Color de fondo del loader
+                        ),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Si la imagen está cargada o si no hay URL, mostramos el contenido
+                    return ZoomIn(
+                      duration: Duration(milliseconds: 400),
+                      child: Container(
+                        margin: EdgeInsets.only(right: size.width * 0.02),
+                        width: size.height * 0.08,
+                        height: size.height * 0.08,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: imageUrl == null || imageUrl.isEmpty
+                              ? Colors.red
+                              : null,
+                          image: imageUrl != null && imageUrl.isNotEmpty
+                              ? DecorationImage(
+                                  image: NetworkImage(imageUrl),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: imageUrl == null || imageUrl.isEmpty
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    MdiIcons.truckAlert,
+                                    color: Colors.white,
+                                  ),
+                                  Text(
+                                    incidente.type,
+                                    style: textStyles.small.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               )
                             : null,
                       ),
-                      child: incidente.evidenciaFotograficaUrl == null
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  MdiIcons.truckAlert,
-                                  color: Colors.white,
-                                ),
-                                Text(
-                                  incidente.type,
-                                  style: textStyles.small.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                )
-                              ],
-                            )
-                          : null,
-                    ),
-                    Positioned(
-                      top: 0,
-                      left: -size.width * 0.04,
-                      child: Icon(
-                        MdiIcons.exclamationThick,
-                        color: Colors.red,
-                      ),
-                    )
-                  ],
+                    );
+                  },
                 ),
               );
             },
@@ -367,6 +383,13 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
         ),
       ],
     );
+  }
+
+// Método para cargar la imagen y utilizar `precacheImage`
+  Future<void> _loadImage(String? imageUrl, BuildContext context) async {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      await precacheImage(NetworkImage(imageUrl), context);
+    }
   }
 
   void showIncidenteDialog(

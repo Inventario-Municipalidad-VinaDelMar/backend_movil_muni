@@ -145,7 +145,7 @@ class DialogSetProducto extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(false),
         ),
         ShadButton(
-          enabled: cargaSelected.cantidad > 1,
+          enabled: cargaSelected.cantidad >= 1,
           child: const Text('Añadir'),
           onPressed: () {
             if (!formKey.currentState!.saveAndValidate()) {

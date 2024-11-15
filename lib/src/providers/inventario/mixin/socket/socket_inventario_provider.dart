@@ -38,7 +38,7 @@ class SocketEvents {
 
   //Reciben una lista de ubicaciones
   static const String getUbicacionesByBodega = 'getUbicacionesByBodega';
-  static const String loadUbicacionesByBodega = 'loadUbicacionesByBodega';
+  static const String loadUbicacionesByBodega = '-ubicaciones';
 
   static const String newUbicacion = 'newUbicacion';
 
@@ -124,15 +124,17 @@ mixin SocketInventarioProvider on ChangeNotifier {
     _socket?.connect();
   }
 
-  void connect(List<InventarioEvent> events, {String? productoId}) {
+  void connect(List<InventarioEvent> events,
+      {String? productoId, String? idBodega}) {
     //Esta funcion debería ejecutarse cada vez que se entra a una pantalla
-    _clearListeners(events, productoId: productoId);
-    _registerListeners(events, productoId: productoId);
+    _clearListeners(events, productoId: productoId, idBodega: idBodega);
+    _registerListeners(events, productoId: productoId, idBodega: idBodega);
   }
 
-  void disconnect(List<InventarioEvent> events, {String? productoId}) {
+  void disconnect(List<InventarioEvent> events,
+      {String? productoId, String? idBodega}) {
     //Esta funcion debería ejecutarse cada vez que se cierra una pantalla
-    _clearListeners(events, productoId: productoId);
+    _clearListeners(events, productoId: productoId, idBodega: idBodega);
   }
 
   void _disposeSocket() {
@@ -143,7 +145,8 @@ mixin SocketInventarioProvider on ChangeNotifier {
     productosSelection.clear();
   }
 
-  void _registerListeners(List<InventarioEvent> events, {String? productoId}) {
+  void _registerListeners(List<InventarioEvent> events,
+      {String? productoId, String? idBodega}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
@@ -182,9 +185,13 @@ mixin SocketInventarioProvider on ChangeNotifier {
           );
           break;
         case InventarioEvent.getUbicaciones:
+          if (idBodega == null) {
+            print('Id de la bodega es null');
+            return;
+          }
           _handleDataListEvent<UbicacionesModel>(
             emitEvent: SocketEvents.getUbicacionesByBodega,
-            loadEvent: SocketEvents.loadUbicacionesByBodega,
+            loadEvent: '$idBodega${SocketEvents.loadUbicacionesByBodega}',
             dataList: ubicaciones,
             setLoading: (loading) => loadingUbicacion = loading,
             fromApi: (data) => UbicacionesModel.fromApi(data),
@@ -214,7 +221,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
     }
   }
 
-  void _clearListeners(events, {String? productoId}) {
+  void _clearListeners(events, {String? productoId, String? idBodega}) {
     if (_socket == null) return;
     for (var event in events) {
       switch (event) {
@@ -223,6 +230,7 @@ mixin SocketInventarioProvider on ChangeNotifier {
           break;
         case InventarioEvent.getAllBodegas:
           _socket?.off(SocketEvents.loadAllBodegas);
+          _socket?.off('$idBodega${SocketEvents.loadUbicacionesByBodega}');
           break;
         case InventarioEvent.newProducto:
           _socket?.off(SocketEvents.newProducto);
@@ -247,16 +255,25 @@ mixin SocketInventarioProvider on ChangeNotifier {
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     //?Solicitar la informacion
     _socket!.emit(emitEvent, emitPayload);
-
+    print(loadEvent);
+    print(emitEvent);
     //?Capturar informacion solicitada
     _socket!.on(loadEvent, (data) {
-      List<Map<String, dynamic>> listData =
-          List<Map<String, dynamic>>.from(data);
-      dataList.clear();
-      dataList.addAll(listData.map((r) => fromApi(r)).toList());
-      setLoading(false);
+      try {
+        print(loadEvent);
+        List<Map<String, dynamic>> listData =
+            List<Map<String, dynamic>>.from(data);
+        dataList.clear();
+        dataList.addAll(listData.map((r) => fromApi(r)).toList());
+        setLoading(false);
 
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      } catch (e) {
+        print(e);
+        setLoading(false);
+
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      }
     });
   }
 

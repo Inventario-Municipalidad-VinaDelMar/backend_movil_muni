@@ -16,6 +16,8 @@ import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/inventario_provider.dart';
 import 'package:frontend_movil_muni/src/providers/inventario/mixin/socket/socket_inventario_provider.dart';
 import 'package:frontend_movil_muni/src/widgets/custom_date_input.dart';
+import 'package:frontend_movil_muni/src/widgets/sound/sound_player.dart';
+import 'package:frontend_movil_muni/src/widgets/toast/toast_shad.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -221,7 +223,8 @@ class _AddTandasPageState extends State<AddTandasPage> {
                                     inventarioProvider.setFormularioTandaData(
                                         'idBodega', selectedBodegaId);
                                     inventarioProvider.connect(
-                                        [InventarioEvent.getUbicaciones]);
+                                        [InventarioEvent.getUbicaciones],
+                                        idBodega: selectedBodegaId);
                                   },
                                 ),
                                 //?Ubicacion
@@ -446,45 +449,15 @@ class _AddButtonTandaState extends State<_AddButtonTanda> {
                 if (!context.mounted) {
                   return;
                 }
+                SoundPlayer.playSound('positive.wav');
                 playSound('positive.wav');
-
-                ShadToaster.of(context).show(
-                  ShadToast(
-                    // padding: EdgeInsets.only(bottom: size.height * 0.1),
-                    offset: Offset(size.width * 0.05, size.height * 0.1),
-
-                    backgroundColor: Colors.green[400],
-                    alignment: Alignment.bottomRight,
-                    title: Text(
-                      'Tanda creada',
-                      style: textStyles.p.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
-                    description: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.centerRight,
-                      children: [
-                        Positioned(
-                          top: -size.height * 0.042,
-                          right: -size.width * 0.3,
-                          child: Icon(
-                            MdiIcons.checkCircle,
-                            color: Colors.white,
-                            size: size.width * 0.15,
-                          ),
-                        ),
-                        Text(
-                          'Se ha creado tanda de $productName',
-                          style: textStyles.small.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    duration: Duration(seconds: 4),
-                  ),
+                throwToastSuccess(
+                  context: context,
+                  duration: 3000, //3 segs
+                  title: 'Tanda de productos creada',
+                  descripcion: 'Se ha añadido una tanda de $productName',
                 );
+
                 context.pop(true);
               }).then((value) {
             if (!context.mounted) {

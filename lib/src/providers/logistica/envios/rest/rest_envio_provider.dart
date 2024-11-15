@@ -7,6 +7,7 @@ UserProvider _userProvider = UserProvider();
 mixin RestEnvioProvider on ChangeNotifier {
   late LogisticaRepository _logisticaRepository;
   bool creatingIncidente = false;
+  bool proccesingDevolucion = false;
 
   void initRest() {
     _logisticaRepository = LogisticaRepository(_userProvider);
@@ -19,10 +20,26 @@ mixin RestEnvioProvider on ChangeNotifier {
     try {
       await _logisticaRepository.addNewIncidente(incidenteData);
     } catch (error) {
-      print('Error al crear el indicente: $error');
+      print('Error al crear el incidente: $error');
       rethrow;
     } finally {
       creatingIncidente = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> initDevolucionProccess(
+      String idEnvio, Map<String, dynamic> devolucionData) async {
+    proccesingDevolucion = true;
+    notifyListeners();
+
+    try {
+      await _logisticaRepository.processDevolucion(idEnvio, devolucionData);
+    } catch (error) {
+      print('Error al procesar la devolucion: $error');
+      rethrow;
+    } finally {
+      proccesingDevolucion = false;
       notifyListeners();
     }
   }

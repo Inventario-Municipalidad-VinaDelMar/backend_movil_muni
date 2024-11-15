@@ -13,6 +13,8 @@ import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movi
 import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
+import 'package:frontend_movil_muni/src/widgets/sound/sound_player.dart';
+import 'package:frontend_movil_muni/src/widgets/toast/toast_shad.dart';
 import 'package:frontend_movil_muni/src/widgets/toaster.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -185,19 +187,19 @@ class _EnviosPageState extends State<EnviosPage> {
                                   description:
                                       'Esta acción marcará el envio actual con carga completa.',
                                   continueFunction: () async {
-                                    Navigator.pop(context);
                                     await planificacionProvider
                                         .completeCurrentEnvio();
                                     // Timer(const Duration(seconds: 5), () {
-                                    playSound('positive.wav');
+                                    SoundPlayer.playSound('positive.wav');
                                     if (!context.mounted) {
                                       return;
                                     }
-                                    showToaster(
-                                        context,
-                                        'Envío con carga completa.',
-                                        'El envió se completo con éxito !');
-                                    // });
+                                    throwToastSuccess(
+                                      context: context,
+                                      title: 'Envío con carga completa.',
+                                      descripcion:
+                                          'El envió se completo con éxito !',
+                                    );
                                   });
 
                               return;

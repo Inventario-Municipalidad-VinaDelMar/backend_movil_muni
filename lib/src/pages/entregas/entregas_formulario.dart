@@ -11,6 +11,8 @@ import 'package:frontend_movil_muni/src/providers/logistica/entregas/socket/sock
 import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_select_input.dart';
+import 'package:frontend_movil_muni/src/widgets/sound/sound_player.dart';
+import 'package:frontend_movil_muni/src/widgets/toast/toast_shad.dart';
 import 'package:frontend_movil_muni/src/widgets/toaster.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -412,10 +414,6 @@ class _SubmitEntregaButton extends StatelessWidget {
   final EntregasFormulario widget;
   final player = AudioPlayer();
 
-  void playSound(String sound) async {
-    await player.play(AssetSource('sounds/$sound'));
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -466,9 +464,12 @@ class _SubmitEntregaButton extends StatelessWidget {
                   if (!context.mounted) {
                     return;
                   }
-                  playSound('positive.wav');
-                  showToaster(context, 'Entrega ingresada.',
-                      'La entrega ha sido ingresada con éxito !');
+                  SoundPlayer.playSound('positive.wav');
+                  throwToastSuccess(
+                    context: context,
+                    title: 'Entrega ingresada.',
+                    descripcion: 'La entrega ha sido ingresada con éxito !',
+                  );
                   context.pop();
                 });
               },

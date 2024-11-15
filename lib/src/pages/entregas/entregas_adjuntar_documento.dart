@@ -10,6 +10,8 @@ import 'package:frontend_movil_muni/infraestructure/models/logistica/envio_logis
 import 'package:frontend_movil_muni/src/providers/logistica/entregas/entrega_provider.dart';
 import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provider.dart';
 import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
+import 'package:frontend_movil_muni/src/widgets/sound/sound_player.dart';
+import 'package:frontend_movil_muni/src/widgets/toast/toast_shad.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -185,17 +187,23 @@ class _EntregasAdjuntarDocumentoState extends State<EntregasAdjuntarDocumento> {
                           await entregaProvider.uploadFile(entregaData);
                           if (context.mounted) {
                             //TODO: Mostrar popup de éxito
-                            playSound('positive.wav');
-                            throwToastSuccess(context, 'Carga exitoso',
-                                'El documento se ha subido correctamente');
+                            SoundPlayer.playSound('positive.wav');
+                            throwToastSuccess(
+                              context: context,
+                              title: 'Carga exitoso',
+                              descripcion:
+                                  'El documento se ha subido correctamente',
+                            );
                             context.pop();
                           }
                         } catch (error) {
                           if (context.mounted) {
                             //TODO: Mostrar popup de fallo
+                            SoundPlayer.playSound('negative.wav');
                             throwToastError(
-                              context,
-                              'Hubo un fallo al subir el documento',
+                              context: context,
+                              descripcion:
+                                  'Hubo un fallo al subir el documento',
                             );
                             // No llamas a `context.pop()` aquí
                           }
@@ -464,66 +472,4 @@ List<Widget> _buildBoxFileUpload(
       style: textStyles.small.copyWith(color: Colors.black54),
     ),
   ];
-}
-
-void throwToastError(BuildContext context, String descripcion) {
-  final textStyles = ShadTheme.of(context).textTheme;
-  Size size = MediaQuery.of(context).size;
-  ShadToaster.of(context).show(
-    ShadToast.destructive(
-      // padding: EdgeInsets.only(bottom: size.height * 0.1),
-      offset: Offset(size.width * 0.05, size.height * 0.1),
-      title: Row(
-        children: [
-          Icon(
-            MdiIcons.informationOutline,
-            color: Colors.white,
-          ),
-          SizedBox(width: size.width * 0.01),
-          Text(
-            'Ocurrio un error',
-            style: textStyles.p.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-      description: Text(descripcion),
-    ),
-  );
-}
-
-void throwToastSuccess(BuildContext context, String title, String descripcion) {
-  final textStyles = ShadTheme.of(context).textTheme;
-  Size size = MediaQuery.of(context).size;
-  ShadToaster.of(context).show(
-    ShadToast(
-      backgroundColor: Colors.green,
-      // padding: EdgeInsets.only(bottom: size.height * 0.1),
-      offset: Offset(size.width * 0.05, size.height * 0.1),
-      title: Row(
-        children: [
-          Icon(
-            MdiIcons.handOkay,
-            color: Colors.white,
-          ),
-          SizedBox(width: size.width * 0.01),
-          Text(
-            title,
-            style: textStyles.p.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-      description: Text(
-        descripcion,
-        style: textStyles.small.copyWith(
-          color: Colors.white,
-        ),
-      ),
-    ),
-  );
 }

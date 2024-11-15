@@ -12,6 +12,8 @@ import 'package:frontend_movil_muni/src/providers/logistica/envios/envio_provide
 import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_select_input.dart';
 import 'package:frontend_movil_muni/src/widgets/generic_text_input.dart';
+import 'package:frontend_movil_muni/src/widgets/sound/sound_player.dart';
+import 'package:frontend_movil_muni/src/widgets/toast/toast_shad.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -239,15 +241,23 @@ class _EntregasFormularioIncidenteState
                           await envioProvider.generateNewIncidente(
                               dataIncidente, widget.idEnvio);
                           if (context.mounted) {
-                            playSound('positive.wav');
-                            throwToastSuccess(context, 'Registro exitoso',
-                                'Se ha ingresado correctamente el incidente');
+                            SoundPlayer.playSound('positive.wav');
+                            throwToastSuccess(
+                              context: context,
+                              title: 'Registro exitoso',
+                              descripcion:
+                                  'Se ha ingresado correctamente el incidente',
+                            );
                             context.pop();
                           }
                         } catch (error) {
                           if (context.mounted) {
-                            throwToastError(context,
-                                'No se ha podido registrar el incidente.');
+                            SoundPlayer.playSound('negative.wav');
+                            throwToastError(
+                              context: context,
+                              descripcion:
+                                  'No se ha podido registrar el incidente.',
+                            );
                             // No llamas a `context.pop()` aquí
                           }
                         }

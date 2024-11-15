@@ -76,7 +76,6 @@ mixin SocketProviderBase on ChangeNotifier {
         WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
         return;
       }
-
       if (dataList != null) {
         // Modo lista
         if (extraActionList != null) {

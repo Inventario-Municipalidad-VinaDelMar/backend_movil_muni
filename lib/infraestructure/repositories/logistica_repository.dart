@@ -55,6 +55,21 @@ class LogisticaRepository {
     );
   }
 
+  Future<void> processDevolucion(
+      String idEnvio, Map<String, dynamic> dataDevolucion) async {
+    try {
+      await dio.post('/envios/$idEnvio/devolucion', data: dataDevolucion);
+    } on DioException catch (error) {
+      print(error.message);
+      print(error.response?.data);
+      print(error.type);
+      throw Exception(error.response?.data['message'] ?? 'Unknown error');
+    } catch (error) {
+      print('Error desconocido: $error');
+      throw Exception('Unknown error');
+    }
+  }
+
   Future<void> addNewEntrega(Map<String, dynamic> dataEntrega) async {
     try {
       await dio.post('/entregas', data: dataEntrega);
