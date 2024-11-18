@@ -139,6 +139,8 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
               setEntity: (entity) {
                 planificacionActual = entity;
                 notifyListeners();
+                // WidgetsBinding.instance
+                //     .addPostFrameCallback((_) => notifyListeners());
               },
               extraAction: (fromApi, entity) {
                 late bool envioPrevio;
@@ -198,7 +200,9 @@ mixin SocketPlanificacionProvider on SocketProviderBase {
       switch (event) {
         case PlanificacionEvent.loadSolicitudEnvio:
           solicitudEnCurso = null;
-          notifyListeners();
+          // notifyListeners();
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => notifyListeners());
           socket?.off(SocketEvents.loadSolicitud);
           break;
         case PlanificacionEvent.planificacionActual:

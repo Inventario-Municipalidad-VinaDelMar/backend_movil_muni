@@ -59,6 +59,9 @@ class _EntregasFormularioState extends State<EntregasFormulario> {
 
   Future<void> scrollToMaxRight() async {
     await Future.delayed(Duration(milliseconds: 200));
+    if (!_scrollRutaActual.hasClients) {
+      return;
+    }
     _scrollRutaActual.animateTo(
       _scrollRutaActual.position.maxScrollExtent -
           22, // Posición máxima de scroll

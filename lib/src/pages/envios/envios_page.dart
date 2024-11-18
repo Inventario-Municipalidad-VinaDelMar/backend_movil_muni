@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:animate_do/animate_do.dart';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +5,6 @@ import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/detalle_planificacion.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/envio_model.dart';
 import 'package:frontend_movil_muni/infraestructure/models/planificacion/solicitud_envio.dart';
-import 'package:frontend_movil_muni/src/pages/envios/widgets/custom_avatar.dart';
 import 'package:frontend_movil_muni/src/pages/envios/widgets/handle_toast_solicitud.dart';
 import 'package:frontend_movil_muni/src/providers/movimientos/socket/socket_movimiento_provider.dart';
 import 'package:frontend_movil_muni/src/providers/planificacion/mixin/socket/socket_planificacion_provider.dart';
@@ -15,7 +12,6 @@ import 'package:frontend_movil_muni/src/providers/provider.dart';
 import 'package:frontend_movil_muni/src/widgets/confirmation_dialog.dart';
 import 'package:frontend_movil_muni/src/widgets/sound/sound_player.dart';
 import 'package:frontend_movil_muni/src/widgets/toast/toast_shad.dart';
-import 'package:frontend_movil_muni/src/widgets/toaster.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -34,6 +30,7 @@ class _EnviosPageState extends State<EnviosPage> {
 
   @override
   void initState() {
+    super.initState();
     _planificacionProvider = context.read<PlanificacionProvider>();
     _planificacionProvider.connect(
       [
@@ -44,7 +41,6 @@ class _EnviosPageState extends State<EnviosPage> {
       onSolicitudReceived: showToastOnSolicitudReceived,
       playSound: playSound,
     );
-    super.initState();
   }
 
   @override
@@ -353,21 +349,21 @@ class _TablePlanificacion extends StatelessWidget {
               DataCell(
                 Row(
                   children: [
-                    CustomAvatar(
-                      size: size.height * 0.056,
-                      imageUrl: detalle.urlImagen,
-                    ),
-                    // ShadAvatar(
-                    //   // size: Size(40, 40),
-                    //   fit: BoxFit.fitHeight,
-                    //   detalle.urlImagen,
-                    //   placeholder: SkeletonAvatar(
-                    //     style: SkeletonAvatarStyle(
-                    //       shape: BoxShape.circle,
-                    //     ),
-                    //   ),
-                    //   backgroundColor: Colors.transparent,
+                    // CustomAvatar(
+                    //   size: size.height * 0.056,
+                    //   imageUrl: detalle.urlImagen,
                     // ),
+                    ShadAvatar(
+                      // size: Size(40, 40),
+                      fit: BoxFit.fitHeight,
+                      detalle.urlImagen,
+                      placeholder: SkeletonAvatar(
+                        style: SkeletonAvatarStyle(
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      backgroundColor: Colors.transparent,
+                    ),
                     SizedBox(width: size.width * 0.02),
                     Expanded(
                       // Asegurar que el texto ocupe el espacio necesario
@@ -497,12 +493,12 @@ class __MovimientosListState extends State<_MovimientosList> {
   late MovimientoProvider _movimientoProvider;
   @override
   void initState() {
+    super.initState();
     _movimientoProvider = context.read<MovimientoProvider>();
     _movimientoProvider.connect([
       MovimientoEvent.movimientosEnvio,
       MovimientoEvent.movimientoOnEnvio,
     ], id: widget.idEnvio);
-    super.initState();
   }
 
   @override

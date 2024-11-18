@@ -127,6 +127,7 @@ class _FormMermasState extends State<FormMermas> {
                               if (producto.id != '') {
                                 setState(() {
                                   productoSelected = producto;
+                                  tandaSelected = null;
                                 });
                                 getTandas();
                               }
