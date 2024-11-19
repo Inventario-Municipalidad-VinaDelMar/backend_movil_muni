@@ -11,9 +11,16 @@ class EnvioProvider
         RestEnvioProvider,
         SocketEnvioProvider {
   Map<String, List<ProductoEnvio>> productosPorEnvioIncidente = {};
+  bool showingListEnvio = false;
+
   void initialize() {
     initRest();
     initSocket();
+  }
+
+  void toggleShowListEnvios() {
+    showingListEnvio = !showingListEnvio;
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
   void addOneProduct(String idEnvio, ProductoEnvio prodAfectado) {

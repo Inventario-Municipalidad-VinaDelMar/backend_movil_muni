@@ -28,20 +28,22 @@ class EntregasListaEnvios extends StatefulWidget {
 }
 
 class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
-  // late EnvioProvider _envioProvider;
+  late EnvioProvider _envioProvider;
 
-  // @override
-  // void initState() {
-  //   _envioProvider = context.read<EnvioProvider>();
-  //   _envioProvider.connect([EnvioEvent.enviosByFecha]);
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    // _envioProvider.connect([EnvioEvent.enviosByFecha]);
+    super.initState();
+    _envioProvider = context.read<EnvioProvider>();
+    _envioProvider.toggleShowListEnvios();
+  }
 
-  // @override
-  // void dispose() {
-  //   _envioProvider.disconnect([EnvioEvent.enviosByFecha]);
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    // _envioProvider.disconnect([EnvioEvent.enviosByFecha]);
+    _envioProvider.toggleShowListEnvios();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

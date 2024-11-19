@@ -342,8 +342,12 @@ class _TablePlanificacion extends StatelessWidget {
             ),
           ),
         ],
-        rows:
-            planificacionProvider.planificacionActual!.detalles.map((detalle) {
+        rows: planificacionProvider.planificacionActual!.detalles
+            .asMap()
+            .entries
+            .map((entry) {
+          int i = entry.key;
+          final detalle = entry.value;
           return DataRow(
             cells: [
               DataCell(
@@ -353,27 +357,35 @@ class _TablePlanificacion extends StatelessWidget {
                     //   size: size.height * 0.056,
                     //   imageUrl: detalle.urlImagen,
                     // ),
-                    ShadAvatar(
-                      // size: Size(40, 40),
-                      fit: BoxFit.fitHeight,
-                      detalle.urlImagen,
-                      placeholder: SkeletonAvatar(
-                        style: SkeletonAvatarStyle(
-                          shape: BoxShape.circle,
+                    ZoomIn(
+                      duration: Duration(milliseconds: 300),
+                      delay: Duration(milliseconds: i * 150),
+                      child: ShadAvatar(
+                        // size: Size(40, 40),
+                        fit: BoxFit.fitHeight,
+                        detalle.urlImagen,
+                        placeholder: SkeletonAvatar(
+                          style: SkeletonAvatarStyle(
+                            shape: BoxShape.circle,
+                          ),
                         ),
+                        backgroundColor: Colors.transparent,
                       ),
-                      backgroundColor: Colors.transparent,
                     ),
                     SizedBox(width: size.width * 0.02),
                     Expanded(
                       // Asegurar que el texto ocupe el espacio necesario
-                      child: Text(
-                        detalle.producto,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: size.height * 0.015,
+                      child: FadeIn(
+                        duration: Duration(microseconds: 300),
+                        delay: Duration(milliseconds: i * 150),
+                        child: Text(
+                          detalle.producto,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: size.height * 0.015,
+                          ),
+                          softWrap: true,
                         ),
-                        softWrap: true,
                       ),
                     ),
                   ],
@@ -381,95 +393,104 @@ class _TablePlanificacion extends StatelessWidget {
               ),
               DataCell(
                 Center(
-                  child: ShadCheckbox(
-                    decoration: detalle.isComplete
-                        ? const ShadDecoration(border: ShadBorder())
-                        : null,
-                    enabled: planificacionProvider
-                            .planificacionActual?.envioIniciado !=
-                        null,
-                    value: detalle.isComplete,
-                    color: planificacionProvider
-                                .planificacionActual?.envioIniciado ==
-                            null
-                        ? null
-                        : detalle.isComplete
-                            ? Colors.green
-                            : Colors.grey,
+                  child: ZoomIn(
+                    duration: Duration(milliseconds: 300),
+                    delay: Duration(milliseconds: i * 150),
+                    child: ShadCheckbox(
+                      decoration: detalle.isComplete
+                          ? const ShadDecoration(border: ShadBorder())
+                          : null,
+                      enabled: planificacionProvider
+                              .planificacionActual?.envioIniciado !=
+                          null,
+                      value: detalle.isComplete,
+                      color: planificacionProvider
+                                  .planificacionActual?.envioIniciado ==
+                              null
+                          ? null
+                          : detalle.isComplete
+                              ? Colors.green
+                              : Colors.grey,
+                    ),
                   ),
                 ),
               ),
               DataCell(
                 Center(
-                  child: ShadButton(
-                    width: size.width * 0.33,
-                    enabled: (planificacionProvider
-                                .planificacionActual?.envioIniciado !=
-                            null) &&
-                        !detalle.isComplete &&
-                        planificacionProvider.detallesTaken
-                                .firstWhere(
-                                    (dt) =>
-                                        dt.idDetalle == detalle.id &&
-                                        dt.user!.id !=
-                                            userProvider.user!
-                                                .id, // Condición de búsqueda
-                                    orElse: () => DetallesTaken(
-                                        idDetalle: '', user: null))
-                                .idDetalle ==
-                            '',
+                  child: FadeInRight(
+                    duration: Duration(milliseconds: 300),
+                    delay: Duration(milliseconds: i * 150),
+                    child: ShadButton(
+                      width: size.width * 0.33,
+                      enabled: (planificacionProvider
+                                  .planificacionActual?.envioIniciado !=
+                              null) &&
+                          !detalle.isComplete &&
+                          planificacionProvider.detallesTaken
+                                  .firstWhere(
+                                      (dt) =>
+                                          dt.idDetalle == detalle.id &&
+                                          dt.user!.id !=
+                                              userProvider.user!
+                                                  .id, // Condición de búsqueda
+                                      orElse: () => DetallesTaken(
+                                          idDetalle: '', user: null))
+                                  .idDetalle ==
+                              '',
 
-                    // !planificacionProvider.detalleIsTaken(detalle.id),
-                    size: ShadButtonSize.sm,
-                    onPressed: planificacionProvider
-                                .planificacionActual?.envioIniciado !=
-                            null
-                        ? () {
-                            context.push('/envio/${detalle.productoId}/tandas');
-                          }
-                        : null,
-                    icon: planificacionProvider.detallesTaken
-                                .firstWhere(
-                                    (dt) =>
-                                        dt.idDetalle == detalle.id &&
-                                        dt.user!.id !=
-                                            userProvider.user!
-                                                .id, // Condición de búsqueda
-                                    orElse: () => DetallesTaken(
-                                        idDetalle: '', user: null))
-                                .idDetalle !=
-                            ''
-                        ? Icon(
-                            Icons.account_circle,
-                            size: size.width * 0.05,
-                          )
-                        : Icon(
-                            detalle.isComplete
-                                ? Icons.checklist_sharp
-                                : Icons.search,
-                            size: 16,
-                          ),
-                    child: planificacionProvider.detallesTaken
-                                .firstWhere(
-                                    (dt) =>
-                                        dt.idDetalle == detalle.id &&
-                                        dt.user!.id !=
-                                            userProvider.user!
-                                                .id, // Condición de búsqueda
-                                    orElse: () => DetallesTaken(
-                                        idDetalle: '', user: null))
-                                .idDetalle !=
-                            ''
-                        ? Text(
-                            'Tomada ...',
-                            style:
-                                textStyles.small.copyWith(color: Colors.white),
-                          )
-                        : Text(
-                            detalle.isComplete ? 'Hecho' : 'Buscar',
-                            style:
-                                textStyles.small.copyWith(color: Colors.white),
-                          ),
+                      // !planificacionProvider.detalleIsTaken(detalle.id),
+                      size: ShadButtonSize.sm,
+                      onPressed: planificacionProvider
+                                  .planificacionActual?.envioIniciado !=
+                              null
+                          ? () {
+                              context
+                                  .push('/envio/${detalle.productoId}/tandas');
+                            }
+                          : null,
+                      icon: planificacionProvider.detallesTaken
+                                  .firstWhere(
+                                      (dt) =>
+                                          dt.idDetalle == detalle.id &&
+                                          dt.user!.id !=
+                                              userProvider.user!
+                                                  .id, // Condición de búsqueda
+                                      orElse: () => DetallesTaken(
+                                          idDetalle: '', user: null))
+                                  .idDetalle !=
+                              ''
+                          ? Icon(
+                              Icons.account_circle,
+                              size: size.width * 0.05,
+                            )
+                          : Icon(
+                              detalle.isComplete
+                                  ? Icons.checklist_sharp
+                                  : Icons.search,
+                              size: 16,
+                            ),
+                      child: planificacionProvider.detallesTaken
+                                  .firstWhere(
+                                      (dt) =>
+                                          dt.idDetalle == detalle.id &&
+                                          dt.user!.id !=
+                                              userProvider.user!
+                                                  .id, // Condición de búsqueda
+                                      orElse: () => DetallesTaken(
+                                          idDetalle: '', user: null))
+                                  .idDetalle !=
+                              ''
+                          ? Text(
+                              'Tomada ...',
+                              style: textStyles.small
+                                  .copyWith(color: Colors.white),
+                            )
+                          : Text(
+                              detalle.isComplete ? 'Hecho' : 'Buscar',
+                              style: textStyles.small
+                                  .copyWith(color: Colors.white),
+                            ),
+                    ),
                   ),
                 ),
               ),
