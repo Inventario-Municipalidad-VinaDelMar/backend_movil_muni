@@ -48,29 +48,62 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   }
 
   void _scheduleFirstUpdate() {
-    final now = DateTime.now();
-    final secondsToNextMinute = 60 - now.second;
-    final initialDelay = Duration(seconds: secondsToNextMinute);
+    _updateDifference();
 
-    Future.delayed(initialDelay, () {
-      if (!disposed) {
-        _updateDifference();
-        _scheduleRegularUpdates();
-      }
-    });
+    if (_shouldUpdateEverySecond()) {
+      // Actualiza cada segundo si los segundos son visibles
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted && !disposed) {
+          _scheduleRegularUpdates();
+        }
+      });
+    } else {
+      // Sincroniza con el próximo minuto
+      final now = DateTime.now();
+      final secondsToNextMinute = 60 - now.second;
+
+      Future.delayed(Duration(seconds: secondsToNextMinute), () {
+        if (mounted && !disposed) {
+          _scheduleRegularUpdates();
+        }
+      });
+    }
   }
 
   void _scheduleRegularUpdates() {
-    final refreshInterval = difference.inSeconds < 60
-        ? const Duration(seconds: 1)
-        : const Duration(minutes: 1);
+    _updateDifference();
 
-    Future.delayed(refreshInterval, () {
-      if (mounted && !disposed) {
-        _updateDifference();
-        _scheduleRegularUpdates();
-      }
-    });
+    if (_shouldUpdateEverySecond()) {
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted && !disposed) {
+          _scheduleRegularUpdates();
+        }
+      });
+    } else {
+      // Sincroniza con el próximo minuto
+      final now = DateTime.now();
+      final secondsToNextMinute = 60 - now.second;
+
+      Future.delayed(Duration(seconds: secondsToNextMinute), () {
+        if (mounted && !disposed) {
+          _scheduleRegularUpdates();
+        }
+      });
+    }
+  }
+
+  /// Detecta si debemos actualizar cada segundo
+  bool _shouldUpdateEverySecond() {
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes % 60;
+    final seconds = difference.inSeconds % 60;
+
+    // Actualizar cada segundo si:
+    // - Hay segundos visibles.
+    // - Estamos en una transición crítica (minutos y segundos en cero pero menos de 1 hora).
+    return seconds >= 0 ||
+        (hours == 0 && minutes > 0 && seconds >= 0) ||
+        (hours > 0 && minutes == 0 && seconds >= 0);
   }
 
   @override
@@ -97,7 +130,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
         // Componente de horas
         if (hours > 0) ...[
           AnimatedDigitWidget(
-            duration: Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 800),
             value: hours,
             textStyle: widget.style ??
                 textStyles.small.copyWith(
@@ -115,31 +148,52 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
           ),
         ],
 
-        // Componente de minutos
+        // Componente de minutos y segundos (cuando hay horas o minutos)
         if (hours > 0 || minutes > 0) ...[
-          AnimatedDigitWidget(
-            duration: Duration(milliseconds: 800),
-            value: minutes,
-            textStyle: widget.style ??
-                textStyles.small.copyWith(
-                  color: Colors.white,
-                  fontSize: size.height * 0.018,
-                ),
-          ),
-          Text(
-            minutes == 1 ? " minuto " : " minutos ",
-            style: widget.style ??
-                textStyles.small.copyWith(
-                  color: Colors.white,
-                  fontSize: size.height * 0.018,
-                ),
-          ),
+          if (minutes > 0) ...[
+            AnimatedDigitWidget(
+              duration: const Duration(milliseconds: 800),
+              value: minutes,
+              textStyle: widget.style ??
+                  textStyles.small.copyWith(
+                    color: Colors.white,
+                    fontSize: size.height * 0.018,
+                  ),
+            ),
+            Text(
+              minutes == 1 ? " minuto " : " minutos ",
+              style: widget.style ??
+                  textStyles.small.copyWith(
+                    color: Colors.white,
+                    fontSize: size.height * 0.018,
+                  ),
+            ),
+          ],
+          if (seconds > 0 && (hours == 0 || (hours == 0 && minutes != 0))) ...[
+            AnimatedDigitWidget(
+              duration: const Duration(milliseconds: 200),
+              value: seconds,
+              textStyle: widget.style ??
+                  textStyles.small.copyWith(
+                    color: Colors.white,
+                    fontSize: size.height * 0.018,
+                  ),
+            ),
+            Text(
+              seconds == 1 ? " seg" : " segs",
+              style: widget.style ??
+                  textStyles.small.copyWith(
+                    color: Colors.white,
+                    fontSize: size.height * 0.018,
+                  ),
+            ),
+          ],
         ],
 
-        // Componente de segundos (solo si no hay horas ni minutos)
+        // Componente de segundos (cuando no hay horas ni minutos)
         if (hours == 0 && minutes == 0) ...[
           AnimatedDigitWidget(
-            duration: Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 200),
             value: seconds,
             textStyle: widget.style ??
                 textStyles.small.copyWith(
