@@ -135,7 +135,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
             textStyle: widget.style ??
                 textStyles.small.copyWith(
                   color: Colors.white,
-                  fontSize: size.height * 0.018,
+                  fontSize: size.height * 0.0165,
                 ),
           ),
           Text(
@@ -143,7 +143,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
             style: widget.style ??
                 textStyles.small.copyWith(
                   color: Colors.white,
-                  fontSize: size.height * 0.018,
+                  fontSize: size.height * 0.0165,
                 ),
           ),
         ],
@@ -157,7 +157,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
               textStyle: widget.style ??
                   textStyles.small.copyWith(
                     color: Colors.white,
-                    fontSize: size.height * 0.018,
+                    fontSize: size.height * 0.0165,
                   ),
             ),
             Text(
@@ -165,7 +165,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
               style: widget.style ??
                   textStyles.small.copyWith(
                     color: Colors.white,
-                    fontSize: size.height * 0.018,
+                    fontSize: size.height * 0.0165,
                   ),
             ),
           ],
@@ -176,7 +176,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
               textStyle: widget.style ??
                   textStyles.small.copyWith(
                     color: Colors.white,
-                    fontSize: size.height * 0.018,
+                    fontSize: size.height * 0.0165,
                   ),
             ),
             Text(
@@ -184,7 +184,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
               style: widget.style ??
                   textStyles.small.copyWith(
                     color: Colors.white,
-                    fontSize: size.height * 0.018,
+                    fontSize: size.height * 0.0165,
                   ),
             ),
           ],
@@ -198,7 +198,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
             textStyle: widget.style ??
                 textStyles.small.copyWith(
                   color: Colors.white,
-                  fontSize: size.height * 0.018,
+                  fontSize: size.height * 0.0165,
                 ),
           ),
           Text(
@@ -206,7 +206,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
             style: widget.style ??
                 textStyles.small.copyWith(
                   color: Colors.white,
-                  fontSize: size.height * 0.018,
+                  fontSize: size.height * 0.0165,
                 ),
           ),
         ],

@@ -132,10 +132,13 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
               } catch (e) {
                 return 'Ingrese un número válido';
               }
-
-              if (cantidad > detalle!.cantidadPlanificada) {
-                return 'La cantidad no puede ser mayor a ${detalle.cantidadPlanificada}';
+              //TODO: Cambiar por la cantidad planificada especifica
+              if (cantidad > 15) {
+                return 'La cantidad no puede ser mayor a 15';
               }
+              // if (cantidad > detalle!.cantidadPlanificada) {
+              //   return 'La cantidad no puede ser mayor a ${detalle.cantidadPlanificada}';
+              // }
 
               return null; // Si pasa la validación, no se retorna ningún error
             },
@@ -157,7 +160,7 @@ class _SheetBuscarEnviosPageState extends State<SheetBuscarEnviosPage> {
             keyboardType: TextInputType.number,
             description: Padding(
               padding: const EdgeInsets.only(left: 10),
-              child: Text('Puede retirar como maximo 10'),
+              child: Text('Puede retirar como maximo 15'),
               // 'Retiro maximo por envío ${detalle!.cantidadPlanificada}'),
             ),
           ),

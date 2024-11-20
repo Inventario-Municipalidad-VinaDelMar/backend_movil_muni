@@ -610,7 +610,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
               value,
               style: textStyles.small.copyWith(
                 color: keepBlack ? Colors.black : Colors.white,
-                fontSize: size.height * 0.018,
+                fontSize: size.height * 0.0165,
               ),
               overflow: activateEllipsis ? TextOverflow.ellipsis : null,
             ),
@@ -651,7 +651,7 @@ class _EntregasListaEnviosState extends State<EntregasListaEnvios> {
             envio.getHoraFinalizacionFormatted(),
             style: textStyles.p.copyWith(
               color: Colors.grey[600],
-              fontSize: size.height * 0.018,
+              fontSize: size.height * 0.0165,
             ),
           ),
       ],
