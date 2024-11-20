@@ -22,6 +22,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   late DateTime targetTime;
   late Duration difference;
   bool disposed = false;
+  bool isStatic = false;
 
   @override
   void initState() {
@@ -30,8 +31,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
 
     if (widget.horaFinalizacion != null) {
       // Si `horaFinalizacion` no es null, calcula la diferencia entre `horaInicioEnvio` y `horaFinalizacion`
-      final endTime = DateTime.parse(widget.horaFinalizacion!);
-      difference = endTime.difference(targetTime);
+      _setStaticDifference();
     } else {
       // Si `horaFinalizacion` es null, calcula la diferencia con el tiempo actual
       _updateDifference();
@@ -39,8 +39,33 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant TimeSinceWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.horaFinalizacion != oldWidget.horaFinalizacion) {
+      if (widget.horaFinalizacion != null) {
+        // Si `horaFinalizacion` se establece, detenemos el temporizador y calculamos la diferencia estática
+        _setStaticDifference();
+      } else {
+        // Si se elimina `horaFinalizacion`, reiniciamos el temporizador
+        isStatic = false;
+        _updateDifference();
+        _scheduleFirstUpdate();
+      }
+    }
+  }
+
+  void _setStaticDifference() {
+    final endTime = DateTime.parse(widget.horaFinalizacion!);
+    setState(() {
+      difference = endTime.difference(targetTime);
+      isStatic = true; // Detiene las actualizaciones
+    });
+  }
+
   void _updateDifference() {
-    if (mounted && !disposed) {
+    if (mounted && !disposed && !isStatic) {
       setState(() {
         difference = DateTime.now().difference(targetTime);
       });
@@ -48,6 +73,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   }
 
   void _scheduleFirstUpdate() {
+    if (isStatic) return;
     _updateDifference();
 
     if (_shouldUpdateEverySecond()) {
@@ -71,11 +97,12 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
   }
 
   void _scheduleRegularUpdates() {
+    if (isStatic) return;
     _updateDifference();
 
     if (_shouldUpdateEverySecond()) {
       Future.delayed(const Duration(seconds: 1), () {
-        if (mounted && !disposed) {
+        if (!isStatic && mounted && !disposed) {
           _scheduleRegularUpdates();
         }
       });
@@ -85,7 +112,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
       final secondsToNextMinute = 60 - now.second;
 
       Future.delayed(Duration(seconds: secondsToNextMinute), () {
-        if (mounted && !disposed) {
+        if (!isStatic && mounted && !disposed) {
           _scheduleRegularUpdates();
         }
       });
@@ -94,6 +121,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
 
   /// Detecta si debemos actualizar cada segundo
   bool _shouldUpdateEverySecond() {
+    if (isStatic) return false;
     final hours = difference.inHours;
     final minutes = difference.inMinutes % 60;
     final seconds = difference.inSeconds % 60;
@@ -101,9 +129,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
     // Actualizar cada segundo si:
     // - Hay segundos visibles.
     // - Estamos en una transición crítica (minutos y segundos en cero pero menos de 1 hora).
-    return seconds >= 0 ||
-        (hours == 0 && minutes > 0 && seconds >= 0) ||
-        (hours > 0 && minutes == 0 && seconds >= 0);
+    return hours == 0 || (minutes == 0 && seconds >= 0);
   }
 
   @override
@@ -169,7 +195,7 @@ class _TimeSinceWidgetState extends State<TimeSinceWidget> {
                   ),
             ),
           ],
-          if (seconds > 0 && (hours == 0 || (hours == 0 && minutes != 0))) ...[
+          if (hours == 0 || (minutes == 0 && seconds >= 0)) ...[
             AnimatedDigitWidget(
               duration: const Duration(milliseconds: 200),
               value: seconds,

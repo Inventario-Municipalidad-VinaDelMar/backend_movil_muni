@@ -74,7 +74,12 @@ mixin SocketEnvioProvider on SocketProviderBase {
                   if (envioAntiguo != null &&
                       envioAntiguo.status == EnvioStatus.cargaCompleta &&
                       envioNuevo.status == EnvioStatus.enEnvio) {
-                    SoundPlayer.playSound('change.wav');
+                    SoundPlayer.playSound('change2.wav');
+                  }
+                  if (envioAntiguo != null &&
+                      envioAntiguo.status == EnvioStatus.enEnvio &&
+                      envioNuevo.status == EnvioStatus.finalizado) {
+                    SoundPlayer.playSound('finish.wav');
                   }
                 }
               });
