@@ -421,7 +421,7 @@ class _TablePlanificacion extends StatelessWidget {
                     duration: Duration(milliseconds: 300),
                     delay: Duration(milliseconds: i * 150),
                     child: ShadButton(
-                      width: size.width * 0.33,
+                      width: size.width * 0.34,
                       enabled: (planificacionProvider
                                   .planificacionActual?.envioIniciado !=
                               null) &&
@@ -480,10 +480,20 @@ class _TablePlanificacion extends StatelessWidget {
                                           idDetalle: '', user: null))
                                   .idDetalle !=
                               ''
-                          ? Text(
-                              'Tomada ...',
-                              style: textStyles.small
-                                  .copyWith(color: Colors.white),
+                          ? Row(
+                              children: [
+                                Text(
+                                  'Tomada',
+                                  style: textStyles.small
+                                      .copyWith(color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: size.width * 0.05,
+                                  height: size.width * 0.05,
+                                  child: Image.asset(
+                                      'assets/logos/dots_load2.gif'),
+                                ),
+                              ],
                             )
                           : Text(
                               detalle.isComplete ? 'Hecho' : 'Buscar',
