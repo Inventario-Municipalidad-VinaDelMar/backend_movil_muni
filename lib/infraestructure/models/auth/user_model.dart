@@ -36,6 +36,6 @@ class UserModel {
   }
 
   String getFullName() {
-    return '$nombre $apellidoPaterno $apellidoPaterno';
+    return '$nombre $apellidoPaterno $apellidoMaterno';
   }
 }
